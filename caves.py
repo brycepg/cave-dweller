@@ -26,6 +26,8 @@ class GetOutOfLoop(Exception):
 
 class Block:
     def __init__(self, idx, idy, world):
+        #self.delay_generation = False if len(world.blocks) <= 1 else True
+        self.delay_generation = False
         self.world = world
         self.chars = []
         self.is_obstacle = []
@@ -42,7 +44,7 @@ class Block:
         """Generate block in 'slices' to allow a 
             'timeout' after a certain threshold
              To allow other parts of the game to update."""
-        while not Game.past_loop_time():
+        while not Game.past_loop_time() or not self.delay_generation:
             #print(self.world.perlin_seed)
             num_map_slice = generate_map_slice(self.world.perlin_seed,
                                                self.idx,
@@ -313,8 +315,8 @@ class Game:
     screen_height = 54
 
     debug = True
-    fast = True
-    fps = 10
+    fast = False
+    fps = 5
 
     # Drawable window
     win = None
@@ -365,7 +367,7 @@ class Game:
     @classmethod
     def past_loop_time(cls):
         """Check if game loop needs to exit to keep up framerate"""
-        if time.time() - cls.loop_start > cls.loop_time:
+        if time.time() - cls.loop_start > cls.loop_time/2:
             return True
         else:
             return False
