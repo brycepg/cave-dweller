@@ -49,7 +49,8 @@ class Block:
             num_map_slice = generate_map_slice(self.world.perlin_seed,
                                                self.idx,
                                                self.idy,
-                                               self.y_coord_gen_num)
+                                               self.y_coord_gen_num,
+                                               map_size=Game.map_size)
             char_line = []
             is_obstacle_line = []
 
@@ -137,7 +138,7 @@ class Block:
 
 class World:
     def __init__(self, rand_seed=None):
-        self.loaded_block_radius = 1
+        self.loaded_block_radius = 256 // Game.map_size
 
         self.generate_seeds(rand_seed)
         self.blocks = {}
@@ -309,7 +310,7 @@ class Player(Object):
                 Game.center_x += 1
 
 class Game:
-    map_size = 256
+    map_size = 64
 
     screen_width = 64
     screen_height = 54
@@ -429,6 +430,9 @@ def main(seed=None):
             Game.win.putchars("block: ({},{})".format(game.idx_cur, game.idy_cur), 0, 2, 'red')
             Game.win.putchars("center: ({}x{})".format(game.center_x, game.center_y), 0, 3, 'red')
             Game.win.putchars("player: ({}x{})".format(player.x, player.y), 0, 4, 'red')
+            spent_time = time.time() - Game.loop_start
+            Game.win.putchars("spent_time: ({})".format(spent_time), 0, 5, 'red')
+            Game.win.putchars("spare_time: ({})".format(1/Game.fps - spent_time), 0, 6, 'red')
         Game.win.update()
         pygame.display.update()
 
