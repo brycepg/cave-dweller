@@ -76,19 +76,21 @@ class Player(Object):
             NOTE: modifies view of game """
         if Game.fast:
             self.step_modifier = 10
+        else:
+            self.step_modifier = 1
 
         step = 1 * self.step_modifier
 
         for _ in range(step):
-            if self.move_up:
+            if self.move_up and not cur_block.is_obstacle(self.x, self.y-1):
                 self.y -= 1
                 Game.center_y -= 1
-            if self.move_down:
+            if self.move_down and not cur_block.is_obstacle(self.x, self.y+1):
                 self.y += 1
                 Game.center_y += 1
-            if self.move_left:
+            if self.move_left and not cur_block.is_obstacle(self.x -1, self.y):
                 self.x -= 1
                 Game.center_x -= 1
-            if self.move_right:
+            if self.move_right and not cur_block.is_obstacle(self.x +1, self.y):
                 self.x += 1
                 Game.center_x += 1

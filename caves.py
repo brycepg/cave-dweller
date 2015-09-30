@@ -24,13 +24,7 @@ from objects import Player
 
 def main(seed=None):
     """Main game loop"""
-
     game = Game()
-
-    game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), 12)
-    pygame.display.set_caption('Caves')
-    game.win.autowindowupdate = False
-    game.win.autoupdate = False
 
     # Setup variables used in player/world
     Game.record_loop_time()
@@ -40,6 +34,8 @@ def main(seed=None):
     text = "Loading ..."
     box = pygcurse.PygcurseTextbox(Game.win, (Game.screen_width//2 - box_width//2, Game.screen_width//2 - box_width//2, box_width, box_width//2), text = text , fgcolor='white' , marginleft=box_width//2 - len(text)//2 - 1, margintop=box_width//4-2)
     box.update()
+
+    pygame.display.set_mode((0,0), RESIZABLE)
 
     player = Player()
     world = World(seed)
@@ -54,6 +50,7 @@ def main(seed=None):
                 pygame.quit()
                 sys.exit()
             player.process_input(event)
+            game.get_game_input(event)
         # Order is important since world modifies current view 
         # And game updates the relevant view variables
         world.process()

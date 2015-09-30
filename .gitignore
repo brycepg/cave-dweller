@@ -1,3 +1,6 @@
 __pycache__/
 setup.py
-
+*.pgm
+*.pyc
+*.pyo
+.ipynb_*

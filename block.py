@@ -1,7 +1,16 @@
 """container for Block"""
 
+import math
+
 from gen_map import generate_map_slice
+from gen_map import generate_map_slice_abs_min
+from gen_map import generate_map_slice_abs_more
 from game import Game
+
+WALL = 'x'
+GROUND = '-'
+HIDDEN = ' '
+
 
 class Block:
     """Segment of world populated by object and terrain"""
@@ -10,7 +19,7 @@ class Block:
         self.delay_generation = False
         self.world = world
         self.chars = []
-        self.is_obstacle = []
+        self.obstacles = []
         self.objects = []
         self.idx = idx
         self.idy = idy
@@ -20,19 +29,44 @@ class Block:
         self.init_map_slices()
 
 
-#   def get_above(self):
-#       block = self.world.get(idx, idy-1)
-#       if not block.completely_generated:
-#           raise NotImplementedError("Implement stalling behavior")
-#       return block
+    def within_bounds(self, x, y):
+        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
+            return True
+        else:
+            return False
+    def is_obstacle(self, x, y):
+        if self.within_bounds(x, y):
+            return self.obstacles[y][x]
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+            if not blk.completely_generated:
+                raise NotImplementedError("Implement stalling behavior")
+            print("check block {}x{}".format(blk.idx, blk.idy))
+            new_x = x % Game.map_size
+            new_y = y % Game.map_size
+            return blk.obstacles[new_y][new_x]
 
-#   def is_above_obstacle(self, x, y):
-#       block = get_above()
-#       return block[y][x].is_obstacle_line
-
-#   def get_tile(y, x):
-#       if
-#       return self.block
+    def get_char(self, x, y, generate_new_blocks=False):
+        char = None
+        if self.within_bounds(x, y):
+            return self.chars[y][x]
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+            if generate_new_blocks:
+                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+            else:
+                try:
+                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+                except KeyError:
+                    char = ''
+            if char is None:
+                new_x = x % Game.map_size
+                new_y = y % Game.map_size
+                char = blk.chars[new_y][new_x]
+            return char
 
     def init_map_slices(self):
         """Generate block in 'slices' to allow a
@@ -40,23 +74,23 @@ class Block:
              To allow other parts of the game to update."""
         while not Game.past_loop_time() or not self.delay_generation:
             #print(self.world.perlin_seed)
-            num_map_slice = generate_map_slice(self.world.perlin_seed,
+            num_map_slice = generate_map_slice_abs_more(self.world.perlin_seed,
                                                self.idx,
                                                self.idy,
                                                self.y_coord_gen_num,
                                                map_size=Game.map_size)
             char_line = []
-            is_obstacle_line = []
+            obstacle_line = []
 
             for val in num_map_slice:
                 if val == 255:
-                    char_line.append('x')
-                    is_obstacle_line.append(True)
+                    char_line.append(WALL)
+                    obstacle_line.append(True)
                 else:
-                    char_line.append('-')
-                    is_obstacle_line.append(False)
+                    char_line.append(GROUND)
+                    obstacle_line.append(False)
             self.chars.append(char_line)
-            self.is_obstacle.append(is_obstacle_line)
+            self.obstacles.append(obstacle_line)
             self.y_coord_gen_num += 1
             if self.y_coord_gen_num >= Game.map_size:
                 self.completely_generated = True
@@ -110,7 +144,19 @@ class Block:
                 abs_x = Game.map_size * self.idx + column
                 if((Game.min_x <= abs_x <= Game.max_x) and
                    (Game.min_y <= abs_y <= Game.max_y)):
-                    if self.is_obstacle[row][column]:
+                    cur_char = self.chars[row][column]
+                    if cur_char == WALL:
+                        right = self.get_char(column+1, row)
+                        left = self.get_char(column-1, row)
+                        down = self.get_char(column, row+1)
+                        up = self.get_char(column, row-1)
+                        #print("{} {} {} {}".format(right, left, down, up))
+                        if((right == WALL or right == HIDDEN) and
+                           (left == WALL or left == HIDDEN) and
+                           (up == WALL or up == HIDDEN) and
+                           (down == WALL or down == HIDDEN)):
+                            self.chars[row][column] = HIDDEN
+                    if self.obstacles[row][column]:
                         fg = 'white'
                         bg = 'gray'
                     else:

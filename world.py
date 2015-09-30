@@ -20,8 +20,8 @@ class World:
 
     def generate_seeds(self, rand_seed):
         """Generate time seed if not given
-           Seed rand
-           Generate reduced size seed for C perlin function"""
+        Seed rand
+        Generate reduced size seed for C perlin function"""
         if rand_seed is None:
             rand_seed = time.time()
         # Do not use floating point time
