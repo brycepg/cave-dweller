@@ -18,7 +18,8 @@ class Game:
     screen_height = 32
 
     debug = True
-    fast = True
+    fast = False
+    collidable = True
     fps = 40
 
     # Drawable window
@@ -94,15 +95,19 @@ class Game:
         cls.idy_cur = cls.center_y // cls.map_size
 
     def get_game_input(self, event):
-        if event.type == KEYUP:
+        if event.type == KEYDOWN:
             if pygame.key.get_mods() & (KMOD_LCTRL | KMOD_RCTRL) and event.key == K_d:
                 Game.debug = False if Game.debug else True
         if Game.debug:
-            if event.type == KEYUP:
+            if event.type == KEYDOWN:
                 mod = pygame.key.get_mods() & KMOD_LCTRL
                 if mod and event.key == K_f:
-                    print('toggle')
                     Game.fast = False if Game.fast else True
+                    print('toggle speed: {}'.format(Game.fast))
+                if mod and event.key == K_c:
+                    Game.collidable = False if Game.collidable else True
+                    print('toggle collision: {}'.format(Game.collidable))
+
 
 #                font_size_modifier = 2
 #                if mod and event.key == K_EQUALS:

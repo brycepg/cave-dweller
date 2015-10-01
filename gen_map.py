@@ -23,6 +23,7 @@ def write_map(block, idx=0, idy=0, path=None):
                 out = 255 if x==0 else 0
                 pgm_out.write("%s\n" % out)
 
+
 def generate_map_slice(seed, idx, idy, y, map_size=256):
     """
     Generate one y-slice of a block
@@ -45,12 +46,14 @@ def generate_map_slice(seed, idx, idy, y, map_size=256):
         row_line.append(out)
     return row_line
 
+
 def generate_map(seed, idx=0, idy=0, map_size=256, func=generate_map_slice):
     block = []
     for y in range(map_size):
         x_line = func(seed, idx, idy, y, map_size)
         block.append(x_line)
     return block
+
 
 def generate_map_slice_abs_min(seed, idx, idy, y, map_size=256):
     """
@@ -70,6 +73,7 @@ def generate_map_slice_abs_min(seed, idx, idy, y, map_size=256):
             out=255
         row_line.append(out)
     return row_line
+
 
 def generate_map_slice_abs_more(seed, idx, idy, y, map_size=256):
     """
@@ -98,3 +102,32 @@ if __name__ == "__main__":
     write_map(block, path="abs_min.pgm")
     block = generate_map(0,0,0, func=generate_map_slice_abs_more)
     write_map(block, path="abs_more.pgm")
+
+
+def generate_map_whole(seed, idx=0, idy=0, map_size=256):
+    octaves = 8
+    freq = 16.0 * octaves
+    block = []
+    for y in range(map_size):
+        x_line = []
+        append = x_line.append
+        for x_cell in range(map_size):
+            val = snoise2((idx * map_size + x_cell) / freq,
+                                (idy * map_size + y) / freq, 
+                                octaves, base=seed,                                      
+                                repeatx = 65536,
+                                repeaty = 65536)
+            if val < 0 and val > -.2:
+                out=0
+            else:
+                out=255
+            append(out)
+        block.append(x_line)
+    return block
+#    #block = []
+#    octaves = 8
+#    freq = 16.0 * octaves
+#    vals = [ _ for _ in range(map_size) ]
+#    block_noise = [ [snoise2((idx * map_size + x) / freq, idy * map_size + y, octaves, base=seed, repeatx = 65536, repeaty = 65536) for x in vals] for y in vals]
+#    block = [ [0 if val < 0 else 255 for val in line] for line in block_noise ]
+#    return block
