@@ -60,7 +60,7 @@ def main(seed=None):
         # ------- Draw -------
         world.draw()
         if Game.debug:
-            Game.win.putchars(str(elapsed), 0, 0, 'red')
+            Game.win.putchars("FPS: {}".format(str(int(elapsed))), 0, 0, 'red')
             Game.win.putchars("blocks: {}".format(len(world.blocks)), 0, 1, 'red')
             Game.win.putchars("block: ({},{})".format(game.idx_cur, game.idy_cur), 0, 2, 'red')
             Game.win.putchars("center: ({}x{})".format(game.center_x, game.center_y), 0, 3, 'red')
@@ -72,7 +72,8 @@ def main(seed=None):
         pygame.display.update()
 
         # Sleep
-        elapsed = game.game_clock.tick(Game.fps)
+        elapsed = 1/(time.time() - Game.loop_start)
+        game.game_clock.tick(Game.fps)
 
 def debug(my_locals):
     pass

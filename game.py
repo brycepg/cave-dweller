@@ -20,7 +20,7 @@ class Game:
     debug = True
     fast = False
     collidable = True
-    fps = 40
+    fps = 10
 
     # Drawable window
     win = None
