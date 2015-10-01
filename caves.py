@@ -67,7 +67,6 @@ def main(seed=None):
             Game.win.putchars("player: ({}x{})".format(player.x, player.y), 0, 4, 'red')
             spent_time = time.time() - Game.loop_start
             Game.win.putchars("spent_time: ({})".format(spent_time), 0, 5, 'red')
-            Game.win.putchars("spare_time: ({})".format(1/Game.fps - spent_time), 0, 6, 'red')
         Game.win.update()
         pygame.display.update()
 

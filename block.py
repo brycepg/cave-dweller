@@ -34,19 +34,28 @@ class Block:
             return True
         else:
             return False
-    def is_obstacle(self, x, y):
+    def is_obstacle(self, x, y, generate_new_blocks=False):
+        obstacle = None
         if self.within_bounds(x, y):
             return self.obstacles[y][x]
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
-            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            if not blk.completely_generated:
-                raise NotImplementedError("Implement stalling behavior")
-            print("check block {}x{}".format(blk.idx, blk.idy))
-            new_x = x % Game.map_size
-            new_y = y % Game.map_size
-            return blk.obstacles[new_y][new_x]
+            if generate_new_blocks:
+                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+                if not blk.completely_generated:
+                    raise NotImplementedError("Implement stalling behavior")
+            else:
+                try:
+                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+                    print("check block {}x{}".format(blk.idx, blk.idy))
+                except KeyError:
+                    obstacle = True
+            if obstacle is None:
+                new_x = x % Game.map_size
+                new_y = y % Game.map_size
+                obstacle = blk.obstacles[new_y][new_x]
+            return obstacle
 
     def get_char(self, x, y, generate_new_blocks=False):
         char = None
@@ -110,18 +119,21 @@ class Block:
         for i, a_object in reversed(list(enumerate(self.objects))):
             if a_object.out_of_bounds():
                 # Transfer object to new block-coordinate system
-                if a_object.x >= Game.map_size:
-                    new_block = Block(self.idx+1, self.idy, self.world)
-                    a_object.x = a_object.x % Game.map_size
-                elif a_object.x < 0:
-                    new_block = Block(self.idx-1, self.idy, self.world)
-                    a_object.x = Game.map_size + a_object.x
-                elif a_object.y >= Game.map_size:
-                    new_block = Block(self.idx, self.idy+1, self.world)
-                    a_object.y = a_object.y % Game.map_size
-                elif a_object.y < 0:
-                    new_block = Block(self.idx, self.idy-1, self.world)
-                    a_object.y = Game.map_size + a_object.y
+                new_block = Block(self.idx+ (a_object.x//Game.map_size), self.idy + (a_object.y//Game.map_size), self.world)
+                a_object.x = a_object.x % Game.map_size
+                a_object.y = a_object.y % Game.map_size
+#               if a_object.x >= Game.map_size:
+#                   new_block = Block(self.idx+1, self.idy, self.world)
+#                   a_object.x = a_object.x % Game.map_size
+#               elif a_object.x < 0:
+#                   new_block = Block(self.idx-1, self.idy, self.world)
+#                   a_object.x = Game.map_size + a_object.x
+#               elif a_object.y >= Game.map_size:
+#                   new_block = Block(self.idx, self.idy+1, self.world)
+#                   a_object.y = a_object.y % Game.map_size
+#               elif a_object.y < 0:
+#                   new_block = Block(self.idx, self.idy-1, self.world)
+#                   a_object.y = Game.map_size + a_object.y
                 print("a_object {} {}x{}".format(a_object, a_object.x, a_object.y))
                 free_agent = self.objects.pop(i)
                 new_block.objects.append(free_agent)

@@ -75,7 +75,7 @@ class Player(Object):
         """ Player movement:
             NOTE: modifies view of game """
         if Game.fast:
-            self.step_modifier = 100
+            self.step_modifier = 10
         else:
             self.step_modifier = 1
 
