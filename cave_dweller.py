@@ -35,6 +35,7 @@ def main(seed=None):
     start_block.reposition_objects()
 
     elapsed = 0
+    spent_time = 0
 
     #libtcod.console_set_default_foreground(0, libtcod.white)
     #libtcod.console_set_default_background(0, libtcod.white)
@@ -50,13 +51,13 @@ def main(seed=None):
         # ------- Draw -------
         world.draw()
         if Game.debug:
-            libtcod.console_print(0, 1, 1, "FPS: {}".format(str(int(elapsed))))
-            libtcod.console_print(0, 1, 2, "blocks: {}".format(len(world.blocks)))
-            libtcod.console_print(0, 1, 3,"block: ({},{})".format(game.idx_cur, game.idy_cur))
-            libtcod.console_print(0, 1, 4,"center: ({}x{})".format(game.center_x, game.center_y))
-            libtcod.console_print(0, 1, 5,"player: ({}x{})".format(player.x, player.y))
-            spent_time = time.time() - Game.loop_start
-            libtcod.console_print(0, 1, 6,"spent_time: ({})".format(spent_time))
+            libtcod.console_print(0, 1, 1, "FPS: %s" % str(int(elapsed)))
+            libtcod.console_print(0, 1, 2, "blocks: %d" % len(world.blocks))
+            libtcod.console_print(0, 1, 3, "block: (%d,%d)" % (game.idx_cur, game.idy_cur))
+            libtcod.console_print(0, 1, 4, "center: (%dx%d)" % (game.center_x, game.center_y))
+            libtcod.console_print(0, 1, 5, "player: (%dx%d)" % (player.x, player.y))
+            spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
+            libtcod.console_print(0, 1, 6, "process/draw time: ({0:.2f})".format(spent_time))
         #Game.win.update()
         #pygame.display.update()
         libtcod.console_flush()
