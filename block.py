@@ -10,6 +10,7 @@ from gen_map import generate_map_slice_abs_more
 from game import Game
 
 WALL = 'x'
+#WALL = 178
 GROUND = '-'
 HIDDEN = ' '
 
@@ -29,6 +30,38 @@ class Block:
         self.y_coord_gen_num = 0
         self.init_map_slices()
 
+    def neighbors(self, x, y):
+        """Get taxicab neighbors(4-way) from coordinates"""
+        return [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
+
+    def reposition_object(self, a_object):
+        """Breadth first search for nearest non-obstacle"""
+        if not self.is_obstacle(a_object.x,a_object.y, True):
+            return
+        searched_list=[(a_object.x, a_object.y)]
+        to_search=[]
+        neighbors = self.neighbors(a_object.x, a_object.y)
+        while True:
+            for neighbor in neighbors:
+                if Game.show_algorithm:
+                    time.sleep(.01)
+                    Game.win.putchar('O', neighbor[0], neighbor[1], 'red')
+                    Game.win.update()
+                    print(neighbor)
+                if neighbor in searched_list:
+                    continue
+                if not self.is_obstacle(*neighbor, generate_new_blocks=True):
+                    a_object.x, a_object.y = neighbor
+                    return
+                else:
+                    searched_list.append(neighbor)
+                    to_search.append(neighbor)
+            neighbors = self.neighbors(*to_search.pop(0))
+        
+    def reposition_objects(self):
+        """Move objects until square is found that's not an obstacle"""
+        for a_object in self.objects:
+            self.reposition_object(a_object)
 
     def within_bounds(self, x, y):
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
@@ -194,4 +227,4 @@ class Block:
                                  (abs_x - Game.center_x +
                                   Game.screen_width//2),
                                  (abs_y - Game.center_y +
-                                  Game.screen_height//2), a_object.char, a_object.fg, a_object.bg)
+                                  Game.screen_height//2), a_object.char, a_object.fg, libtcod.BKGND_DEFAULT)

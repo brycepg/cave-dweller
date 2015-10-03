@@ -56,11 +56,9 @@ class Player(Object):
         #print("key: vk:{} c:{} pressed:{}".format(key.vk, key.c, key.pressed))
         if key.pressed:
              if key.vk == libtcod.KEY_UP:
-                 print("up")
                  self.move_down = False
                  self.move_up = True
              if key.vk == libtcod.KEY_DOWN:
-                 print("down")
                  self.move_up = False
                  self.move_down = True
              if key.vk == libtcod.KEY_LEFT:
@@ -92,13 +90,12 @@ class Player(Object):
         for _ in range(step):
             if self.move_up and (not cur_block.is_obstacle(self.x, self.y-1) or not Game.collidable):
                 self.y -= 1
-                Game.center_y -= 1
             if self.move_down and (not cur_block.is_obstacle(self.x, self.y+1) or not Game.collidable):
                 self.y += 1
-                Game.center_y += 1
             if self.move_left and (not cur_block.is_obstacle(self.x -1, self.y) or not Game.collidable):
                 self.x -= 1
-                Game.center_x -= 1
             if self.move_right and (not cur_block.is_obstacle(self.x +1, self.y) or not Game.collidable):
                 self.x += 1
-                Game.center_x += 1
+        Game.center_x = self.x + Game.map_size * cur_block.idx
+        Game.center_y = self.y + Game.map_size * cur_block.idy
+

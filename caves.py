@@ -32,10 +32,14 @@ def main(seed=None):
     world = World(seed)
     start_block = world.get(game.idx_cur, game.idy_cur)
     start_block.objects.append(player)
+    start_block.reposition_objects()
 
     elapsed = 0
-    libtcod.console_set_default_foreground(0, libtcod.white)
-    libtcod.console_set_color_control(libtcod.COLCTRL_1,libtcod.red,libtcod.black)
+
+    #libtcod.console_set_default_foreground(0, libtcod.white)
+    #libtcod.console_set_default_background(0, libtcod.white)
+    #libtcod.console_set_color_control(libtcod.COLCTRL_1,libtcod.red,libtcod.black)
+
     while not libtcod.console_is_window_closed():
         Game.record_loop_time()
         # Order is important since world modifies current view 

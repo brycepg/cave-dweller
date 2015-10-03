@@ -12,7 +12,7 @@ class GetOutOfLoop(Exception):
 class World(object):
     """Holds all blocks updates and draws world"""
     def __init__(self, rand_seed=None):
-        self.loaded_block_radius = 256 // Game.map_size
+        self.loaded_block_radius = 1
 
         self.generate_seeds(rand_seed)
         self.blocks = {}

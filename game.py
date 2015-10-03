@@ -12,8 +12,8 @@ class Game(object):
     map_size = 96
     font_size = 12
 
-    screen_width = 64
-    screen_height = 32
+    screen_width = 62
+    screen_height = 40
 
     debug = True
     fast = False
@@ -42,7 +42,9 @@ class Game(object):
     win = None
 
     loop_start = None
-    loop_time = 1/fps
+    loop_time = 1.0/fps
+
+    font_sizes = [8, 10, 12, 16]
 
     @classmethod
     def in_drawable_coordinates(cls, abs_x, abs_y):
@@ -54,24 +56,10 @@ class Game(object):
             return False
 
     def __init__(self):
-        libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu16x16_gs_tc.png'), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False)
+        self.font_size_index = 3
+        libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', libtcod.RENDERER_GLSL)
         libtcod.sys_set_fps(type(self).fps)
-
-        # TODO
-        #self.text_font = pygame.font.SysFont("monospace", 15)
-
-        #Game.win = pygcurse.PygcurseWindow(self.screen_width,
-        #                                   self.screen_height,
-        #                                   fullscreen=False)
-        #Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
-        ##Game.win.font = pygame.font.Font(os.path.join('fonts', 'pdv.ttf'), Game.font_size)
-        #pygame.display.set_caption('Caves')
-        #Game.win.autowindowupdate = False
-        #Game.win.autoupdate = False
-
-
-        #Game.game_clock = pygame.time.Clock()
 
     @classmethod
     def record_loop_time(cls):
@@ -81,11 +69,10 @@ class Game(object):
     @classmethod
     def past_loop_time(cls):
         """Check if game loop needs to exit to keep up framerate"""
-        return False
-        #if time.time() - cls.loop_start > cls.loop_time/2:
-        #    return True
-        #else:
-        #    return False
+        if (time.time() - cls.loop_start) > cls.loop_time/2:
+            return True
+        else:
+            return False
 
     @classmethod
     def process(cls):
@@ -113,19 +100,19 @@ class Game(object):
                     print('toggle collision: {}'.format(Game.collidable))
 
 
-#                font_size_modifier = 2
-#                if mod and event.key == K_EQUALS:
-#                    self.screen_width -= 2
-#                    self.screen_height -= 2
-#                    Game.win.resize(self.screen_width, self.screen_height, fgcolor='white', bgcolor='black')
-#                    Game.font_size += font_size_modifier
-#                    Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
-#                if mod and event.key == K_MINUS:
-#                    if Game.font_size >= font_size_modifier:
-#                        Game.font_size -= 6
-#                    Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
-#                if mod and event.key == K_z:
-#                    self.screen_width += 2
-#                    self.screen_height += 2
-#                    Game.win.resize(self.screen_width, self.screen_height, fgcolor='white', bgcolor='black')
+#               font_changed = False
+#               if mod and key.c == ord('=') and self.font_size_index < len(type(self).font_sizes) - 1:
+#                       self.font_size_index += 1
+#                       font_changed = True
+#               if mod and key.c == ord('-') and self.font_size_index > 0:
+#                       self.font_size_index -= 1
+#                       font_changed = True
+#               if font_changed:
+#                   print('set font')
+#                   font_path = os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index]))
+#                   print(font_path)
+#                   libtcod.console_set_custom_font(
+#                           font_path, 
+#                           libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+#                   libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False)
 
