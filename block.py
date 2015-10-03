@@ -2,6 +2,8 @@
 
 import math
 
+import libtcodpy as libtcod
+
 from gen_map import generate_map_slice
 from gen_map import generate_map_slice_abs_min
 from gen_map import generate_map_slice_abs_more
@@ -10,7 +12,6 @@ from game import Game
 WALL = 'x'
 GROUND = '-'
 HIDDEN = ' '
-
 
 class Block:
     """Segment of world populated by object and terrain"""
@@ -150,6 +151,10 @@ class Block:
 
     def draw_block(self):
         """Draw block terrain"""
+        white = libtcod.white
+        grey = libtcod.grey
+        black = libtcod.black
+
         for row in range(Game.map_size):
             abs_y = Game.map_size * self.idy + row
             for column in range(Game.map_size):
@@ -169,23 +174,24 @@ class Block:
                            (down == WALL or down == HIDDEN)):
                             self.chars[row][column] = HIDDEN
                     if self.obstacles[row][column]:
-                        fg = 'white'
-                        bg = 'gray'
+                        fg = white
+                        bg = grey
                     else:
-                        fg = 'gray'
-                        bg = 'black'
+                        fg = grey
+                        bg = black
                     #print('{}x{}'.format(abs_x, abs_y), end=",")
-                    Game.win.putchar(self.chars[row][column],
+                    libtcod.console_put_char_ex(0, 
                             abs_x - Game.center_x + Game.screen_width//2,
-                            abs_y - Game.center_y + Game.screen_height//2, fg, bg)
+                            abs_y - Game.center_y + Game.screen_height//2,
+                            self.chars[row][column], fg, bg)
     def draw_objects(self):
         """Put block's drawable objects on screen"""
         for a_object in self.objects:
             abs_x = Game.map_size * self.idx + a_object.x
             abs_y = Game.map_size * self.idy + a_object.y
             if Game.in_drawable_coordinates(abs_x, abs_y):
-                Game.win.putchar(a_object.char,
+                libtcod.console_put_char_ex(0, 
                                  (abs_x - Game.center_x +
                                   Game.screen_width//2),
                                  (abs_y - Game.center_y +
-                                  Game.screen_height//2), a_object.fg, a_object.bg)
+                                  Game.screen_height//2), a_object.char, a_object.fg, a_object.bg)

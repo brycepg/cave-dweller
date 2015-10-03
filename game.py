@@ -2,11 +2,9 @@
 import time
 import os
 
-import pygame
-from pygame.locals import *
-import pygcurse
+import libtcodpy as libtcod
 
-class Game:
+class Game(object):
     """Manages static constants,
     mutable viewing state,
     and input to change game-wide settings(for debugging)
@@ -20,7 +18,7 @@ class Game:
     debug = True
     fast = False
     collidable = True
-    fps = 10
+    fps = 12
 
     # Drawable window
     win = None
@@ -56,19 +54,24 @@ class Game:
             return False
 
     def __init__(self):
+        libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu16x16_gs_tc.png'), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False)
+        libtcod.sys_set_fps(type(self).fps)
+
         # TODO
         #self.text_font = pygame.font.SysFont("monospace", 15)
-        Game.win = pygcurse.PygcurseWindow(self.screen_width,
-                                           self.screen_height,
-                                           fullscreen=False)
-        Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
-        #Game.win.font = pygame.font.Font(os.path.join('fonts', 'pdv.ttf'), Game.font_size)
-        pygame.display.set_caption('Caves')
-        Game.win.autowindowupdate = False
-        Game.win.autoupdate = False
+
+        #Game.win = pygcurse.PygcurseWindow(self.screen_width,
+        #                                   self.screen_height,
+        #                                   fullscreen=False)
+        #Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
+        ##Game.win.font = pygame.font.Font(os.path.join('fonts', 'pdv.ttf'), Game.font_size)
+        #pygame.display.set_caption('Caves')
+        #Game.win.autowindowupdate = False
+        #Game.win.autoupdate = False
 
 
-        Game.game_clock = pygame.time.Clock()
+        #Game.game_clock = pygame.time.Clock()
 
     @classmethod
     def record_loop_time(cls):
@@ -78,10 +81,11 @@ class Game:
     @classmethod
     def past_loop_time(cls):
         """Check if game loop needs to exit to keep up framerate"""
-        if time.time() - cls.loop_start > cls.loop_time/2:
-            return True
-        else:
-            return False
+        return False
+        #if time.time() - cls.loop_start > cls.loop_time/2:
+        #    return True
+        #else:
+        #    return False
 
     @classmethod
     def process(cls):
@@ -94,17 +98,17 @@ class Game:
         cls.idx_cur = cls.center_x // cls.map_size
         cls.idy_cur = cls.center_y // cls.map_size
 
-    def get_game_input(self, event):
-        if event.type == KEYDOWN:
-            if pygame.key.get_mods() & (KMOD_LCTRL | KMOD_RCTRL) and event.key == K_d:
+    def get_game_input(self, key):
+        if key.pressed:
+            if key.lctrl and key.rctrl and key.c == ord('d'):
                 Game.debug = False if Game.debug else True
         if Game.debug:
-            if event.type == KEYDOWN:
-                mod = pygame.key.get_mods() & KMOD_LCTRL
-                if mod and event.key == K_f:
+            if key.pressed:
+                mod = key.lctrl
+                if mod and key.c == ord('f'):
                     Game.fast = False if Game.fast else True
                     print('toggle speed: {}'.format(Game.fast))
-                if mod and event.key == K_c:
+                if mod and key.c == ord('c'):
                     Game.collidable = False if Game.collidable else True
                     print('toggle collision: {}'.format(Game.collidable))
 

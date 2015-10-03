@@ -14,9 +14,7 @@ import time
 import os
 import logging
 
-import pygame
-from pygame.locals import *
-import pygcurse
+import libtcodpy as libtcod 
 
 from game import Game
 from world import World
@@ -30,28 +28,16 @@ def main(seed=None):
     Game.record_loop_time()
     Game.process()
 
-    box_width = 40
-    text = "Loading ..."
-    box = pygcurse.PygcurseTextbox(Game.win, (Game.screen_width//2 - box_width//2, Game.screen_width//2 - box_width//2, box_width, box_width//2), text = text , fgcolor='white' , marginleft=box_width//2 - len(text)//2 - 1, margintop=box_width//4-2)
-    box.update()
-
-    pygame.display.set_mode((0,0), RESIZABLE)
-
     player = Player()
     world = World(seed)
     start_block = world.get(game.idx_cur, game.idy_cur)
     start_block.objects.append(player)
 
     elapsed = 0
-    while True:
+    libtcod.console_set_default_foreground(0, libtcod.white)
+    libtcod.console_set_color_control(libtcod.COLCTRL_1,libtcod.red,libtcod.black)
+    while not libtcod.console_is_window_closed():
         Game.record_loop_time()
-        for event in pygame.event.get():
-            #print(event)
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            player.process_input(event)
-            game.get_game_input(event)
         # Order is important since world modifies current view 
         # And game updates the relevant view variables
         world.process()
@@ -60,19 +46,29 @@ def main(seed=None):
         # ------- Draw -------
         world.draw()
         if Game.debug:
-            Game.win.putchars("FPS: {}".format(str(int(elapsed))), 0, 0, 'red')
-            Game.win.putchars("blocks: {}".format(len(world.blocks)), 0, 1, 'red')
-            Game.win.putchars("block: ({},{})".format(game.idx_cur, game.idy_cur), 0, 2, 'red')
-            Game.win.putchars("center: ({}x{})".format(game.center_x, game.center_y), 0, 3, 'red')
-            Game.win.putchars("player: ({}x{})".format(player.x, player.y), 0, 4, 'red')
+            libtcod.console_print(0, 1, 1, "FPS: {}".format(str(int(elapsed))))
+            libtcod.console_print(0, 1, 2, "blocks: {}".format(len(world.blocks)))
+            libtcod.console_print(0, 1, 3,"block: ({},{})".format(game.idx_cur, game.idy_cur))
+            libtcod.console_print(0, 1, 4,"center: ({}x{})".format(game.center_x, game.center_y))
+            libtcod.console_print(0, 1, 5,"player: ({}x{})".format(player.x, player.y))
             spent_time = time.time() - Game.loop_start
-            Game.win.putchars("spent_time: ({})".format(spent_time), 0, 5, 'red')
-        Game.win.update()
-        pygame.display.update()
-
+            libtcod.console_print(0, 1, 6,"spent_time: ({})".format(spent_time))
+        #Game.win.update()
+        #pygame.display.update()
+        libtcod.console_flush()
+        # ----- keyboard input -----
+        while True:
+            key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
+            if key.vk == libtcod.KEY_NONE:
+                break
+            #print(event)
+            #if event.type == QUIT:
+            #    pygame.quit()
+            #    sys.exit()
+            player.process_input(key)
+            game.get_game_input(key)
         # Sleep
         elapsed = 1/(time.time() - Game.loop_start)
-        game.game_clock.tick(Game.fps)
 
 def debug(my_locals):
     pass

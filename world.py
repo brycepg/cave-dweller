@@ -9,7 +9,7 @@ class GetOutOfLoop(Exception):
     """Exception used to break out of multiple for-loops"""
     pass
 
-class World:
+class World(object):
     """Holds all blocks updates and draws world"""
     def __init__(self, rand_seed=None):
         self.loaded_block_radius = 256 // Game.map_size

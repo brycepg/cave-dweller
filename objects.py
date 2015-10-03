@@ -1,10 +1,10 @@
 """Container for Object and it's special subclass Player"""
-import pygame
-from pygame.locals import *
+
+import libtcodpy as libtcod
 
 from game import Game
 
-class Object:
+class Object(object):
     """ Non-terrain entities"""
     def __init__(self, x=None, y=None, char=None):
         self.x = x
@@ -38,38 +38,46 @@ class Player(Object):
     """Player-object
        Acts as an object but also manages the viewable center"""
     def __init__(self):
-        super().__init__(Game.center_x % Game.map_size, Game.center_y % Game.map_size, '@')
+        super(type(self), self).__init__(Game.center_x % Game.map_size, Game.center_y % Game.map_size, '@')
         self.step_modifier = 1
-        self.fg = pygame.Color(139, 0, 0)
+        self.fg = libtcod.darkest_red
         self.bg = None
 
-    def process_input(self, event):
+        self.move_down = None
+        self.move_up = None
+        self.move_left = None
+        self.move_right = None
+
+    def process_input(self, key):
         """ Process event keys -- set state of player
         If key held down -- keep movement going
         If key released -- stop movement
         """
-        if event.type == KEYDOWN:
-            if event.key == K_UP:
-                self.move_down = False
-                self.move_up = True
-            if event.key == K_DOWN:
-                self.move_up = False
-                self.move_down = True
-            if event.key == K_LEFT:
-                self.move_right = False
-                self.move_left = True
-            if event.key == K_RIGHT:
-                self.move_left = False
-                self.move_right = True
-        elif event.type == KEYUP:
-            if event.key == K_UP:
-                self.move_up = False
-            if event.key == K_DOWN:
-                self.move_down = False
-            if event.key == K_LEFT:
-                self.move_left = False
-            if event.key == K_RIGHT:
-                self.move_right = False
+        #print("key: vk:{} c:{} pressed:{}".format(key.vk, key.c, key.pressed))
+        if key.pressed:
+             if key.vk == libtcod.KEY_UP:
+                 print("up")
+                 self.move_down = False
+                 self.move_up = True
+             if key.vk == libtcod.KEY_DOWN:
+                 print("down")
+                 self.move_up = False
+                 self.move_down = True
+             if key.vk == libtcod.KEY_LEFT:
+                 self.move_right = False
+                 self.move_left = True
+             if key.vk == libtcod.KEY_RIGHT:
+                 self.move_left = False
+                 self.move_right = True
+        else:
+             if key.vk == libtcod.KEY_UP:
+                 self.move_up = False
+             if key.vk == libtcod.KEY_DOWN:
+                 self.move_down = False
+             if key.vk == libtcod.KEY_LEFT:
+                 self.move_left = False
+             if key.vk == libtcod.KEY_RIGHT:
+                 self.move_right = False
 
     def move(self, cur_block):
         """ Player movement:
