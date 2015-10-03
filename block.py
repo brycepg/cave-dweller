@@ -15,25 +15,25 @@ from game import Game
 #GROUND = ('-', None, None)
 #HIDDEN = (' ', None, None)
 # id - is_obstacle - char - fg - bg
-class Tiles(Enum):
-    ground = 0
-    wall = 255
-
-tiles = {
-    Tiles.wall: {
-        'is_obstacle': True,
-        'char': 'x',
-        'fg': 'white', 
-        'bg': 'gray',
-        'adjacent_hidden': True
-    },
-    Tiles.ground: {
-        'is_obstacle': True,
-        'char': '-',
-        'fg': 'gray', 
-        'bg': 'white'
-    }
-}
+#class Tiles(Enum):
+#    ground = 0
+#    wall = 255
+#
+#tiles = {
+#    Tiles.wall: {
+#        'is_obstacle': True,
+#        'char': 'x',
+#        'fg': 'white', 
+#        'bg': 'gray',
+#        'adjacent_hidden': True
+#    },
+#    Tiles.ground: {
+#        'is_obstacle': True,
+#        'char': '-',
+#        'fg': 'gray', 
+#        'bg': 'white'
+#    }
+#}
 #WALL = (255, True, 'x', 'white', 'gray')
 #GROUND = (0, False, '-', 'gray', 'white')
 WALL = 'x'
