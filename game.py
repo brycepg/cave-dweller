@@ -18,6 +18,7 @@ class Game(object):
     debug = True
     fast = False
     collidable = True
+    show_algorithm = False
     fps = 12
 
     # Drawable window
