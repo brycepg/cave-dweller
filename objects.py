@@ -84,13 +84,12 @@ class Player(Object):
         for _ in range(step):
             if self.move_up and (not cur_block.is_obstacle(self.x, self.y-1) or not Game.collidable):
                 self.y -= 1
-                Game.center_y -= 1
             if self.move_down and (not cur_block.is_obstacle(self.x, self.y+1) or not Game.collidable):
                 self.y += 1
-                Game.center_y += 1
             if self.move_left and (not cur_block.is_obstacle(self.x -1, self.y) or not Game.collidable):
                 self.x -= 1
-                Game.center_x -= 1
             if self.move_right and (not cur_block.is_obstacle(self.x +1, self.y) or not Game.collidable):
                 self.x += 1
-                Game.center_x += 1
+
+        Game.center_x = self.x + Game.map_size * cur_block.idx
+        Game.center_y = self.y + Game.map_size * cur_block.idy

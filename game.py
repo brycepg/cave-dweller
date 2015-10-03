@@ -12,7 +12,7 @@ class Game:
     and input to change game-wide settings(for debugging)
     """
     map_size = 96
-    font_size = 12
+    font_size = 18
 
     screen_width = 64
     screen_height = 32
@@ -20,6 +20,7 @@ class Game:
     debug = True
     fast = False
     collidable = True
+    show_algorithm = False
     fps = 10
 
     # Drawable window
@@ -62,8 +63,8 @@ class Game:
                                            self.screen_height,
                                            fullscreen=False)
         Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
-        #Game.win.font = pygame.font.Font(os.path.join('fonts', 'pdv.ttf'), Game.font_size)
-        pygame.display.set_caption('Caves')
+        #Game.win.font = pygame.font.Font(os.path.join('fonts', 'dog_vga_437.ttf'), Game.font_size)
+        pygame.display.set_caption('Cave Dweller')
         Game.win.autowindowupdate = False
         Game.win.autoupdate = False
 
@@ -98,6 +99,7 @@ class Game:
         if event.type == KEYDOWN:
             if pygame.key.get_mods() & (KMOD_LCTRL | KMOD_RCTRL) and event.key == K_d:
                 Game.debug = False if Game.debug else True
+                print('toggle debug: {}'.format(Game.debug))
         if Game.debug:
             if event.type == KEYDOWN:
                 mod = pygame.key.get_mods() & KMOD_LCTRL
@@ -110,18 +112,14 @@ class Game:
 
 
 #                font_size_modifier = 2
-#                if mod and event.key == K_EQUALS:
-#                    self.screen_width -= 2
-#                    self.screen_height -= 2
-#                    Game.win.resize(self.screen_width, self.screen_height, fgcolor='white', bgcolor='black')
+#               if mod and event.key == K_EQUALS:
+#                   self.screen_width -= 1
+#                   self.screen_height -= 1
+#                   Game.win.resize(self.screen_width, self.screen_height)
 #                    Game.font_size += font_size_modifier
 #                    Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
-#                if mod and event.key == K_MINUS:
-#                    if Game.font_size >= font_size_modifier:
-#                        Game.font_size -= 6
-#                    Game.win.font = pygame.font.Font(os.path.join('fonts', 'DejaVuSerif.ttf'), Game.font_size)
-#                if mod and event.key == K_z:
-#                    self.screen_width += 2
-#                    self.screen_height += 2
-#                    Game.win.resize(self.screen_width, self.screen_height, fgcolor='white', bgcolor='black')
+#               if mod and event.key == K_MINUS:
+#                   self.screen_width += 1
+#                   self.screen_height += 1
+#                   Game.win.resize(self.screen_width, self.screen_height)
 

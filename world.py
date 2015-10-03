@@ -33,9 +33,12 @@ class World:
         # Seed random
         random.seed(self.rand_seed)
 
-        # Seed for perlin noise -- doesn't work with big numbers?
-        # Probably due to variable size constraints in C
+        # Limit seed by
+        # (2^23)/2
+        # To avoid loss of precision for floating point number
         self.perlin_seed = random.randrange(-65565, 65565)
+        print(self.perlin_seed)
+        
 
     def cull_old_block(self):
         """ Delete blocks father than loaded_block_radius blocks away from the player
@@ -66,7 +69,8 @@ class World:
                     if Game.past_loop_time():
                         raise GetOutOfLoop
         except GetOutOfLoop:
-            print('load timeout')
+            pass
+            #print('load timeout')
 
     def get(self, idx, idy):
         """Generate requested block and return reference

@@ -1,12 +1,41 @@
 """container for Block"""
 
+import pygame
+
 import math
+import time
 
 from gen_map import generate_map_slice
 from gen_map import generate_map_slice_abs_min
 from gen_map import generate_map_slice_abs_more
 from game import Game
 
+#dark_gray = pygame.Color(30, 30, 30)
+#WALL = (' ', dark_gray, None)
+#GROUND = ('-', None, None)
+#HIDDEN = (' ', None, None)
+# id - is_obstacle - char - fg - bg
+class Tiles(Enum):
+    ground = 0
+    wall = 255
+
+tiles = {
+    Tiles.wall: {
+        'is_obstacle': True,
+        'char': 'x',
+        'fg': 'white', 
+        'bg': 'gray',
+        'adjacent_hidden': True
+    },
+    Tiles.ground: {
+        'is_obstacle': True,
+        'char': '-',
+        'fg': 'gray', 
+        'bg': 'white'
+    }
+}
+#WALL = (255, True, 'x', 'white', 'gray')
+#GROUND = (0, False, '-', 'gray', 'white')
 WALL = 'x'
 GROUND = '-'
 HIDDEN = ' '
@@ -18,6 +47,9 @@ class Block:
         #self.delay_generation = False if len(world.blocks) <= 1 else True
         self.delay_generation = False
         self.world = world
+
+        self.tiles = []
+
         self.chars = []
         self.obstacles = []
         self.objects = []
@@ -29,16 +61,54 @@ class Block:
         self.init_map_slices()
 
 
+    def neighbors(self, x, y):
+        """Get taxicab neighbors(4-way) from coordinates"""
+        return [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
+
+    def reposition_object(self, a_object):
+        """Breadth first search for nearest non-obstacle"""
+        if not self.is_obstacle(a_object.x,a_object.y, True):
+            return
+        searched_list=[(a_object.x, a_object.y)]
+        to_search=[]
+        neighbors = self.neighbors(a_object.x, a_object.y)
+        while True:
+            for neighbor in neighbors:
+                if Game.show_algorithm:
+                    time.sleep(.01)
+                    Game.win.putchar('O', neighbor[0], neighbor[1], 'red')
+                    Game.win.update()
+                    print(neighbor)
+                if neighbor in searched_list:
+                    continue
+                if not self.is_obstacle(*neighbor, generate_new_blocks=True):
+                    a_object.x, a_object.y = neighbor
+                    return
+                else:
+                    searched_list.append(neighbor)
+                    to_search.append(neighbor)
+            neighbors = self.neighbors(*to_search.pop(0))
+        
+    def reposition_objects(self):
+        """Move objects until square is found that's not an obstacle"""
+        for a_object in self.objects:
+            self.reposition_object(a_object)
+
     def within_bounds(self, x, y):
+        """Check if coordinates are within block bounds"""
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             return True
         else:
             return False
+
     def is_obstacle(self, x, y, generate_new_blocks=False):
+        """Return bool of block's obstacle type relative to the block's local
+        coordinate system"""
         obstacle = None
         if self.within_bounds(x, y):
             return self.obstacles[y][x]
         else:
+            # Out of bounds - retrieve the block
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
             if generate_new_blocks:
@@ -90,7 +160,6 @@ class Block:
                                                map_size=Game.map_size)
             char_line = []
             obstacle_line = []
-
             for val in num_map_slice:
                 if val == 255:
                     char_line.append(WALL)
@@ -100,12 +169,13 @@ class Block:
                     obstacle_line.append(False)
             self.chars.append(char_line)
             self.obstacles.append(obstacle_line)
+            self.tiles.append(num_map_slice)
             self.y_coord_gen_num += 1
             if self.y_coord_gen_num >= Game.map_size:
                 self.completely_generated = True
                 break
-        if Game.past_loop_time():
-            print("past_time")
+        #if Game.past_loop_time():
+            #print("past_time")
     def process(self):
         """Do block calculations. Manage block objects update"""
         if not self.completely_generated:

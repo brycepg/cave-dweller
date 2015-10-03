@@ -30,17 +30,19 @@ def main(seed=None):
     Game.record_loop_time()
     Game.process()
 
-    box_width = 40
-    text = "Loading ..."
-    box = pygcurse.PygcurseTextbox(Game.win, (Game.screen_width//2 - box_width//2, Game.screen_width//2 - box_width//2, box_width, box_width//2), text = text , fgcolor='white' , marginleft=box_width//2 - len(text)//2 - 1, margintop=box_width//4-2)
-    box.update()
-
-    pygame.display.set_mode((0,0), RESIZABLE)
+    #box_width = 40
+    #text = "Loading ..."
+    #box = pygcurse.PygcurseTextbox(Game.win, (Game.screen_width//2 - box_width//2, Game.screen_width//2 - box_width//2, box_width, box_width//2), text = text , fgcolor='white' , marginleft=box_width//2 - len(text)//2 - 1, margintop=box_width//4-2)
+    #box.update()
+    #Game.win.update()
+    #pygame.display.update()
+    #pygame.display.set_mode((0,0), RESIZABLE)
 
     player = Player()
     world = World(seed)
     start_block = world.get(game.idx_cur, game.idy_cur)
     start_block.objects.append(player)
+    start_block.reposition_objects()
 
     elapsed = 0
     while True:
