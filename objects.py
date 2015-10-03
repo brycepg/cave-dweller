@@ -40,7 +40,7 @@ class Player(Object):
     def __init__(self):
         super(type(self), self).__init__(Game.center_x % Game.map_size, Game.center_y % Game.map_size, '@')
         self.step_modifier = 1
-        self.fg = libtcod.darkest_red
+        self.fg = libtcod.red
         self.bg = None
 
         self.move_down = None
