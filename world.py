@@ -55,18 +55,22 @@ class World(object):
 
     def load_surrounding_blocks(self):
         """Loads blocks surrounding player specified by loaded_block_radius"""
-        # Load the current block immediately
+
+        # Current view of game
         cur_blk = self.get(Game.idx_cur, Game.idy_cur)
+        idy_cur = Game.idy_cur
+        idx_cur = Game.idx_cur
+
         loaded_block_radius = Game.loaded_block_radius
 
         try:
-            for idy in range(Game.idy_cur - loaded_block_radius,
-                    Game.idy_cur + loaded_block_radius + 1):
-                for idx in range(Game.idx_cur - loaded_block_radius,
-                        Game.idx_cur + loaded_block_radius + 1):
-                    self.get(idx, idy)
+            for idy in range(idy_cur - loaded_block_radius,
+                    idy_cur + loaded_block_radius + 1):
+                for idx in range(idx_cur - loaded_block_radius,
+                        idx_cur + loaded_block_radius + 1):
                     if Game.past_loop_time():
                         raise GetOutOfLoop
+                    self.get(idx, idy)
         except GetOutOfLoop:
             print('load timeout')
 

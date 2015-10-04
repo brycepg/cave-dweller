@@ -6,9 +6,8 @@ from collections import namedtuple
 
 import libtcodpy as libtcod
 
-from gen_map import generate_map_slice
-from gen_map import generate_map_slice_abs_min
-from gen_map import generate_map_slice_abs_more
+from gen_map import generate_map_whole
+
 from game import Game
 
 white = libtcod.white
@@ -41,9 +40,7 @@ class Block:
         self.idx = idx
         self.idy = idy
 
-        self.completely_generated = False
-        self.y_coord_gen_num = 0
-        self.init_map_slices()
+        self.tiles = self.generate_tile_map()
 
     def neighbors(self, x, y):
         """Get taxicab neighbors(4-way) from coordinates"""
@@ -136,35 +133,13 @@ class Block:
             return tile
 
 
-    def init_map_slices(self):
-        """Generate block in 'slices' to allow a
-            'timeout' after a certain threshold
-             To allow other parts of the game to update."""
-        perlin_seed = self.world.perlin_seed
-        idx = self.idx
-        idy = self.idy
-        map_size = Game.map_size
-        tiles = self.tiles
-
-        while not Game.past_loop_time() or not self.delay_generation:
-            #print(self.world.perlin_seed)
-            num_map_slice = generate_map_slice_abs_more(perlin_seed,
-                                                        idx,
-                                                        idy,
-                                                        self.y_coord_gen_num,
-                                                        map_size=map_size)
-            tiles.append(num_map_slice)
-            self.y_coord_gen_num += 1
-            if self.y_coord_gen_num >= Game.map_size:
-                self.completely_generated = True
-                break
-        if Game.past_loop_time():
-            print("past_time")
+    def generate_tile_map(self):
+        """Generate tiles from map function"""
+        return generate_map_whole(self.world.perlin_seed,
+                                  self.idx, self.idy,
+                                  map_size=Game.map_size)
     def process(self):
         """Do block calculations. Manage block objects update"""
-        if not self.completely_generated:
-            self.init_map_slices()
-            return
 
         new_blocks = []
         objects = self.objects
@@ -203,8 +178,6 @@ class Block:
 
     def draw(self):
         """Draw block cells that are in frame"""
-        if not self.completely_generated:
-            return
         self.draw_block()
         self.draw_objects()
 
