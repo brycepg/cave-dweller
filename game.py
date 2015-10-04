@@ -21,6 +21,7 @@ class Game(object):
     fast = False
     collidable = True
     show_algorithm = False
+    reposition_objects = False
 
     default_fps = 12
     fps = default_fps
@@ -101,6 +102,8 @@ class Game(object):
                 if mod and key.c == ord('c'):
                     Game.collidable = False if Game.collidable else True
                     print('toggle collision: {}'.format(Game.collidable))
+                    if Game.collidable:
+                        Game.reposition_objects = True
                 if mod and key.c == ord('-') and Game.fps > 0:
                     Game.fps -= 1
                     print("fps: %d" % Game.fps)
@@ -127,6 +130,10 @@ class Game(object):
                 if key.c == CTRL_R_BRACKET:
                     Game.loaded_block_radius += 1
                     print("loaded block radius: %d" % Game.loaded_block_radius)
+
+                if mod and key.c == ord('s'):
+                    Game.show_algorithm = False if Game.show_algorithm else True 
+                    print("show algorithm: {}".format(Game.show_algorithm))
 
                 # TODO can't get font resizing to work yet
 #               font_changed = False

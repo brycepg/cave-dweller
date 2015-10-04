@@ -15,11 +15,11 @@ black = libtcod.black
 gray = libtcod.gray
 red = libtcod.red
 
-Tile = namedtuple('Tile', ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden'])
+Tile = namedtuple('Tile', ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'attributes'])
 
-wall = Tile('x', True, white, gray, True)
-ground = Tile('-', False, gray, black, False)
-null = Tile(' ', True, red, red, False)
+wall = Tile('x', True, white, gray, True, None)
+ground = Tile('-', False, gray, black, False, [',', '.'])
+null = Tile(' ', True, red, red, False, None)
 
 
 class Block:
@@ -32,13 +32,14 @@ class Block:
             255: wall,
             None: null,
         }
-        #self.delay_generation = False if len(world.blocks) <= 1 else True
-        self.delay_generation = False
         self.world = world
         self.tiles = []
         self.objects = []
         self.idx = idx
         self.idy = idy
+
+        self.block_seed = self.world.rand_seed + (self.idx * 65565 + self.idy)
+        print("block seed: %d" % self.block_seed)
 
         self.tiles = self.generate_tile_map()
 
@@ -46,25 +47,45 @@ class Block:
         """Get taxicab neighbors(4-way) from coordinates"""
         return [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
 
+    def get_abs(self, local_x, local_y):
+        """Get absolute coordinate from local block coordiante"""
+        abs_x = Game.map_size * self.idx + local_x
+        abs_y = Game.map_size * self.idy + local_y
+        return abs_x, abs_y
+
+    def get_drawable_coordinate(self, local_x, local_y):
+        """Get drawable coordinate from local block coordinate"""
+        abs_x, abs_y = self.get_abs(local_x, local_y)
+        draw_x = abs_x - Game.center_x + Game.screen_width//2
+        draw_y = abs_y - Game.center_y + Game.screen_height//2
+        return draw_x, draw_y
+
     def reposition_object(self, a_object):
         """Breadth first search for nearest non-obstacle"""
 
-        print(self.get_tile(a_object.x, a_object.y, True))
-
         if not self.get_tile(a_object.x,a_object.y, True).is_obstacle:
             return
-        searched_list=[(a_object.x, a_object.y)]
-        to_search=[]
+        searched_list = [(a_object.x, a_object.y)]
+        to_search = []
         neighbors = self.neighbors(a_object.x, a_object.y)
+        if Game.show_algorithm:
+            draw_x, draw_y = self.get_drawable_coordinate(a_object.x, a_object.y)
+            libtcod.console_set_char_background(0, draw_x, draw_y, libtcod.red)
+
         while True:
             for neighbor in neighbors:
-                if Game.show_algorithm:
-                    time.sleep(.01)
-                    Game.win.putchar('O', neighbor[0], neighbor[1], 'red')
-                    Game.win.update()
-                    print(neighbor)
                 if neighbor in searched_list:
                     continue
+                if Game.show_algorithm:
+                    abs_y = Game.map_size * self.idy + neighbor[1]
+                    abs_x = Game.map_size * self.idx + neighbor[0]
+
+                    libtcod.console_put_char_ex(0, 
+                            abs_x - Game.center_x + Game.screen_width//2,
+                            abs_y - Game.center_y + Game.screen_height//2,
+                            ' ', libtcod.red, libtcod.red)
+                    libtcod.console_flush()
+                    print(neighbor)
                 if not self.get_tile(*neighbor, generate_new_blocks=True).is_obstacle:
                     a_object.x, a_object.y = neighbor
                     return
@@ -157,18 +178,6 @@ class Block:
                 new_block = Block(idx+ (a_object.x//map_size), idy + (a_object.y//map_size), world)
                 a_object.x = a_object.x % map_size
                 a_object.y = a_object.y % map_size
-#               if a_object.x >= Game.map_size:
-#                   new_block = Block(self.idx+1, self.idy, self.world)
-#                   a_object.x = a_object.x % Game.map_size
-#               elif a_object.x < 0:
-#                   new_block = Block(self.idx-1, self.idy, self.world)
-#                   a_object.x = Game.map_size + a_object.x
-#               elif a_object.y >= Game.map_size:
-#                   new_block = Block(self.idx, self.idy+1, self.world)
-#                   a_object.y = a_object.y % Game.map_size
-#               elif a_object.y < 0:
-#                   new_block = Block(self.idx, self.idy-1, self.world)
-#                   a_object.y = Game.map_size + a_object.y
                 print("a_object {} {}x{}".format(a_object, a_object.x, a_object.y))
                 free_agent = objects.pop(i)
                 new_block.objects.append(free_agent)
@@ -223,6 +232,16 @@ class Block:
                                 left.adjacent_hidden and
                                 right.adjacent_hidden):
                             draw_char = ' '
+
+#                    if cur_tile.attributes:
+#                        chars = cur_tile.attributes
+#                        if chars:
+#                            char_choice = (self.world.perlin_seed * row + self.block_seed * column) % (len(chars)+1)
+#                            if char_choice != len(chars):
+#                                draw_char = chars[char_choice]
+#                            else:
+#                                draw_char = cur_tile.char
+
                     libtcod.console_put_char_ex(0,
                             abs_x - center_x + screen_width//2,
                             abs_y - center_y + screen_height//2,

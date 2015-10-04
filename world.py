@@ -94,6 +94,13 @@ class World(object):
         self.cull_old_block()
         self.load_surrounding_blocks()
         new_blocks = []
+
+        if Game.reposition_objects:
+            Game.reposition_objects = False
+            blocks = self.blocks.values()
+            for block in blocks:
+                block.reposition_objects()
+
         for block in self.blocks.values():
             gen_blks = block.process()
             if gen_blks:

@@ -43,7 +43,7 @@ def main(seed=None):
 
     while not libtcod.console_is_window_closed():
         Game.record_loop_time()
-        # Order is important since world modifies current view 
+        # Order is important since world modifies current view
         # And game updates the relevant view variables
         world.process()
         Game.process()
@@ -58,9 +58,9 @@ def main(seed=None):
             libtcod.console_print(0, 1, 5, "player: (%dx%d)" % (player.x, player.y))
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             libtcod.console_print(0, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
-        #Game.win.update()
-        #pygame.display.update()
         libtcod.console_flush()
+        if not Game.show_algorithm:
+            libtcod.console_clear(0)
         # ----- keyboard input -----
         while True:
             key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
