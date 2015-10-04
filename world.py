@@ -12,10 +12,8 @@ class GetOutOfLoop(Exception):
 class World(object):
     """Holds all blocks updates and draws world"""
     def __init__(self, rand_seed=None):
-
         self.generate_seeds(rand_seed)
         self.blocks = {}
-        #self.init_blocks()
 
     def generate_seeds(self, rand_seed):
         """Generate time seed if not given
@@ -56,11 +54,11 @@ class World(object):
     def load_surrounding_blocks(self):
         """Loads blocks surrounding player specified by loaded_block_radius"""
 
-        # Current view of game
+        # Load current block first
         cur_blk = self.get(Game.idx_cur, Game.idy_cur)
+
         idy_cur = Game.idy_cur
         idx_cur = Game.idx_cur
-
         loaded_block_radius = Game.loaded_block_radius
 
         try:

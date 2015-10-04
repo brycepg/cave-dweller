@@ -120,6 +120,10 @@ class Game(object):
                     Game.fps = Game.default_fps
                     print("fps default: %d" % Game.default_fps)
                     libtcod.sys_set_fps(type(self).fps)
+                if mod and key.vk == libtcod.KEY_2:
+                    Game.fps += Game.default_fps
+                    print("fps: %d" % Game.fps)
+                    libtcod.sys_set_fps(type(self).fps)
 
                 #print key.c
                 CTRL_R_BRACKET = 29

@@ -118,7 +118,7 @@ def generate_map_whole(seed, idx=0, idy=0, map_size=256):
                                 repeatx = 65536,
                                 repeaty = 65536)
             if val < 0 and val > -.2:
-                out=0
+                out=random.randint(0, 2)
             else:
                 out=255
             append(out)
