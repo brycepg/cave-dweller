@@ -12,7 +12,6 @@ class GetOutOfLoop(Exception):
 class World(object):
     """Holds all blocks updates and draws world"""
     def __init__(self, rand_seed=None):
-        self.loaded_block_radius = 1
 
         self.generate_seeds(rand_seed)
         self.blocks = {}
@@ -41,11 +40,12 @@ class World(object):
         """ Delete blocks father than loaded_block_radius blocks away from the player
             Note: Only destroys one block per call
         """
+        loaded_block_radius = Game.loaded_block_radius
         # TODO serialize old blocks
         destroy_block = None
         for key in self.blocks:
-            if (abs(Game.idx_cur - self.blocks[key].idx) > self.loaded_block_radius or
-                    abs(Game.idy_cur - self.blocks[key].idy) > self.loaded_block_radius):
+            if (abs(Game.idx_cur - self.blocks[key].idx) > loaded_block_radius or
+                    abs(Game.idy_cur - self.blocks[key].idy) > loaded_block_radius):
                 destroy_block = key
                 break
         if destroy_block is not None:
@@ -57,11 +57,13 @@ class World(object):
         """Loads blocks surrounding player specified by loaded_block_radius"""
         # Load the current block immediately
         cur_blk = self.get(Game.idx_cur, Game.idy_cur)
+        loaded_block_radius = Game.loaded_block_radius
+
         try:
-            for idy in range(Game.idy_cur - self.loaded_block_radius,
-                    Game.idy_cur + self.loaded_block_radius + 1):
-                for idx in range(Game.idx_cur - self.loaded_block_radius,
-                        Game.idx_cur + self.loaded_block_radius + 1):
+            for idy in range(Game.idy_cur - loaded_block_radius,
+                    Game.idy_cur + loaded_block_radius + 1):
+                for idx in range(Game.idx_cur - loaded_block_radius,
+                        Game.idx_cur + loaded_block_radius + 1):
                     self.get(idx, idy)
                     if Game.past_loop_time():
                         raise GetOutOfLoop

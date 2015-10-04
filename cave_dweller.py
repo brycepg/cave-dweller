@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 """ Call this file to start the game
 Stores initalization of game, main game loop
 And command-line argument processing
@@ -73,7 +73,7 @@ def main(seed=None):
             player.process_input(key)
             game.get_game_input(key)
         # Sleep
-        elapsed = 1/(time.time() - Game.loop_start)
+        elapsed = (1/(time.time() - Game.loop_start)) * .1 + elapsed * .9
 
 def debug(my_locals):
     pass

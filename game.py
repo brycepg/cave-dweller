@@ -10,6 +10,8 @@ class Game(object):
     and input to change game-wide settings(for debugging)
     """
     map_size = 96
+    loaded_block_radius = 1
+
     font_size = 12
 
     screen_width = 62
@@ -19,7 +21,9 @@ class Game(object):
     fast = False
     collidable = True
     show_algorithm = False
-    fps = 12
+
+    default_fps = 12
+    fps = default_fps
 
     # Drawable window
     win = None
@@ -39,8 +43,6 @@ class Game(object):
     # Current view block coordinates
     idx_cur = None
     idy_cur = None
-
-    win = None
 
     loop_start = None
     loop_time = 1.0/fps
@@ -99,8 +101,34 @@ class Game(object):
                 if mod and key.c == ord('c'):
                     Game.collidable = False if Game.collidable else True
                     print('toggle collision: {}'.format(Game.collidable))
+                if mod and key.c == ord('-') and Game.fps > 0:
+                    Game.fps -= 1
+                    print("fps: %d" % Game.fps)
+                    libtcod.sys_set_fps(type(self).fps)
+                if mod and key.c == ord('='):
+                    Game.fps += 1
+                    print("fps: %d" % Game.fps)
+                    libtcod.sys_set_fps(type(self).fps)
+                if mod and key.c == ord('0'):
+                    Game.fps = 0
+                    print("fps unlimited")
+                    libtcod.sys_set_fps(type(self).fps)
+                if mod and key.c == ord('1'):
+                    Game.fps = Game.default_fps
+                    print("fps default: %d" % Game.default_fps)
+                    libtcod.sys_set_fps(type(self).fps)
 
+                #print key.c
+                CTRL_R_BRACKET = 29
+                CTRL_L_BRACKET = 27
+                if key.c == CTRL_L_BRACKET and Game.loaded_block_radius > 0:
+                    Game.loaded_block_radius -= 1
+                    print("loaded block radius: %d" % Game.loaded_block_radius)
+                if key.c == CTRL_R_BRACKET:
+                    Game.loaded_block_radius += 1
+                    print("loaded block radius: %d" % Game.loaded_block_radius)
 
+                # TODO can't get font resizing to work yet
 #               font_changed = False
 #               if mod and key.c == ord('=') and self.font_size_index < len(type(self).font_sizes) - 1:
 #                       self.font_size_index += 1
