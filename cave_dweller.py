@@ -57,7 +57,7 @@ def main(seed=None):
             libtcod.console_print(0, 1, 4, "center: (%dx%d)" % (game.center_x, game.center_y))
             libtcod.console_print(0, 1, 5, "player: (%dx%d)" % (player.x, player.y))
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
-            libtcod.console_print(0, 1, 6, "process/draw time: ({0:.2f})".format(spent_time))
+            libtcod.console_print(0, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
         #Game.win.update()
         #pygame.display.update()
         libtcod.console_flush()

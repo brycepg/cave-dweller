@@ -1,6 +1,7 @@
 """container for Block"""
 
 import math
+import time
 
 import libtcodpy as libtcod
 
@@ -115,6 +116,11 @@ class Block:
         """Generate block in 'slices' to allow a
             'timeout' after a certain threshold
              To allow other parts of the game to update."""
+        perlin_seed = self.world.perlin_seed
+        idx = self.idx
+        idy = self.idy
+        map_size = Game.map_size
+
         while not Game.past_loop_time() or not self.delay_generation:
             #print(self.world.perlin_seed)
             num_map_slice = generate_map_slice_abs_more(self.world.perlin_seed,
@@ -145,17 +151,23 @@ class Block:
         if not self.completely_generated:
             self.init_map_slices()
             return
-        new_blocks = []
 
-        for a_object in self.objects:
+        new_blocks = []
+        objects = self.objects
+        idx = self.idx
+        idy = self.idy
+        map_size = Game.map_size
+        world = self.world
+
+        for a_object in objects:
             a_object.move(self)
 
-        for i, a_object in reversed(list(enumerate(self.objects))):
+        for i, a_object in reversed(list(enumerate(objects))):
             if a_object.out_of_bounds():
                 # Transfer object to new block-coordinate system
-                new_block = Block(self.idx+ (a_object.x//Game.map_size), self.idy + (a_object.y//Game.map_size), self.world)
-                a_object.x = a_object.x % Game.map_size
-                a_object.y = a_object.y % Game.map_size
+                new_block = Block(idx+ (a_object.x//map_size), idy + (a_object.y//map_size), world)
+                a_object.x = a_object.x % map_size
+                a_object.y = a_object.y % map_size
 #               if a_object.x >= Game.map_size:
 #                   new_block = Block(self.idx+1, self.idy, self.world)
 #                   a_object.x = a_object.x % Game.map_size
@@ -169,7 +181,7 @@ class Block:
 #                   new_block = Block(self.idx, self.idy-1, self.world)
 #                   a_object.y = Game.map_size + a_object.y
                 print("a_object {} {}x{}".format(a_object, a_object.x, a_object.y))
-                free_agent = self.objects.pop(i)
+                free_agent = objects.pop(i)
                 new_block.objects.append(free_agent)
                 new_blocks.append(new_block)
 
@@ -188,34 +200,52 @@ class Block:
         grey = libtcod.grey
         black = libtcod.black
 
-        for row in range(Game.map_size):
-            abs_y = Game.map_size * self.idy + row
-            for column in range(Game.map_size):
-                abs_x = Game.map_size * self.idx + column
-                if((Game.min_x <= abs_x <= Game.max_x) and
-                   (Game.min_y <= abs_y <= Game.max_y)):
-                    cur_char = self.chars[row][column]
+        map_size = Game.map_size
+        min_x = Game.min_x
+        max_x = Game.max_x
+        min_y = Game.min_y
+        max_y = Game.max_y
+        screen_width = Game.screen_width
+        screen_height = Game.screen_height
+
+        idx = self.idx
+        idy = self.idy
+
+        center_x = Game.center_x
+        center_y = Game.center_y
+
+        chars = self.chars
+        obstacles = self.obstacles
+        get_char = self.get_char
+
+        for row in range(map_size):
+            abs_y = map_size * idy + row
+            for column in range(map_size):
+                abs_x = map_size * idx + column
+                if((min_x <= abs_x <= max_x) and
+                   (min_y <= abs_y <= max_y)):
+                    cur_char = chars[row][column]
                     if cur_char == WALL:
-                        right = self.get_char(column+1, row)
-                        left = self.get_char(column-1, row)
-                        down = self.get_char(column, row+1)
-                        up = self.get_char(column, row-1)
+                        right = get_char(column+1, row)
+                        left = get_char(column-1, row)
+                        down = get_char(column, row+1)
+                        up = get_char(column, row-1)
                         #print("{} {} {} {}".format(right, left, down, up))
                         if((right == WALL or right == HIDDEN) and
                            (left == WALL or left == HIDDEN) and
                            (up == WALL or up == HIDDEN) and
                            (down == WALL or down == HIDDEN)):
-                            self.chars[row][column] = HIDDEN
-                    if self.obstacles[row][column]:
+                            chars[row][column] = HIDDEN
+                    if obstacles[row][column]:
                         fg = white
                         bg = grey
                     else:
                         fg = grey
                         bg = black
                     #print('{}x{}'.format(abs_x, abs_y), end=",")
-                    libtcod.console_put_char_ex(0, 
-                            abs_x - Game.center_x + Game.screen_width//2,
-                            abs_y - Game.center_y + Game.screen_height//2,
+                    libtcod.console_put_char_ex(0,
+                            abs_x - center_x + screen_width//2,
+                            abs_y - center_y + screen_height//2,
                             self.chars[row][column], fg, bg)
     def draw_objects(self):
         """Put block's drawable objects on screen"""
