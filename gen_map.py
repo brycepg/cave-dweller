@@ -6,6 +6,7 @@ import random
 import os
 
 from noise import snoise2
+from tiles import Id
 
 def write_map(block, idx=0, idy=0, path=None):
     """Write map to file in pgm format"""
@@ -118,9 +119,9 @@ def generate_map_whole(seed, idx=0, idy=0, map_size=256):
                                 repeatx = 65536,
                                 repeaty = 65536)
             if val < 0 and val > -.2:
-                out=random.randint(0, 2)
+                out = random.choice(Id.any_ground)
             else:
-                out=255
+                out = 255
             append(out)
         block.append(x_line)
     return block

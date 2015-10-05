@@ -116,7 +116,7 @@ class Game(object):
                     Game.fps = 0
                     print("fps unlimited")
                     libtcod.sys_set_fps(type(self).fps)
-                if mod and key.c == ord('1'):
+                if mod and key.vk == libtcod.KEY_1:
                     Game.fps = Game.default_fps
                     print("fps default: %d" % Game.default_fps)
                     libtcod.sys_set_fps(type(self).fps)

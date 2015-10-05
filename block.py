@@ -2,38 +2,34 @@
 
 import math
 import time
-from collections import namedtuple
 import random
+import logging
+import traceback
 
 import libtcodpy as libtcod
 
 from gen_map import generate_map_whole
 
 from game import Game
+from tiles import *
 
-white = libtcod.white
-black = libtcod.black
-gray = libtcod.gray
-red = libtcod.red
-
-Tile = namedtuple('Tile', ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'attributes'])
-
-wall = Tile('x', True, white, gray, True, None)
-ground = Tile('-', False, gray, libtcod.darkest_gray, False, {'alternative_characters': [',', '\'']})
-ground2 = Tile('.', False, gray, libtcod.darkest_gray, False, None)
-ground3 = Tile('`', False, gray, libtcod.darkest_gray, False, None)
-null = Tile(' ', True, red, red, False, None)
 
 
 class Block:
     """Segment of world populated by object and terrain"""
     def __init__(self, idx, idy, world):
+        #print("init new block: {}x{}".format(idx, idy))
+        #traceback.print_stack()
+
         self.tile_lookup = {
-            0: ground,
-            1: ground2,
-            2: ground3,
-            255: wall,
-            None: null,
+            Id.ground:  Tiles.ground,
+            Id.ground2:  Tiles.ground2,
+            Id.ground3:  Tiles.ground3,
+            Id.dig1:  Tiles.dig1,
+            Id.dig2:  Tiles.dig2,
+            Id.dig3:  Tiles.dig3,
+            Id.wall:  Tiles.wall,
+            None:  Tiles.null,
         }
         self.world = world
         self.tiles = []
@@ -120,7 +116,7 @@ class Block:
         else:
             return False
 
-    def get_tile(self, x, y, generate_new_blocks=True):
+    def get_tile(self, x, y, generate_new_blocks=False):
         """"Get namedtuple of tile location, even if out of bounds.
         Note: This is not merged into get_tile_id because of performance
         ~10fps increase by not calling get_tile_id"""
@@ -145,6 +141,26 @@ class Block:
         #print "tile: {}".format(tile)
         #print "tile lookup: {}".format(self.tile_lookup[tile])
         return self.tile_lookup[tile]
+
+    def set_tile(self, x, y, tile, generate_new_blocks=False):
+        print("tile :{}".format(tile))
+        if self.within_bounds(x, y):
+            self.tiles[y][x] = tile
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+            if generate_new_blocks:
+                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+            else:
+                try:
+                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+                except KeyError:
+                    logging.error('Cannot set tile %dx%d', x, y)
+                    return
+
+            new_x = x % Game.map_size
+            new_y = y % Game.map_size
+            blk.tiles[new_y][new_x] = tile
 
     def get_tile_id(self, x, y, generate_new_blocks=False):
         """Get id of tile, even if outside of blocks bounds."""
@@ -187,10 +203,12 @@ class Block:
         for a_object in objects:
             a_object.move(self)
 
+
         for i, a_object in reversed(list(enumerate(objects))):
             if a_object.out_of_bounds():
                 # Transfer object to new block-coordinate system
-                new_block = Block(idx+ (a_object.x//map_size), idy + (a_object.y//map_size), world)
+                new_block = self.world.get(idx+ (a_object.x//map_size), idy + (a_object.y//map_size))
+                a_object.new_block = True
                 a_object.x = a_object.x % map_size
                 a_object.y = a_object.y % map_size
                 print("a_object {} {}x{}".format(a_object, a_object.x, a_object.y))
@@ -252,7 +270,7 @@ class Block:
                            left.adjacent_hidden and
                            right.adjacent_hidden):
                             draw_char = ' '
-                            bg = wall.bg
+                            bg = Tiles.wall.bg
                             
 
                     if cur_tile.attributes:

@@ -2,6 +2,8 @@
 import time
 import random
 
+from tiles import Tiles
+from tiles import Id
 from block import Block
 from game import Game
 
@@ -14,6 +16,7 @@ class World(object):
     def __init__(self, rand_seed=None):
         self.generate_seeds(rand_seed)
         self.blocks = {}
+        self.turn = 0
 
     def generate_seeds(self, rand_seed):
         """Generate time seed if not given
@@ -108,6 +111,11 @@ class World(object):
             print("{} {}x{}".format(new_blocks[0], new_blocks[0].idx, new_blocks[0].idy))
         for block in new_blocks:
             self.blocks[(block.idx, block.idy)] = block
+
+        self.turn += 1
+
+        # A little hack to randomize digging tile
+        Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)
 
     def draw(self):
         """Call block's draw functions(as to be separate from game logic"""
