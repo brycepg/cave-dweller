@@ -20,17 +20,14 @@ Tile = namedtuple('Tile',
      'bg',
      'adjacent_hidden',
      'diggable',
+     'buildable',
      'attributes']
 )
 
 class Id(object):
     """Defines all the tile ids -- block.tiles vlaues"""
-    ground = 0
-    ground2 = 1
-    ground3 = 2
-    dig1 = 3
-    dig2 = 4
-    dig3 = 5
+    ground, ground2, ground3 = [0, 1, 2]
+    dig1, dig2, dig3 = [3, 4, 5]
     wall = 255
 
     any_ground = [ground, ground2, ground3]
@@ -38,18 +35,21 @@ class Id(object):
 class Tiles:
     """Defines all the tiles."""
     #TODO: offload to configuration files
-    ground = Tile('-', False, gray, ground_bg, False, False, None)
-    ground2 = Tile('.', False, gray, ground_bg, False, False, None)
-    ground3 = Tile('`', False, gray, ground_bg, False, False, None)
 
-    wall = Tile('x', True, white, wall_bg, True, True, {'next': Id.dig1})
+    # Permutation of characters
+    ground = Tile('-', False, gray, ground_bg, False, False, True, None)
+    ground2 = Tile('.', False, gray, ground_bg, False, False, True, None)
+    ground3 = Tile('`', False, gray, ground_bg, False, False, True, None)
 
-    dig1 = Tile(178, True, wall_bg, ground_bg, True, True, {'next': Id.dig2})
-    dig2 = Tile(177, True, wall_bg, ground_bg, True, True, {'next': Id.dig3})
-    dig3 = Tile(176, True, wall_bg, ground_bg, True, True, {'next': Id.ground})
+    wall = Tile('x', True, white, wall_bg, True, True, False, {'next': Id.dig1})
 
-    null = Tile(' ', True, red, red, False, False, None)
+    dig1 = Tile(178, True, wall_bg, ground_bg, True, True, False, {'next': Id.dig2})
+    dig2 = Tile(177, True, wall_bg, ground_bg, True, True, False, {'next': Id.dig3})
+    dig3 = Tile(176, True, wall_bg, ground_bg, True, True, False, {'next': Id.ground})
 
+    null = Tile(' ', True, red, red, False, False, False, None)
+
+    # Map stores array of tiles -- map tile id to nameduple
     tile_lookup = {
         Id.ground: ground,
         Id.ground2: ground2,
