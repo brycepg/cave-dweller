@@ -8,10 +8,10 @@ import traceback
 
 import libtcodpy as libtcod
 
-from gen_map import generate_map_whole
+from gen_map import generate_block
 
 from game import Game
-from tiles import *
+from tiles import Tiles
 
 
 
@@ -20,17 +20,9 @@ class Block:
     def __init__(self, idx, idy, world):
         #print("init new block: {}x{}".format(idx, idy))
         #traceback.print_stack()
+        if (idx, idy) in world.blocks:
+            raise RuntimeError("Block already created");
 
-        self.tile_lookup = {
-            Id.ground:  Tiles.ground,
-            Id.ground2:  Tiles.ground2,
-            Id.ground3:  Tiles.ground3,
-            Id.dig1:  Tiles.dig1,
-            Id.dig2:  Tiles.dig2,
-            Id.dig3:  Tiles.dig3,
-            Id.wall:  Tiles.wall,
-            None:  Tiles.null,
-        }
         self.world = world
         self.tiles = []
         self.objects = []
@@ -123,7 +115,7 @@ class Block:
         tile = None
         blk = None
         if self.within_bounds(x, y):
-            return self.tile_lookup[self.tiles[y][x]]
+            return Tiles.tile_lookup[self.tiles[y][x]]
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
@@ -140,10 +132,10 @@ class Block:
                 tile = blk.tiles[new_y][new_x]
         #print "tile: {}".format(tile)
         #print "tile lookup: {}".format(self.tile_lookup[tile])
-        return self.tile_lookup[tile]
+        return Tiles.tile_lookup[tile]
 
     def set_tile(self, x, y, tile, generate_new_blocks=False):
-        print("tile :{}".format(tile))
+        #print("tile :{}".format(tile))
         if self.within_bounds(x, y):
             self.tiles[y][x] = tile
         else:
@@ -187,9 +179,9 @@ class Block:
 
     def generate_tile_map(self):
         """Generate tiles from map function"""
-        return generate_map_whole(self.world.perlin_seed,
-                                  self.idx, self.idy,
-                                  map_size=Game.map_size)
+        return generate_block(self.world.perlin_seed,
+                              self.idx, self.idy,
+                              map_size=Game.map_size)
     def process(self):
         """Do block calculations. Manage block objects update"""
 
@@ -245,7 +237,7 @@ class Block:
 
         get_tile = self.get_tile
         tiles = self.tiles
-        tile_lookup = self.tile_lookup
+        tile_lookup = Tiles.tile_lookup
 
         for row in range(map_size):
             abs_y = map_size * idy + row

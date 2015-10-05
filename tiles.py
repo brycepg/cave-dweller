@@ -13,7 +13,16 @@ red = libtcod.red
 ground_bg = libtcod.darkest_gray
 wall_bg = gray
 
-Tile = namedtuple('Tile', ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'attributes'])
+Tile = namedtuple('Tile', 
+    ['char',
+     'is_obstacle',
+     'fg',
+     'bg',
+     'adjacent_hidden',
+     'diggable',
+     'attributes']
+)
+
 class Id(object):
     """Defines all the tile ids -- block.tiles vlaues"""
     ground = 0
@@ -26,9 +35,6 @@ class Id(object):
 
     any_ground = [ground, ground2, ground3]
 
-#    @classproperty
-#    def any_ground(cls):
-#        return random.randint(0, 2)
 class Tiles:
     """Defines all the tiles."""
     #TODO: offload to configuration files
@@ -43,3 +49,14 @@ class Tiles:
     dig3 = Tile(176, True, wall_bg, ground_bg, True, True, {'next': Id.ground})
 
     null = Tile(' ', True, red, red, False, False, None)
+
+    tile_lookup = {
+        Id.ground: ground,
+        Id.ground2: ground2,
+        Id.ground3: ground3,
+        Id.dig1: dig1,
+        Id.dig2: dig2,
+        Id.dig3: dig3,
+        Id.wall: wall,
+        None: null,
+    }
