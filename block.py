@@ -193,7 +193,7 @@ class Block:
         world = self.world
 
         for a_object in objects:
-            a_object.move(self)
+            a_object.process(self)
 
 
         for i, a_object in reversed(list(enumerate(objects))):

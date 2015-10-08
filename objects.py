@@ -25,7 +25,7 @@ class Object(object):
 
         self.new_block = False
 
-    def move(self, cur_block):
+    def process(self, cur_block):
         """Configuration that changes object state"""
         pass
 
@@ -135,7 +135,7 @@ class Player(Object):
                 self.dig_right = False
                 self.build_right = False
 
-    def move(self, cur_block):
+    def process(self, cur_block):
         """ Player movement:
             NOTE: modifies view of game """
 
