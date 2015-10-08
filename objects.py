@@ -1,5 +1,7 @@
 """Container for Object and it's special subclass Player"""
 
+import random 
+
 import libtcodpy as libtcod
 
 from game import Game
@@ -151,16 +153,20 @@ class Player(Object):
             left = cur_block.get_tile(self.x-1, self.y)
             right = cur_block.get_tile(self.x+1, self.y)
             if self.dig_left and left.diggable:
-                new_tile = left.attributes['next']
+                tile_choices = left.attributes['dig']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x-1, self.y, new_tile)
             elif self.dig_right and right.diggable:
-                new_tile = right.attributes['next']
+                tile_choices = right.attributes['dig']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x+1, self.y, new_tile)
             elif self.dig_up and up.diggable:
-                new_tile = up.attributes['next']
+                tile_choices = up.attributes['dig']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x, self.y-1, new_tile)
             elif self.dig_down and down.diggable:
-                new_tile = down.attributes['next']
+                tile_choices = down.attributes['dig']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x, self.y+1, new_tile)
 
         elif self.build:
@@ -169,16 +175,20 @@ class Player(Object):
             left = cur_block.get_tile(self.x-1, self.y)
             right = cur_block.get_tile(self.x+1, self.y)
             if self.build_left and left.buildable:
-                new_tile = Id.wall
+                tile_choices = left.attributes['build']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x-1, self.y, new_tile)
             elif self.build_right and right.buildable:
-                new_tile = Id.wall
+                tile_choices = right.attributes['build']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x+1, self.y, new_tile)
             elif self.build_up and up.buildable:
-                new_tile = Id.wall
+                tile_choices = up.attributes['build']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x, self.y-1, new_tile)
             elif self.build_down and down.buildable:
-                new_tile = Id.wall
+                tile_choices = down.attributes['build']
+                new_tile = random.choice(tile_choices)
                 cur_block.set_tile(self.x, self.y+1, new_tile)
 
         else:

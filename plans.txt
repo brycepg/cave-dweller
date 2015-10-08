@@ -1,0 +1,4 @@
+add basic monster object
+map viewer/tuner program
+add saving/loading
+move off of root console(space of ui)
