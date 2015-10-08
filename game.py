@@ -23,8 +23,10 @@ class Game(object):
     show_algorithm = False
     reposition_objects = False
 
-    default_fps = 12
+    default_fps = 24
     fps = default_fps
+    move_per_sec = 1.0/15
+    action_interval = 1.0/20
 
     # Drawable window
     win = None
@@ -66,6 +68,8 @@ class Game(object):
 
         libtcod.mouse_show_cursor(True)
         libtcod.sys_set_fps(type(self).fps)
+        libtcod.console_set_keyboard_repeat(5, 100)
+
 
     @classmethod
     def record_loop_time(cls):

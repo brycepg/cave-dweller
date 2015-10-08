@@ -1,6 +1,7 @@
 """Container for Object and it's special subclass Player"""
 
 import random 
+import time
 
 import libtcodpy as libtcod
 
@@ -48,6 +49,9 @@ class Player(Object):
         self.fg = libtcod.lightest_gray
         self.bg = None
 
+        self.last_move_time = 0
+        self.last_action_time = 0
+
         self.move_down = None
         self.move_up = None
         self.move_left = None
@@ -65,6 +69,7 @@ class Player(Object):
         self.build_left = False
         self.build_right = False
 
+        # Count frames
         self.last_turn = 0
 
     def process_input(self, key):
@@ -144,8 +149,12 @@ class Player(Object):
         else:
             self.step_modifier = 1
 
+
         get_tile = cur_block.get_tile
         step = 1 * self.step_modifier
+        if (time.time() - self.last_action_time) < Game.action_interval:
+            return
+        self.last_action_time = time.time()
 
         if self.dig:
             up = cur_block.get_tile(self.x, self.y-1)
@@ -192,6 +201,10 @@ class Player(Object):
                 cur_block.set_tile(self.x, self.y+1, new_tile)
 
         else:
+            # Limit movement per second
+            if (time.time() - self.last_move_time) < Game.move_per_sec:
+                return
+            self.last_move_time = time.time()
             for _ in range(step):
                 if self.move_up and (not cur_block.get_tile(self.x, self.y-1).is_obstacle or not Game.collidable):
                     self.y -= 1
