@@ -13,6 +13,9 @@ from gen_map import generate_block
 from game import Game
 from tiles import Tiles
 
+from util import get_neighbors
+from util import within_bounds
+
 
 
 class Block:
@@ -35,10 +38,6 @@ class Block:
 
         self.tiles = self.generate_tile_map()
 
-    def neighbors(self, x, y):
-        """Get taxicab neighbors(4-way) from coordinates"""
-        return [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
-
     def get_abs(self, local_x, local_y):
         """Get absolute coordinate from local block coordiante"""
         abs_x = Game.map_size * self.idx + local_x
@@ -60,7 +59,7 @@ class Block:
             return
         searched_list = [(a_object.x, a_object.y)]
         to_search = []
-        neighbors = self.neighbors(a_object.x, a_object.y)
+        neighbors = get_neighbors(a_object.x, a_object.y)
 
         # Visualization for debugging/coolness
         if Game.show_algorithm:
@@ -95,18 +94,12 @@ class Block:
                     to_search.append(neighbor)
 
             # Use list like queue to to bfs search
-            neighbors = self.neighbors(*to_search.pop(0))
+            neighbors = get_neighbors(*to_search.pop(0))
         
     def reposition_objects(self):
         """Move objects until square is found that's not an obstacle"""
         for a_object in self.objects:
             self.reposition_object(a_object)
-
-    def within_bounds(self, x, y):
-        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
-            return True
-        else:
-            return False
 
     def get_tile(self, x, y, generate_new_blocks=False):
         """"Get namedtuple of tile location, even if out of bounds.
@@ -114,7 +107,7 @@ class Block:
         ~10fps increase by not calling get_tile_id"""
         tile = None
         blk = None
-        if self.within_bounds(x, y):
+        if within_bounds(x, y):
             return Tiles.tile_lookup[self.tiles[y][x]]
         else:
             idx_mod = x // Game.map_size
@@ -136,7 +129,7 @@ class Block:
 
     def set_tile(self, x, y, tile, generate_new_blocks=False):
         #print("tile :{}".format(tile))
-        if self.within_bounds(x, y):
+        if within_bounds(x, y):
             self.tiles[y][x] = tile
         else:
             idx_mod = x // Game.map_size
@@ -158,7 +151,7 @@ class Block:
         """Get id of tile, even if outside of blocks bounds."""
         tile = None
         blk = None
-        if self.within_bounds(x, y):
+        if within_bounds(x, y):
             return self.tiles[y][x]
         else:
             idx_mod = x // Game.map_size
@@ -282,6 +275,7 @@ class Block:
                             abs_x - center_x + screen_width//2,
                             abs_y - center_y + screen_height//2,
                             draw_char, cur_tile.fg, bg)
+
     def draw_objects(self):
         """Put block's drawable objects on screen"""
         for a_object in self.objects:

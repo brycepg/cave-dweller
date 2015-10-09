@@ -14,15 +14,10 @@ ground_bg = libtcod.darkest_gray
 wall_bg = gray
 
 Tile = namedtuple('Tile', 
-    ['char',
-     'is_obstacle',
-     'fg',
-     'bg',
-     'adjacent_hidden',
-     'diggable',
-     'buildable',
-     'attributes']
+    ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes']
 )
+Tile.__new__.__defaults__ = \
+    (' ',    False,    libtcod.black, None, False,          False,     False,        None)
 
 class Id(object):
     """Defines all the tile ids -- block.tiles vlaues"""
@@ -39,21 +34,21 @@ class Tiles:
     #TODO: offload to configuration files
 
     # Permutation of characters
-    ground = Tile('-', False, gray, ground_bg, False, False, True, {'build': [Id.build1]})
-    ground2 = Tile('.', False, gray, ground_bg, False, False, True, {'build': [Id.build1]})
-    ground3 = Tile('`', False, gray, ground_bg, False, False, True, {'build': [Id.build1]})
+    ground  = Tile('-', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]})
+    ground2 = Tile('.', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]})
+    ground3 = Tile('`', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]})
 
-    wall = Tile('x', True, white, wall_bg, True, True, False, {'dig': [Id.dig1]})
+    wall = Tile('x', is_obstacle=True, fg=white, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]})
 
-    build1 = Tile(176, False, wall_bg, ground_bg, False, True, True, {'build': [Id.build2], 'dig': Id.any_ground})
-    build2 = Tile(177, False, wall_bg, ground_bg, False, True, True, {'build': [Id.build3], 'dig': [Id.build1]})
-    build3 = Tile(178, False, wall_bg, ground_bg, False, True, True, {'build': [Id.wall], 'dig': [Id.build2]})
+    build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
+    build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
+    build3 = Tile(char=178, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.wall],   'dig': [Id.build2]})
 
-    dig1 = Tile(178, True, wall_bg, ground_bg, True, True, True, {'dig': [Id.dig2], 'build': [Id.wall]})
-    dig2 = Tile(177, True, wall_bg, ground_bg, True, True, True, {'dig': [Id.dig3], 'build': [Id.dig1]})
-    dig3 = Tile(176, True, wall_bg, ground_bg, True, True, True, {'dig': Id.any_ground, 'build': [Id.dig2]})
+    dig1 = Tile(char=178, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': [Id.dig2], 'build': [Id.wall]})
+    dig2 = Tile(char=177, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': [Id.dig3], 'build': [Id.dig1]})
+    dig3 = Tile(char=176, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': Id.any_ground, 'build': [Id.dig2]})
 
-    null = Tile(' ', True, red, red, False, False, False, None)
+    null = Tile(is_obstacle=True, fg=red, bg=red)
 
     # Map stores array of tiles -- map tile id to nameduple
     tile_lookup = {
