@@ -62,6 +62,7 @@ class Game(object):
             return False
 
     def __init__(self):
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.font_size_index = 3
         libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
         libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', libtcod.RENDERER_GLSL)

@@ -1,4 +1,5 @@
 import random
+import time
 
 import libtcodpy as libtcod
 
@@ -6,7 +7,6 @@ from game import Game
 
 class PlayerAction(object):
     current_actions = []
-    state_keys = []
 
     def __init__(self):
         PlayerAction.current_actions.append(self)
@@ -21,14 +21,18 @@ class PlayerAction(object):
 class PlayerMoveAction(PlayerAction):
     def __init__(self, state_key = None):
         """
+        Action controlled by optional state-key followed by arrow keys
+        Assummed to be mutually exclusive
         """
         super(PlayerMoveAction, self).__init__()
         self.state_key = state_key
-        #if state_key is not None:
-        #    type(self).state_keys.append(state_key)
         self.dir_dict = {'up': False, 'down': False, 'left': False, 'right': False}
 
     def get_input(self, key):
+        """
+        var - state key is pressed - 
+        dir_dict - arrow key movement state
+        """
         if key.pressed:
             if key.c == self.state_key:
                 self.var = True
@@ -94,6 +98,15 @@ class Dig(PlayerMoveAction):
 class Move(PlayerMoveAction):
     def __init__(self):
         super(type(self), self).__init__(state_key=None)
+        self.last_move_time = 0
+
+    def process(self, player, cur_block):
+        # Prevent key-repeat - Limit movement per second
+        if (time.time() - self.last_move_time) < Game.move_per_sec:
+            return
+        self.last_move_time = time.time()
+
+        super(type(self), self).process(player, cur_block)
 
     def dir(self, direction, coordinates, cur_block, player):
         """Move player if tile desired is not collidable or if collision is turned off"""
