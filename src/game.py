@@ -50,7 +50,7 @@ class Game(object):
     loop_start = None
     loop_time = 1.0/fps
 
-    font_sizes = [8, 10, 12, 16]
+    font_sizes = [10, 12, 16]
 
     @classmethod
     def in_drawable_coordinates(cls, abs_x, abs_y):
@@ -63,7 +63,7 @@ class Game(object):
 
     def __init__(self):
         os.environ['SDL_VIDEO_CENTERED'] = '1'
-        self.font_size_index = 3
+        self.font_size_index = 2
         libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
         libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', libtcod.RENDERER_GLSL)
 
