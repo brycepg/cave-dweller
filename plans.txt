@@ -1,4 +1,9 @@
 add basic monster object
-map viewer/tuner program
-add saving/loading
 move off of root console(space of ui)
+adding turns -> turn counter for moves at bottom of screen
+add saving/loading
+
+mutable tiles?
+
+-- shelved --
+map viewer/tuner program
