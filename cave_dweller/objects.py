@@ -41,6 +41,24 @@ class Object(object):
         else:
             return False
 
+class Cat(Object):
+    def __init__(self, x, y):
+        super(Cat, self).__init__(x, y, 'c')
+        self.fg = libtcod.grey
+
+    def process(self, cur_block):
+        x_new = self.x + random.choice([-1, 0, 0, 0, 0, 0, 0, 0 , 0 , 0, 0, 0 ,0, 0, 0,0 ,1])
+        y_new = self.y + random.choice([-1, 0, 0, 0, 0, 0, 0 , 0, 0 ,0 ,0, 0, 0, 0, 1])
+        self.move((x_new, y_new), cur_block)
+
+
+    def move(self, coordinates, cur_block):
+        """Move player if tile desired is not collidable or if collision is turned off"""
+        tile = cur_block.get_tile(*coordinates)
+        if not tile.is_obstacle and not cur_block.object_at(*coordinates):
+            self.x, self.y = coordinates
+
+
 class Player(Object):
     """Player-object
        Acts as an object but also manages the viewable center"""
@@ -114,3 +132,7 @@ class Player(Object):
         Game.center_y = int(self.y + Game.map_size * cur_block.idy)
 
         self.last_turn = cur_block.world.turn
+
+generation_table = [
+        [Cat, 100, 20]
+]

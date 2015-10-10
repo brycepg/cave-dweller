@@ -12,6 +12,7 @@ from gen_map import generate_block
 
 from game import Game
 from tiles import Tiles
+import objects as obj
 
 from util import get_neighbors
 from util import within_bounds
@@ -37,6 +38,37 @@ class Block:
         #print("block seed: %d" % self.block_seed)
 
         self.tiles = self.generate_tile_map()
+        self.objects += self.generate_objects()
+
+    def generate_objects(self):
+        objects = []
+        for monster, spawn_chance, amt in obj.generation_table:
+            if self.block_seed % 100 < spawn_chance:
+                for _ in range(amt):
+                    m = monster(random.randint(0, Game.map_size), random.randint(0, Game.map_size))
+                    objects.append(m)
+        return objects
+
+    def object_at(self, x, y, generate_new_blocks=False):
+        if within_bounds(x, y):
+            blk = self
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+            if generate_new_blocks:
+                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+            else:
+                try:
+                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+                except KeyError:
+                    return True
+
+        for a_obj in blk.objects:
+            if a_obj.x == x and a_obj.y == y:
+                return True
+
+        return False
+
 
     def get_abs(self, local_x, local_y):
         """Get absolute coordinate from local block coordiante"""
