@@ -32,7 +32,7 @@ def main(seed=None):
     player = Player(world)
     start_block = world.get(game.idx_cur, game.idy_cur)
     start_block.objects.append(player)
-    start_block.reposition_objects()
+    start_block.reposition_object(player)
     world.process()
     Game.process()
     world.draw()
@@ -56,6 +56,7 @@ def main(seed=None):
             # ------- Draw -------
             world.draw()
         libtcod.console_print(Game.status_con, 0, 0, "turn %s" % world.turn)
+        libtcod.console_print(Game.status_con, 10, 0, "kills %s" % player.kills)
         if Game.debug:
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             debug_print(locals())
@@ -98,5 +99,22 @@ def parse_main():
     else:
         main()
 
+def setup_logger():
+    log = logging.getLogger()
+    log.setLevel(logging.DEBUG)
+    my_format = logging.Formatter("%(asctime)s:%(name)s:%(levelname)s| %(message)s")
+    #logging.basicConfig()
+    fh = logging.FileHandler("gamelog.txt")
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(my_format)
+    log.addHandler(fh)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(my_format)
+    log.addHandler(ch)
+
 if __name__ == "__main__":
+    setup_logger()
+    log = logging.getLogger(__name__)
+    log.debug("---New Game---")
     parse_main()

@@ -18,6 +18,7 @@ from util import get_neighbors
 from util import within_bounds
 
 
+log = logging.getLogger(__name__)
 
 class Block:
     """Segment of world populated by object and terrain"""
@@ -39,14 +40,18 @@ class Block:
 
         self.tiles = self.generate_tile_map()
         self.objects += self.generate_objects()
+        #self.reposition_objects()
 
     def generate_objects(self):
         objects = []
         for monster, spawn_chance, amt in obj.generation_table:
-            if self.block_seed % 100 < spawn_chance:
-                for _ in range(amt):
-                    m = monster(random.randint(0, Game.map_size), random.randint(0, Game.map_size))
-                    objects.append(m)
+            for _ in range(amt):
+                if random.randint(0,100) < spawn_chance:
+                    x = random.randint(0, Game.map_size)
+                    y = random.randint(0, Game.map_size)
+                    if not self.get_tile(x, y).is_obstacle and not self.get_object(x, y):
+                        m = monster(x, y)
+                        objects.append(m)
         return objects
 
     def object_at(self, x, y, generate_new_blocks=False):
@@ -112,9 +117,9 @@ class Block:
         neighbors = get_neighbors(a_object.x, a_object.y)
 
         # Visualization for debugging/coolness
-        if Game.show_algorithm:
-            draw_x, draw_y = self.get_drawable_coordinate(a_object.x, a_object.y)
-            libtcod.console_set_char_background(0, draw_x, draw_y, libtcod.red)
+        #if Game.show_algorithm:
+        #    draw_x, draw_y = self.get_drawable_coordinate(a_object.x, a_object.y)
+        #    libtcod.console_set_char_background(0, draw_x, draw_y, libtcod.red)
 
         while True:
             for neighbor in neighbors:
@@ -123,15 +128,15 @@ class Block:
                     continue
 
                 # Visualization for debugging/coolness
-                if Game.show_algorithm:
-                    abs_y = Game.map_size * self.idy + neighbor[1]
-                    abs_x = Game.map_size * self.idx + neighbor[0]
-                    libtcod.console_put_char_ex(Game.game_con, 
-                            abs_x - Game.center_x + Game.game_width//2,
-                            abs_y - Game.center_y + Game.game_height//2,
-                            ' ', libtcod.red, libtcod.red)
-                    libtcod.console_flush()
-                    print(neighbor)
+                #if Game.show_algorithm:
+                #    abs_y = Game.map_size * self.idy + neighbor[1]
+                #    abs_x = Game.map_size * self.idx + neighbor[0]
+                #    libtcod.console_put_char_ex(Game.game_con, 
+                #            abs_x - Game.center_x + Game.game_width//2,
+                #            abs_y - Game.center_y + Game.game_height//2,
+                #            ' ', libtcod.red, libtcod.red)
+                #    libtcod.console_flush()
+                #    log.debug("neighbor %r" % neighbor)
 
                 # Exit condition --- ground open tile
                 if not self.get_tile(*neighbor, generate_new_blocks=True).is_obstacle:
@@ -246,7 +251,7 @@ class Block:
                 a_object.new_block = True
                 a_object.x = a_object.x % map_size
                 a_object.y = a_object.y % map_size
-                print("a_object {} {}x{}".format(a_object, a_object.x, a_object.y))
+                log.debug("move object {} {}x{}".format(a_object, a_object.x, a_object.y))
                 free_agent = objects.pop(i)
                 new_block.objects.append(free_agent)
                 new_blocks.append(new_block)

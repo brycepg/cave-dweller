@@ -138,8 +138,9 @@ class Attack(PlayerMoveAction):
     def dir(self, direction, coordinates, cur_block, player):
         if self.dir_dict[direction]:
             obj = cur_block.get_object(*coordinates)
-            if obj:
+            if obj and obj.do_process:
                 obj.fg = libtcod.red
                 obj.bg = libtcod.darkest_red
                 obj.do_process = False
                 player.moved = True
+                player.kills += 1

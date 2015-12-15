@@ -67,7 +67,7 @@ class Spider(Object):
     """First dummy non-player entity"""
     def __init__(self, x, y):
         super(Spider, self).__init__(x, y, 'S')
-        self.fg = libtcod.grey
+        self.fg = libtcod.black
 
     def process(self, cur_block):
         if not self.do_process:
@@ -101,6 +101,8 @@ class Player(Object):
         self.last_action_time = 0
 
         self.new_turn = False
+        
+        self.kills = 0
 
         # Count frames
         self.last_turn = 0

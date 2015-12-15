@@ -1,11 +1,14 @@
 """Container for World class"""
 import time
 import random
+import logging
 
 from tiles import Tiles
 from tiles import Id
 from block import Block
 from game import Game
+
+log = logging.getLogger(__name__)
 
 class GetOutOfLoop(Exception):
     """Exception used to break out of multiple for-loops"""
@@ -27,7 +30,7 @@ class World(object):
             rand_seed = time.time()
         # Do not use floating point time
         rand_seed = int(rand_seed)
-        print(rand_seed)
+        log.info("seed: %d", rand_seed)
 
         self.rand_seed = rand_seed
 
@@ -74,7 +77,7 @@ class World(object):
                         raise GetOutOfLoop
                     self.get(idx, idy)
         except GetOutOfLoop:
-            print('load timeout')
+            log.debug('load timeout load_surrounding_blocks')
 
     def get(self, idx, idy):
         """Generate requested block and return reference
@@ -97,11 +100,11 @@ class World(object):
         self.load_surrounding_blocks()
         new_blocks = []
 
-        if Game.reposition_objects:
-            Game.reposition_objects = False
-            blocks = self.blocks.values()
-            for block in blocks:
-                block.reposition_objects()
+        #if Game.reposition_objects:
+        #    Game.reposition_objects = False
+        #    blocks = self.blocks.values()
+        #    for block in blocks:
+        #        block.reposition_objects()
 
         for block in self.blocks.values():
             gen_blks = block.process()
@@ -109,7 +112,7 @@ class World(object):
                 new_blocks += gen_blks
 
         if new_blocks:
-            print("{} {}x{}".format(new_blocks[0], new_blocks[0].idx, new_blocks[0].idy))
+            log.debug("new block {} {}x{}".format(new_blocks[0], new_blocks[0].idx, new_blocks[0].idy))
         for block in new_blocks:
             self.blocks[(block.idx, block.idy)] = block
 
