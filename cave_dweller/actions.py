@@ -11,6 +11,7 @@ class PlayerAction(object):
     def __init__(self):
         PlayerAction.current_actions.append(self)
         self.var = False
+        self.done = False
 
     def get_input(self, key):
         pass
@@ -62,11 +63,20 @@ class PlayerMoveAction(PlayerAction):
                 self.dir_dict['right'] = False
 
     def process(self, player, cur_block):
+        self.done = False
         if self.state_key is None or self.var:
             self.dir('up', (player.x, player.y-1), cur_block, player)
+            if self.done:
+                return
             self.dir('down', (player.x, player.y+1), cur_block, player)
+            if self.done:
+                return
             self.dir('left', (player.x-1, player.y), cur_block, player)
+            if self.done:
+                return
             self.dir('right', (player.x+1, player.y), cur_block, player)
+            if self.done:
+                return
 
     def dir(self, direction, coordinates, cur_block, player):
         pass
@@ -82,6 +92,8 @@ class Build(PlayerMoveAction):
             tile_choices = tile.attributes['build']
             new_tile = random.choice(tile_choices)
             cur_block.set_tile(coordinates[0], coordinates[1], new_tile)
+            player.moved = True
+            self.done = True
 
 class Dig(PlayerMoveAction):
     def __init__(self):
@@ -94,6 +106,8 @@ class Dig(PlayerMoveAction):
             tile_choices = tile.attributes['dig']
             new_tile = random.choice(tile_choices)
             cur_block.set_tile(coordinates[0], coordinates[1], new_tile)
+            player.moved = True
+            self.done = True
 
 class Move(PlayerMoveAction):
     def __init__(self):
@@ -111,5 +125,21 @@ class Move(PlayerMoveAction):
     def dir(self, direction, coordinates, cur_block, player):
         """Move player if tile desired is not collidable or if collision is turned off"""
         tile = cur_block.get_tile(*coordinates)
-        if self.dir_dict[direction] and not tile.is_obstacle and not cur_block.object_at(*coordinates) or not Game.collidable:
-            player.x, player.y = coordinates
+        if self.dir_dict[direction]:
+            if not tile.is_obstacle and not cur_block.object_at(*coordinates) or not Game.collidable:
+                player.x, player.y = coordinates
+                player.moved = True
+
+red = libtcod.red
+class Attack(PlayerMoveAction):
+    def __init__(self):
+        super(type(self), self).__init__(state_key=ord('k'))
+
+    def dir(self, direction, coordinates, cur_block, player):
+        if self.dir_dict[direction]:
+            obj = cur_block.get_object(*coordinates)
+            if obj:
+                obj.fg = libtcod.red
+                obj.bg = libtcod.darkest_red
+                obj.do_process = False
+                player.moved = True

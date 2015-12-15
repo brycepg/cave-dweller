@@ -17,6 +17,7 @@ class World(object):
         self.generate_seeds(rand_seed)
         self.blocks = {}
         self.turn = 0
+        self.slow_load = False
 
     def generate_seeds(self, rand_seed):
         """Generate time seed if not given
@@ -69,7 +70,7 @@ class World(object):
                     idy_cur + loaded_block_radius + 1):
                 for idx in range(idx_cur - loaded_block_radius,
                         idx_cur + loaded_block_radius + 1):
-                    if Game.past_loop_time():
+                    if Game.past_loop_time() and self.slow_load:
                         raise GetOutOfLoop
                     self.get(idx, idy)
         except GetOutOfLoop:
@@ -121,3 +122,11 @@ class World(object):
         """Call block's draw functions(as to be separate from game logic"""
         for block in self.blocks.values():
             block.draw()
+
+    def get_block(self, abs_x, abs_y):
+            """Get block at the absolute coordinate"""
+            idx = abs_x // Game.map_size
+            idy = abs_y // Game.map_size
+            block = self.blocks[(idx, idy)]
+            return block
+

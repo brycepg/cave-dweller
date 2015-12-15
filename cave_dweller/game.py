@@ -17,13 +17,22 @@ class Game(object):
     screen_width = 62
     screen_height = 40
 
+    game_width = screen_width
+    game_height = screen_height - 1
+
+    status_bar_width = screen_width
+    status_bar_height = screen_height - game_height
+
+    game_con = None
+    status_con = None
+
     debug = True
     fast = False
     collidable = True
     show_algorithm = False
     reposition_objects = False
 
-    default_fps = 24
+    default_fps = 40
     fps = default_fps
     move_per_sec = 1.0/15
     action_interval = 1.0/20
@@ -66,6 +75,9 @@ class Game(object):
         self.font_size_index = 2
         libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
         libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', libtcod.RENDERER_GLSL)
+        Game.game_con = libtcod.console_new(Game.game_width, Game.game_height)
+        libtcod.console_set_default_foreground(Game.game_con, libtcod.white)
+        Game.status_con = libtcod.console_new(Game.status_bar_width, Game.status_bar_height)
 
         libtcod.mouse_show_cursor(True)
         libtcod.sys_set_fps(type(self).fps)
@@ -88,10 +100,10 @@ class Game(object):
     @classmethod
     def process(cls):
         """Update game viewable current location variables"""
-        cls.min_x = cls.center_x - cls.screen_width//2
-        cls.max_x = cls.center_x + cls.screen_width//2
-        cls.min_y = cls.center_y - cls.screen_height//2
-        cls.max_y = cls.center_y + cls.screen_height//2
+        cls.min_x = cls.center_x - cls.game_width//2
+        cls.max_x = cls.center_x + cls.game_width//2
+        cls.min_y = cls.center_y - cls.game_height//2
+        cls.max_y = cls.center_y + cls.game_height//2
 
         cls.idx_cur = cls.center_x // cls.map_size
         cls.idy_cur = cls.center_y // cls.map_size
@@ -132,7 +144,6 @@ class Game(object):
                     print("fps: %d" % Game.fps)
                     libtcod.sys_set_fps(type(self).fps)
 
-                #print key.c
                 CTRL_R_BRACKET = 29
                 CTRL_L_BRACKET = 27
                 if key.c == CTRL_L_BRACKET and Game.loaded_block_radius > 0:

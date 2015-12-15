@@ -28,16 +28,19 @@ def main(seed=None):
     Game.record_loop_time()
     Game.process()
 
-    player = Player()
     world = World(seed)
+    player = Player(world)
     start_block = world.get(game.idx_cur, game.idy_cur)
     start_block.objects.append(player)
     start_block.reposition_objects()
+    world.process()
+    Game.process()
+    world.draw()
+    world.slow_load = True
 
     elapsed = 0
     spent_time = 0
 
-    #libtcod.console_set_default_foreground(0, libtcod.white)
     #libtcod.console_set_default_background(0, libtcod.white)
     #libtcod.console_set_color_control(libtcod.COLCTRL_1,libtcod.red,libtcod.black)
 
@@ -45,22 +48,20 @@ def main(seed=None):
         Game.record_loop_time()
         # Order is important since world modifies current view
         # And game updates the relevant view variables
-        world.process()
-        Game.process()
+        player.move()
+        if player.moved:
+            world.process()
+            Game.process()
 
-        # ------- Draw -------
-        world.draw()
+            # ------- Draw -------
+            world.draw()
+        libtcod.console_print(Game.status_con, 0, 0, "turn %s" % world.turn)
         if Game.debug:
-            libtcod.console_print(0, 1, 1, "FPS: %s" % str(int(elapsed)))
-            libtcod.console_print(0, 1, 2, "blocks: %d" % len(world.blocks))
-            libtcod.console_print(0, 1, 3, "block: (%d,%d)" % (game.idx_cur, game.idy_cur))
-            libtcod.console_print(0, 1, 4, "center: (%dx%d)" % (game.center_x, game.center_y))
-            libtcod.console_print(0, 1, 5, "player: (%dx%d)" % (player.x, player.y))
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
-            libtcod.console_print(0, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
+            debug_print(locals())
+        libtcod.console_blit(Game.game_con, 0, 0, Game.game_width, Game.game_height, 0, 0, 0)
+        libtcod.console_blit(Game.status_con, 0, 0, 0, 0, 0, 0, Game.game_height)
         libtcod.console_flush()
-        if not Game.show_algorithm:
-            libtcod.console_clear(0)
         # ----- keyboard input -----
         while True:
             key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
@@ -75,15 +76,22 @@ def main(seed=None):
         # Sleep
         elapsed = (1/(time.time() - Game.loop_start)) * .1 + elapsed * .9
 
-def debug(my_locals):
-    pass
+def debug_print(args):
+    """Pass locals of main loop to print debug information"""
+    exec("") # Avoid locals optimization
+    locals().update(args)
+    libtcod.console_print(Game.game_con, 1, 1, "FPS: %s" % str(int(elapsed)))
+    libtcod.console_print(Game.game_con, 1, 2, "blocks: %d" % len(world.blocks))
+    libtcod.console_print(Game.game_con, 1, 3, "block: (%d,%d)" % (game.idx_cur, game.idy_cur))
+    libtcod.console_print(Game.game_con, 1, 4, "center: (%dx%d)" % (game.center_x, game.center_y))
+    libtcod.console_print(Game.game_con, 1, 5, "player: (%dx%d)" % (player.x, player.y))
+    libtcod.console_print(Game.game_con, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
 
 def parse_main():
     """Parse arguments before calling main"""
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', help="world seed")
     args = parser.parse_args()
-
 
     if args.seed:
         main(int(args.seed))

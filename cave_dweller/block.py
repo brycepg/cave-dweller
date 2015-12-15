@@ -68,6 +68,24 @@ class Block:
                 return True
 
         return False
+    
+    def get_object(self, x, y):
+        if within_bounds(x, y):
+            blk = self
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+            try:
+                blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+            except KeyError:
+                return obj.Empty()
+
+        for a_obj in blk.objects:
+            if a_obj.x == x and a_obj.y == y:
+                return a_obj
+
+        return None
+
 
 
     def get_abs(self, local_x, local_y):
@@ -79,8 +97,8 @@ class Block:
     def get_drawable_coordinate(self, local_x, local_y):
         """Get drawable coordinate from local block coordinate"""
         abs_x, abs_y = self.get_abs(local_x, local_y)
-        draw_x = abs_x - Game.center_x + Game.screen_width//2
-        draw_y = abs_y - Game.center_y + Game.screen_height//2
+        draw_x = abs_x - Game.center_x + Game.game_width//2
+        draw_y = abs_y - Game.center_y + Game.game_height//2
         return draw_x, draw_y
 
     def reposition_object(self, a_object):
@@ -108,9 +126,9 @@ class Block:
                 if Game.show_algorithm:
                     abs_y = Game.map_size * self.idy + neighbor[1]
                     abs_x = Game.map_size * self.idx + neighbor[0]
-                    libtcod.console_put_char_ex(0, 
-                            abs_x - Game.center_x + Game.screen_width//2,
-                            abs_y - Game.center_y + Game.screen_height//2,
+                    libtcod.console_put_char_ex(Game.game_con, 
+                            abs_x - Game.center_x + Game.game_width//2,
+                            abs_y - Game.center_y + Game.game_height//2,
                             ' ', libtcod.red, libtcod.red)
                     libtcod.console_flush()
                     print(neighbor)
@@ -251,8 +269,8 @@ class Block:
         max_x = Game.max_x
         min_y = Game.min_y
         max_y = Game.max_y
-        screen_width = Game.screen_width
-        screen_height = Game.screen_height
+        game_width = Game.game_width
+        game_height = Game.game_height
 
         idx = self.idx
         idy = self.idy
@@ -303,13 +321,13 @@ class Block:
                             else:
                                 draw_char = cur_tile.char
 
-                    libtcod.console_put_char_ex(0,
-                            abs_x - center_x + screen_width//2,
-                            abs_y - center_y + screen_height//2,
+                    libtcod.console_put_char_ex(Game.game_con,
+                            abs_x - center_x + game_width//2,
+                            abs_y - center_y + game_height//2,
                             draw_char, cur_tile.fg, bg)
 
     def draw_objects(self):
-        """Put block's drawable objects on screen"""
+        """Put block's drawable objects on game con"""
         for a_object in self.objects:
             abs_x = int(Game.map_size * self.idx + a_object.x)
             abs_y = int(Game.map_size * self.idy + a_object.y)
@@ -320,7 +338,7 @@ class Block:
                 if cur_bg is None:
                     cur_bg = self.get_tile(int(a_object.x), int(a_object.y)).bg
 
-                libtcod.console_put_char_ex(0,
-                     (abs_x - Game.center_x + Game.screen_width//2),
-                     (abs_y - Game.center_y + Game.screen_height//2),
+                libtcod.console_put_char_ex(Game.game_con,
+                     (abs_x - Game.center_x + Game.game_width//2),
+                     (abs_y - Game.center_y + Game.game_height//2),
                      a_object.char, a_object.fg, cur_bg)
