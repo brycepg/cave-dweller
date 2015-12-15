@@ -16,19 +16,21 @@ import logging
 
 import libtcodpy as libtcod 
 
+import menu
 from game import Game
 from world import World
 from objects import Player
 
-def main(seed=None):
+def main(args):
     """Main game loop"""
     game = Game()
-
     # Setup variables used in player/world
+    if not args.skip:
+        menu.enter_menu()
     Game.record_loop_time()
     Game.process()
 
-    world = World(seed)
+    world = World(args.seed)
     player = Player(world)
     start_block = world.get(game.idx_cur, game.idy_cur)
     start_block.objects.append(player)
@@ -56,7 +58,8 @@ def main(seed=None):
             # ------- Draw -------
             world.draw()
         libtcod.console_print(Game.status_con, 0, 0, "turn %s" % world.turn)
-        libtcod.console_print(Game.status_con, 10, 0, "kills %s" % player.kills)
+        if player.kills > 0:
+            libtcod.console_print(Game.status_con, 10, 0, "kills %s" % player.kills)
         if Game.debug:
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             debug_print(locals())
@@ -91,13 +94,11 @@ def debug_print(args):
 def parse_main():
     """Parse arguments before calling main"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', help="world seed")
+    parser.add_argument('--seed', help="world seed", default=None)
+    parser.add_argument('--skip', help="skip main menu to new game", action="store_true")
     args = parser.parse_args()
 
-    if args.seed:
-        main(int(args.seed))
-    else:
-        main()
+    main(args)
 
 def setup_logger():
     log = logging.getLogger()

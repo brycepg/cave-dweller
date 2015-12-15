@@ -28,6 +28,8 @@ class World(object):
         Generate reduced size seed for C perlin function"""
         if rand_seed is None:
             rand_seed = time.time()
+        else:
+            rand_seed = int(rand_seed)
         # Do not use floating point time
         rand_seed = int(rand_seed)
         log.info("seed: %d", rand_seed)
