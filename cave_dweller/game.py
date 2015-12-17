@@ -1,8 +1,10 @@
 """Container for Game class"""
 import time
 import os
+import logging
 
 import libtcodpy as libtcod
+
 
 class Game(object):
     """Manages static constants,
@@ -29,7 +31,7 @@ class Game(object):
     debug = True
     fast = False
     collidable = True
-    show_algorithm = False
+    #show_algorithm = False
     reposition_objects = False
 
     default_fps = 40
@@ -71,6 +73,7 @@ class Game(object):
             return False
 
     def __init__(self):
+        logging.info("game init")
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.font_size_index = 2
         libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)

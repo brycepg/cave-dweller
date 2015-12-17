@@ -22,25 +22,28 @@ log = logging.getLogger(__name__)
 
 class Block:
     """Segment of world populated by object and terrain"""
-    def __init__(self, idx, idy, world):
+    def __init__(self, idx, idy, world, tiles=None, objects=None):
         #print("init new block: {}x{}".format(idx, idy))
         #traceback.print_stack()
         if (idx, idy) in world.blocks:
             raise RuntimeError("Block already created");
 
         self.world = world
-        self.tiles = []
-        self.objects = []
         self.idx = idx
         self.idy = idy
 
         self.block_seed = self.world.rand_seed + (self.idx * 65565 + self.idy)
-        #self.block_generator = libtcod.random_new_from_seed(self.block_seed)
-        #print("block seed: %d" % self.block_seed)
 
-        self.tiles = self.generate_tile_map()
-        self.objects += self.generate_objects()
-        #self.reposition_objects()
+        if not tiles:
+            self.tiles = []
+            self.tiles = self.generate_tile_map()
+        else:
+            self.tiles = tiles
+        if not objects:
+            self.objects = []
+            self.objects += self.generate_objects()
+        else:
+            self.objects = objects
 
     def generate_objects(self):
         objects = []

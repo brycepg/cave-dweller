@@ -1,9 +1,12 @@
 -- Todo -- 
+add saving/loading
+inventory
+help menu
+in-game log of accomplishments
 Add system for mutli-turn movements(Like diagnal movement)
 fix player(object?) block movement accross blocks(two move jump?)
 Using mouse/keyboard for inspection
 Use mouse for movement
-add saving/loading
 
 mutable tiles?
 

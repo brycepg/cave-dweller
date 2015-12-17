@@ -106,12 +106,15 @@ class Player(Object):
 
         # Count frames
         self.last_turn = 0
+        self.register_actions()
 
+
+    def register_actions(self):
         actions.Build()
         actions.Dig()
+        actions.Attack()
         # Order is imporant -- move last since it doesn't require a state key
         actions.Move()
-        actions.Attack()
 
     def process_input(self, key):
         """ Process event keys -- set state of player
@@ -149,7 +152,7 @@ class Empty:
     def process(self, cur_block):
         pass
 
-# Hack for generating classes
+# Quick monster generation. Used in block
 # Class | chance of generation for each entity | max number of entitites
 generation_table = [
     [Cat, 100, 20],

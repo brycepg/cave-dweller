@@ -7,6 +7,7 @@ from tiles import Tiles
 from tiles import Id
 from block import Block
 from game import Game
+from serializer import Serializer
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ class World(object):
     """Holds all blocks updates and draws world"""
     def __init__(self, rand_seed=None):
         self.generate_seeds(rand_seed)
+        self.a_serializer = Serializer(self.rand_seed)
         self.blocks = {}
         self.turn = 0
         self.slow_load = False
@@ -56,6 +58,7 @@ class World(object):
                 destroy_block = key
                 break
         if destroy_block is not None:
+            self.a_serializer.save_block(self.blocks[destroy_block])
             del self.blocks[destroy_block]
 
 
@@ -89,7 +92,9 @@ class World(object):
         try:
             block = self.blocks[(idx, idy)]
         except KeyError:
-            block = Block(idx, idy, self)
+            block = self.a_serializer.load_block(idx, idy, self)
+            if not block:
+                block = Block(idx, idy, self)
             self.blocks[(idx, idy)] = block
 
         return block
@@ -135,3 +140,7 @@ class World(object):
             block = self.blocks[(idx, idy)]
             return block
 
+    def save_active_blocks(self):
+        logging.info("Saving blocks.. bye bye")
+        for block in self.blocks.values():
+            self.a_serializer.save_block(block)

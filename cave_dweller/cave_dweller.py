@@ -19,22 +19,45 @@ import libtcodpy as libtcod
 import menu
 from game import Game
 from world import World
+from world import GetOutOfLoop
 from objects import Player
+from menu import Menu
 
-def main(args):
+def main(args, game):
     """Main game loop"""
-    game = Game()
     # Setup variables used in player/world
-    if not args.skip:
-        menu.enter_menu()
     Game.record_loop_time()
-    Game.process()
 
     world = World(args.seed)
-    player = Player(world)
-    start_block = world.get(game.idx_cur, game.idy_cur)
-    start_block.objects.append(player)
-    start_block.reposition_object(player)
+    settings_obj = world.a_serializer.load_settings(world)
+    try:
+        Game.center_x = settings_obj['center_x']
+        Game.center_y = settings_obj['center_y']
+    except KeyError:
+        logging.debug("center x/y not available")
+    Game.process()
+    world.process()
+
+    if settings_obj['player']:
+        player = None
+        try:
+            for block in world.blocks.values():
+                for a_object in block.objects:
+                    if isinstance(a_object, Player):
+                        player = a_object
+                        raise GetOutOfLoop
+            else:
+                logging.error("Player not found")
+        except GetOutOfLoop:
+            pass
+        player.world = world
+        player.register_actions()
+    else:
+        player = Player(world)
+        Game.process()
+        start_block = world.get(Game.idx_cur, Game.idy_cur)
+        start_block.objects.append(player)
+        start_block.reposition_object(player)
     world.process()
     Game.process()
     world.draw()
@@ -79,6 +102,9 @@ def main(args):
             game.get_game_input(key)
         # Sleep
         elapsed = (1/(time.time() - Game.loop_start)) * .1 + elapsed * .9
+    world.save_active_blocks()
+    logging.info("world turn {}".format(world.turn))
+    world.a_serializer.save_settings(player)
 
 def debug_print(args):
     """Pass locals of main loop to print debug information"""
@@ -98,7 +124,12 @@ def parse_main():
     parser.add_argument('--skip', help="skip main menu to new game", action="store_true")
     args = parser.parse_args()
 
-    main(args)
+    menu = Menu()
+    game = Game()
+    if not args.skip:
+        menu.enter_menu()
+    if menu.enter_game or args.skip:
+        main(args, game)
 
 def setup_logger():
     log = logging.getLogger()
