@@ -17,6 +17,7 @@ class Object(object):
         self.char = char
         self.do_process = True
         self.blocking = True
+        self.edible = False
 
         self.bg = None
         self.fg = None
@@ -64,7 +65,7 @@ class Cat(Object):
             self.x, self.y = coordinates
 
 class Spider(Object):
-    """First dummy non-player entity"""
+    """To-be agressive entity"""
     def __init__(self, x, y):
         super(Spider, self).__init__(x, y, 'S')
         self.fg = libtcod.black
@@ -83,6 +84,26 @@ class Spider(Object):
         if not tile.is_obstacle and not cur_block.object_at(*coordinates):
             self.x, self.y = coordinates
 
+class Fungus(Object):
+    """To-be Food object"""
+    def __init__(self, x, y, growth=0):
+        super(Fungus, self).__init__(x, y, 176)
+        self.fg = libtcod.purple
+        self.blocking = False
+        self.is_edible = False
+        self.turns_per_growth = 20
+        self.growth_turn = 0
+
+    def process(self, cur_block):
+        if not self.do_process:
+            return
+
+        self.growth_turn += 1
+        if self.growth_turn != 0 and self.growth_turn % self.turns_per_growth == 0:
+            growth_loc = random.choice([[1, 0], [-1, 0], [0, 1], [0, -1]])
+            growth_loc[0] += self.x
+            growth_loc[1] += self.y
+            cur_block.set_object(Fungus, growth_loc[0], growth_loc[1])
 
 class Player(Object):
     """Player-object
@@ -156,6 +177,7 @@ class Empty:
 # Class | chance of generation for each entity | max number of entitites
 generation_table = [
     [Cat, 100, 20],
-    [Spider, 50, 5]
+    [Spider, 50, 5],
+    [Fungus, 20, 5]
 ]
 

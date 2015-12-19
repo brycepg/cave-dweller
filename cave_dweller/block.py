@@ -76,7 +76,26 @@ class Block:
                 return True
 
         return False
-    
+
+    def set_object(self, a_class, x, y, force=False):
+        if within_bounds(x, y):
+            blk = self
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+
+            try:
+                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+                #blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+            except KeyError:
+                logging.debug("Bad: Set object not available")
+        if not self.get_tile(x, y).is_obstacle and not self.object_at(x, y):
+            a_obj = a_class(x % Game.map_size, y % Game.map_size)
+            blk.objects.append(a_obj)
+            return a_obj
+        else:
+            return None
+
     def get_object(self, x, y):
         if within_bounds(x, y):
             blk = self

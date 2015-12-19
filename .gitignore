@@ -6,3 +6,5 @@ setup.py
 build
 dist
 *.spec
+gamelog.txt
+data/
