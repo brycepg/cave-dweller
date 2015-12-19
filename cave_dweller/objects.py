@@ -136,6 +136,7 @@ class Player(Object):
         actions.Attack()
         # Order is imporant -- move last since it doesn't require a state key
         actions.Move()
+        actions.Wait()
 
     def process_input(self, key):
         """ Process event keys -- set state of player
@@ -180,4 +181,3 @@ generation_table = [
     [Spider, 50, 5],
     [Fungus, 20, 5]
 ]
-

@@ -61,6 +61,7 @@ class PlayerMoveAction(PlayerAction):
                 self.dir_dict['left'] = False
             if key.vk == libtcod.KEY_RIGHT:
                 self.dir_dict['right'] = False
+        self.key = key
 
     def process(self, player, cur_block):
         self.done = False
@@ -144,3 +145,32 @@ class Attack(PlayerMoveAction):
                 obj.do_process = False
                 player.moved = True
                 player.kills += 1
+
+class Wait(PlayerAction):
+    def __init__(self):
+        super(type(self), self).__init__()
+        self.wait_queue = 0
+        self.wait = False
+        self.wait_fast = False
+
+    def get_input(self, key):
+        if key.c == ord('.'):
+            if key.shift:
+                self.wait_queue += 100
+                self.wait_fast = True
+            self.wait = True
+        else:
+            self.wait = False
+
+    def process(self, player, cur_block):
+        if self.wait or self.wait_queue > 0:
+            if self.wait_queue > 0:
+                self.wait_queue -= 1
+                Game.action_interval = 1/10000
+                libtcod.sys_set_fps(10000)
+            if self.wait_fast and self.wait_queue == 0:
+                Game.action_interval = Game.default_action_interval
+                libtcod.sys_set_fps(Game.fps)
+                self.wait_fast = False
+            self.wait = False
+            player.moved = True

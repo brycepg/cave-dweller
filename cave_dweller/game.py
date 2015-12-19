@@ -37,7 +37,8 @@ class Game(object):
     default_fps = 40
     fps = default_fps
     move_per_sec = 1.0/15
-    action_interval = 1.0/20
+    default_action_interval = 1.0/20
+    action_interval = default_action_interval
 
     # Drawable window
     win = None
