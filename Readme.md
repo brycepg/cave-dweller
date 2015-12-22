@@ -3,8 +3,8 @@ I only push working code.
 
 Right now:  
 
-    - on the fly world generation/serialization
-    - basic stable entity ecosystem
+- on the fly world generation/serialization
+- basic stable entity ecosystem
 
 # Install
 
