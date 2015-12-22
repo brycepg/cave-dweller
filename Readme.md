@@ -7,7 +7,7 @@ Right now:
     - basic stable entity ecosystem
 - basic player actions(movement, wait, dig, build, kill)
 
-To kill(for entitites): `k + ↑↓←→`
+To kill(for entities): `k + ↑↓←→`
 
 To dig(for diggable tiles): `d + ↑↓←→`
 
