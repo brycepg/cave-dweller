@@ -1,6 +1,8 @@
 This is a Procedural Simulation Rougelike I'm currently working on.
 I only push working code.
-Right now:
+
+Right now:  
+
     - on the fly world generation/serialization
     - basic stable entity ecosystem
 
@@ -18,6 +20,6 @@ Install python 2.7 and then install noise
 
 # To Run
 
-fro the root directory run
+from the root directory run
 
     python cave_dweller/cave_dweller.py
