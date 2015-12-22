@@ -1,12 +1,21 @@
 -- Todo -- 
-add saving/loading
-inventory
-help menu
-in-game log of accomplishments
+Using mouse/keyboard for inspection
 Add system for mutli-turn movements(Like diagnal movement)
 fix player(object?) block movement accross blocks(two move jump?)
-Using mouse/keyboard for inspection
 Use mouse for movement
+better AI for monster movement(hand in hand with enitity component system, storing objects in array?)
+display log of messages to right
+debug menu
+in-game log of accomplishments
+food - hunger/satiety - inventory - harvest - inventory menu
+fix automatic movement from new game
+help menu
+use array for storing objects
+clusters of ore
+different types of rock
+babies(breeding)
+ecosystem management
+towns/buildings/door/crafting
 
 mutable tiles?
 
@@ -14,6 +23,25 @@ mutable tiles?
 map viewer/tuner program
 
 -- Done --
+allow objects to move out of map - temporarily load blocks to allow this(stagger cull blocks)
+staggered update of nearby blocks(load, process, no draw) - may need to tweak still
 add basic monster object
 move off of root console(space of ui)
 adding turns -> turn counter for moves at bottom of screen
+
+# using mouse/keyboard for inspection
+
+-- Detailed Plans --
+Determine position of mouse on screen
+| if withing game position
+| based on center loc, find mouse
+| center (abs coordinates)
+| center_x mouse_console_x
+Show object if any
+if no object show tile
+For objects, show "You see a(n) (Class name)"
+If not hidden(?! just for tiles now)
+For tiles, show "You see a(n) (Tile name)"
+If no object and no tiles, 
+show nothing
+in the future, show items(between objects and tiles)

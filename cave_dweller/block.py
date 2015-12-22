@@ -13,16 +13,14 @@ from gen_map import generate_block
 from game import Game
 from tiles import Tiles
 import objects as obj
-
 from util import get_neighbors
 from util import within_bounds
-
 
 log = logging.getLogger(__name__)
 
 class Block:
     """Segment of world populated by object and terrain"""
-    def __init__(self, idx, idy, world, tiles=None, objects=None):
+    def __init__(self, idx, idy, world, tiles=None, objects=None, load_turn=0):
         #print("init new block: {}x{}".format(idx, idy))
         #traceback.print_stack()
         if (idx, idy) in world.blocks:
@@ -31,6 +29,8 @@ class Block:
         self.world = world
         self.idx = idx
         self.idy = idy
+        self.load_turn = load_turn
+        #log.info("%dx%d load_turn: %d", self.idx, self.idy, load_turn)
 
         self.block_seed = self.world.rand_seed + (self.idx * 65565 + self.idy)
 
@@ -54,58 +54,92 @@ class Block:
                     y = random.randint(0, Game.map_size)
                     if not self.get_tile(x, y).is_obstacle and not self.get_object(x, y):
                         m = monster(x, y)
+                        m.initial = True
                         objects.append(m)
         return objects
 
-    def object_at(self, x, y, generate_new_blocks=False):
-        if within_bounds(x, y):
+#    def object_at(self, x, y, generate_new_blocks=False):
+#        if (0 <= x < Game.map_size and 0 <= y < Game.map_size):
+#            blk = self
+#        else:
+#            idx_mod = x // Game.map_size
+#            idy_mod = y // Game.map_size
+#            x = x % Game.map_size
+#            y = y % Game.map_size
+#            if generate_new_blocks:
+#                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+#            else:
+#                try:
+#                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+#                except KeyError:
+#                    log.debug("Should not happen: object at failed")
+#                    return True
+#
+#        for a_obj in blk.objects:
+#            if a_obj.x == x and a_obj.y == y:
+#                return True
+#
+#        return False
+
+    def remove_object(self, a_object, x, y):
+        """Remove object at location relative to block coordinates"""
+        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
+
+            try:
+                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+            except KeyError:
+                log.debug("Bad: Remove object block not available")
+        blk.objects.remove(a_object)
+
+    def set_object(self, a_class, x, y, kw_dict=None, generate_new_objects=True):
+        """create an object from a_class at relative block location x,y. 
+           give keyword args to entity."""
+        if kw_dict is None:
+            kw_dict = {}
+        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
+            blk = self
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+            if generate_new_objects:
+                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+            else:
+                try:
+                    blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+                    #blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
+                except KeyError:
+                    log.debug("Bad: Set object not available")
+                    return None
+            x = x % Game.map_size
+            y = y % Game.map_size
+
+        if not blk.get_tile(x, y).is_obstacle and not blk.get_object(x, y):
+            a_obj = a_class(x % Game.map_size, y % Game.map_size, **kw_dict)
+            blk.objects.append(a_obj)
+            return a_obj
+        else:
+            return None
+
+    def get_object(self, x, y, generate_new_blocks=True):
+        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
+            blk = self
+        else:
+            idx_mod = x // Game.map_size
+            idy_mod = y // Game.map_size
+            x = x % Game.map_size
+            y = y % Game.map_size
             if generate_new_blocks:
                 blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
             else:
                 try:
                     blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
                 except KeyError:
-                    return True
-
-        for a_obj in blk.objects:
-            if a_obj.x == x and a_obj.y == y:
-                return True
-
-        return False
-
-    def set_object(self, a_class, x, y, force=False):
-        if within_bounds(x, y):
-            blk = self
-        else:
-            idx_mod = x // Game.map_size
-            idy_mod = y // Game.map_size
-
-            try:
-                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-                #blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-            except KeyError:
-                logging.debug("Bad: Set object not available")
-        if not self.get_tile(x, y).is_obstacle and not self.object_at(x, y):
-            a_obj = a_class(x % Game.map_size, y % Game.map_size)
-            blk.objects.append(a_obj)
-            return a_obj
-        else:
-            return None
-
-    def get_object(self, x, y):
-        if within_bounds(x, y):
-            blk = self
-        else:
-            idx_mod = x // Game.map_size
-            idy_mod = y // Game.map_size
-            try:
-                blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-            except KeyError:
-                return obj.Empty()
+                    log.debug("Cannot get object from {}x{} coord {}x{}".format(self.idx + idx_mod, self.idy + idy_mod, x, y))
+                    return obj.Empty()
 
         for a_obj in blk.objects:
             if a_obj.x == x and a_obj.y == y:
@@ -178,7 +212,7 @@ class Block:
         for a_object in self.objects:
             self.reposition_object(a_object)
 
-    def get_tile(self, x, y, generate_new_blocks=False):
+    def get_tile(self, x, y, generate_new_blocks=True):
         """"Get namedtuple of tile location, even if out of bounds.
         Note: This is not merged into get_tile_id because of performance
         ~10fps increase by not calling get_tile_id"""
@@ -195,7 +229,7 @@ class Block:
                 try:
                     blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
                 except KeyError:
-                    pass
+                    log.debug("No tile at {}x{} coord {}x{}".format(self.idx + idx_mod, self.idy + idy_mod, x, y))
             if blk is not None:
                 new_x = x % Game.map_size
                 new_y = y % Game.map_size
@@ -217,7 +251,7 @@ class Block:
                 try:
                     blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
                 except KeyError:
-                    logging.error('Cannot set tile %dx%d', x, y)
+                    log.error('Cannot set tile %dx%d', x, y)
                     return
 
             new_x = x % Game.map_size
@@ -263,14 +297,19 @@ class Block:
         world = self.world
 
         for a_object in objects:
-            a_object.process(self)
+            if a_object.new_block_turn == self.world.turn:
+                continue
+            if not a_object.is_dead:
+                a_object.process(self)
+            else:
+                a_object.decompose(self)
 
 
         for i, a_object in reversed(list(enumerate(objects))):
             if a_object.out_of_bounds():
                 # Transfer object to new block-coordinate system
                 new_block = self.world.get(idx+ (a_object.x//map_size), idy + (a_object.y//map_size))
-                a_object.new_block = True
+                a_object.new_block_turn = self.world.turn
                 a_object.x = a_object.x % map_size
                 a_object.y = a_object.y % map_size
                 log.debug("move object {} {}x{}".format(a_object, a_object.x, a_object.y))

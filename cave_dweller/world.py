@@ -18,7 +18,10 @@ class GetOutOfLoop(Exception):
 class World(object):
     """Holds all blocks updates and draws world"""
     def __init__(self, rand_seed=None):
-        self.generate_seeds(rand_seed)
+        """TODO, make seed separate from timestamp"""
+        self.rand_seed = rand_seed
+        self.perlin_seed = None
+        self.generate_seeds(self.rand_seed)
         self.a_serializer = Serializer(self.rand_seed)
         self.blocks = {}
         self.turn = 0
@@ -45,23 +48,19 @@ class World(object):
         # Probably due to variable size constraints in C
         self.perlin_seed = random.randrange(-65565, 65565)
 
-    def cull_old_block(self):
-        """ Delete blocks father than loaded_block_radius blocks away from the player
-            Note: Only destroys one block per call
-        """
+    def cull_old_blocks(self):
+        """Serialize blocks that are outside of loaded radius, 
+           and have been alive for more than some number of turns"""
         loaded_block_radius = Game.loaded_block_radius
         # TODO serialize old blocks
-        destroy_block = None
-        for key in self.blocks:
+        for key in list(self.blocks.keys()):
             if (abs(Game.idx_cur - self.blocks[key].idx) > loaded_block_radius or
                     abs(Game.idy_cur - self.blocks[key].idy) > loaded_block_radius):
-                destroy_block = key
-                break
-        if destroy_block is not None:
-            self.a_serializer.save_block(self.blocks[destroy_block])
-            del self.blocks[destroy_block]
-
-
+                if (self.turn - self.blocks[key].load_turn) > 10:
+                    #log.info("Cull %dx%d on turn %d, load_turn %d", self.blocks[key].idx, self.blocks[key].idy, self.turn, self.blocks[key].load_turn)
+                    self.a_serializer.save_block(self.blocks[key])
+                    del self.blocks[key]
+                    break
 
     def load_surrounding_blocks(self):
         """Loads blocks surrounding player specified by loaded_block_radius"""
@@ -94,7 +93,7 @@ class World(object):
         except KeyError:
             block = self.a_serializer.load_block(idx, idy, self)
             if not block:
-                block = Block(idx, idy, self)
+                block = Block(idx, idy, self, load_turn=self.turn)
             self.blocks[(idx, idy)] = block
 
         return block
@@ -103,8 +102,6 @@ class World(object):
         """Do game calculations
         Mainly for loading and de-loading blocks relative to the viewable area
         """
-        self.cull_old_block()
-        self.load_surrounding_blocks()
         new_blocks = []
 
         #if Game.reposition_objects:
@@ -130,8 +127,11 @@ class World(object):
 
     def draw(self):
         """Call block's draw functions(as to be separate from game logic"""
+        loaded_block_radius = Game.loaded_block_radius
         for block in self.blocks.values():
-            block.draw()
+            if (abs(Game.idx_cur - block.idx) <= loaded_block_radius or
+                    abs(Game.idy_cur - block.idy) <= loaded_block_radius):
+                block.draw()
 
     def get_block(self, abs_x, abs_y):
             """Get block at the absolute coordinate"""

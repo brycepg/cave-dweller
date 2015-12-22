@@ -19,7 +19,7 @@ class Game(object):
     screen_width = 62
     screen_height = 40
 
-    game_width = screen_width
+    game_width = screen_height - 1
     game_height = screen_height - 1
 
     status_bar_width = screen_width
@@ -86,6 +86,7 @@ class Game(object):
         libtcod.mouse_show_cursor(True)
         libtcod.sys_set_fps(type(self).fps)
         libtcod.console_set_keyboard_repeat(5, 100)
+        #libtcod.console_disable_keyboard_repeat()
 
 
     @classmethod
@@ -127,6 +128,7 @@ class Game(object):
                     print('toggle collision: {}'.format(Game.collidable))
                     if Game.collidable:
                         Game.reposition_objects = True
+                # TODO get working again
                 if mod and key.c == ord('-') and Game.fps > 0:
                     Game.fps -= 1
                     print("fps: %d" % Game.fps)
@@ -150,16 +152,19 @@ class Game(object):
 
                 CTRL_R_BRACKET = 29
                 CTRL_L_BRACKET = 27
-                if key.c == CTRL_L_BRACKET and Game.loaded_block_radius > 0:
+                if key.c == CTRL_L_BRACKET and key.lctrl and Game.loaded_block_radius > 0:
+                #if key.c == ord("[") and key.lalt and Game.loaded_block_radius > 0:
                     Game.loaded_block_radius -= 1
                     print("loaded block radius: %d" % Game.loaded_block_radius)
-                if key.c == CTRL_R_BRACKET:
+                if key.c == CTRL_R_BRACKET and key.lctrl:
                     Game.loaded_block_radius += 1
                     print("loaded block radius: %d" % Game.loaded_block_radius)
 
                 if mod and key.c == ord('s'):
                     Game.show_algorithm = False if Game.show_algorithm else True 
                     print("show algorithm: {}".format(Game.show_algorithm))
+                if key.shift and mod and key.c == ord('d'):
+                    import pdb; pdb.set_trace()
 
                 # TODO can't get font resizing to work yet
 #               font_changed = False

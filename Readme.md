@@ -1,5 +1,8 @@
-This is a Rougelike I'm currently working on.
+This is a Procedural Simulation Rougelike I'm currently working on.
 I only push working code.
+Right now:
+    - on the fly world generation/serialization
+    - basic stable entity ecosystem
 
 # Install
 

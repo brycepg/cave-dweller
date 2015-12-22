@@ -89,7 +89,7 @@ class Build(PlayerMoveAction):
     def dir(self, direction, coordinates, cur_block, player=None):
         """If tile is buildable, then get it's 'build' tile"""
         tile = cur_block.get_tile(*coordinates)
-        if self.dir_dict[direction] and tile.buildable:
+        if self.dir_dict[direction] and tile.buildable and not cur_block.get_object(*coordinates):
             tile_choices = tile.attributes['build']
             new_tile = random.choice(tile_choices)
             cur_block.set_tile(coordinates[0], coordinates[1], new_tile)
@@ -127,7 +127,8 @@ class Move(PlayerMoveAction):
         """Move player if tile desired is not collidable or if collision is turned off"""
         tile = cur_block.get_tile(*coordinates)
         if self.dir_dict[direction]:
-            if not tile.is_obstacle and not cur_block.object_at(*coordinates) or not Game.collidable:
+            obj = cur_block.get_object(*coordinates)
+            if not (obj and obj.is_obstacle) and not tile.is_obstacle or not Game.collidable:
                 player.x, player.y = coordinates
                 player.moved = True
 
@@ -139,38 +140,46 @@ class Attack(PlayerMoveAction):
     def dir(self, direction, coordinates, cur_block, player):
         if self.dir_dict[direction]:
             obj = cur_block.get_object(*coordinates)
-            if obj and obj.do_process:
-                obj.fg = libtcod.red
-                obj.bg = libtcod.darkest_red
-                obj.do_process = False
+            if obj and not obj.is_dead:
+                obj.kill()
                 player.moved = True
                 player.kills += 1
 
 class Wait(PlayerAction):
+    """Wait(.), skip a turn
+       Wait fast(>), keep skipping turns until escape is pressed. 
+       (probably should only enable for debug)"""
+
     def __init__(self):
         super(type(self), self).__init__()
-        self.wait_queue = 0
         self.wait = False
         self.wait_fast = False
 
     def get_input(self, key):
+        if key.c == ord('>'):
+            self.wait_fast = True
         if key.c == ord('.'):
-            if key.shift:
-                self.wait_queue += 100
-                self.wait_fast = True
             self.wait = True
         else:
             self.wait = False
 
+        if key.vk == libtcod.KEY_ESCAPE:
+            self.wait_queue = 0 
+            self.wait_fast = False
+
+
     def process(self, player, cur_block):
-        if self.wait or self.wait_queue > 0:
-            if self.wait_queue > 0:
-                self.wait_queue -= 1
-                Game.action_interval = 1/10000
-                libtcod.sys_set_fps(10000)
-            if self.wait_fast and self.wait_queue == 0:
-                Game.action_interval = Game.default_action_interval
-                libtcod.sys_set_fps(Game.fps)
-                self.wait_fast = False
+        if self.wait:
             self.wait = False
             player.moved = True
+        if self.wait_fast:
+            # Action interval is used in player to limit actions per second
+            #   (to stop key repeats)
+            # No limit to fps too
+            Game.action_interval = 0
+            libtcod.sys_set_fps(0)
+            self.wait = True
+            player.moved = True
+        if not self.wait_fast:
+            Game.action_interval = Game.default_action_interval
+            libtcod.sys_set_fps(Game.fps)
