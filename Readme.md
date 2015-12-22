@@ -1,10 +1,19 @@
 This is a Procedural Simulation Rougelike I'm currently working on.
-I only push working code.
 
 Right now:  
 
 - on the fly world generation/serialization
-- basic stable entity ecosystem
+- basic entiity generation
+    - basic stable entity ecosystem
+- basic player actions(movement, wait, dig, build, kill)
+
+To kill(for entitites): `k + ↑↓←→`
+
+To dig(for diggable tiles): `d + ↑↓←→`
+
+To build(for generic wall tile): `b + ↑↓←→`
+
+4-way movement with arrow keys
 
 # Install
 
