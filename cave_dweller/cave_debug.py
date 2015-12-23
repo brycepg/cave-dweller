@@ -14,7 +14,7 @@ def obj_type_per_block(world):
     return count
 
 # Num objects per block
-def num_obj_per_blk(world):
+def num_obj_per_block(world):
     return {key: len(value.objects) for key, value in world.blocks.items()}
 
 def get_locs(block, class_type=None):

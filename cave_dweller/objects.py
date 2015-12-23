@@ -252,8 +252,10 @@ class Player(Object):
         self.last_action_time = time.time()
 
     def process(self, cur_block):
-        """ Player movement:
-            NOTE: modifies view of game """
+        self.update_draw_location(cur_block)
+
+    def update_draw_location(self, cur_block):
+        """NOTE: modifies view of game """
         Game.center_x = int(self.x + Game.map_size * cur_block.idx)
         Game.center_y = int(self.y + Game.map_size * cur_block.idy)
 

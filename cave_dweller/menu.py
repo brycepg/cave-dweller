@@ -1,10 +1,12 @@
 import logging
 import time
 import os
+import operator
 
 import libtcodpy as libtcod
 
 from game import Game
+from util import game_path
 
 class Menu(object):
     """Menus for death and intro
@@ -12,7 +14,7 @@ class Menu(object):
     def __init__(self):
         self.enter_game = None
         self.quit = False
-        self.selected_seed = None
+        self.selected_path = None
 
     def enter_menu(self):
         key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED)
@@ -22,7 +24,13 @@ class Menu(object):
                 "Load Saved Game",
                 "Quit"]
         try:
-            saves = os.listdir('data')
+            # Sort saves by date modified
+            saves = os.listdir(game_path('data'))
+            save_paths = [os.path.join(game_path('data'), os.path.join(save, 'settings')) for save in saves]
+            mtimes = [os.path.getmtime(save) for save in save_paths]
+            my_sort = list(zip(saves, mtimes))
+            my_sort.sort(key=operator.itemgetter(1), reverse=True)
+            saves = [item[0] for item in my_sort]
         except OSError:
             logging.debug("data folder could not be read")
             saves = []
@@ -59,9 +67,9 @@ class Menu(object):
                 elif current_list is saves:
                     if key.vk == libtcod.KEY_ENTER:
                         if len(saves) > 0:
-                            self.selected_seed = saves[cursor_pos]
+                            self.selected_path = saves[cursor_pos]
                             self.enter_game = True
-                            logging.info("entering {}".format(self.selected_seed))
+                            logging.info("entering {}".format(self.selected_path))
                             menu_done = True
                     if key.vk == libtcod.KEY_ESCAPE:
                         current_list = menu
@@ -91,6 +99,8 @@ class Menu(object):
                     the_format = [255,255,255]
                 else:
                     the_format = [155, 155, 155]
+                if current_list is saves:
+                    item = item.replace("_", " ").capitalize()
                 libtcod.console_print(menu_con, 0, index+1, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,the_format[0], the_format[1], the_format[2], item, libtcod.COLCTRL_STOP))
             if current_list is saves and (len(saves) == 0 or saves == ['']):
                 libtcod.console_print(menu_con, 0, 1, "%c%c%c%cYou do not have any saves%c" % (libtcod.COLCTRL_FORE_RGB,255, 255, 255, libtcod.COLCTRL_STOP))

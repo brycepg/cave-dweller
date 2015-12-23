@@ -85,7 +85,7 @@ class Game(object):
 
         libtcod.mouse_show_cursor(True)
         libtcod.sys_set_fps(type(self).fps)
-        libtcod.console_set_keyboard_repeat(5, 100)
+        libtcod.console_set_keyboard_repeat(1000, 100)
         #libtcod.console_disable_keyboard_repeat()
 
 
@@ -160,9 +160,6 @@ class Game(object):
                     Game.loaded_block_radius += 1
                     print("loaded block radius: %d" % Game.loaded_block_radius)
 
-                if mod and key.c == ord('s'):
-                    Game.show_algorithm = False if Game.show_algorithm else True 
-                    print("show algorithm: {}".format(Game.show_algorithm))
                 if key.shift and mod and key.c == ord('d'):
                     import pdb; pdb.set_trace()
 

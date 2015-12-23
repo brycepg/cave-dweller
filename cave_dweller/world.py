@@ -7,7 +7,6 @@ from tiles import Tiles
 from tiles import Id
 from block import Block
 from game import Game
-from serializer import Serializer
 
 log = logging.getLogger(__name__)
 
@@ -22,10 +21,10 @@ class World(object):
         self.rand_seed = rand_seed
         self.perlin_seed = None
         self.generate_seeds(self.rand_seed)
-        self.a_serializer = Serializer(self.rand_seed)
+        self.a_serializer = None
         self.blocks = {}
         self.turn = 0
-        self.slow_load = False
+        self.slow_load = True
 
     def generate_seeds(self, rand_seed):
         """Generate time seed if not given
@@ -77,9 +76,10 @@ class World(object):
                     idy_cur + loaded_block_radius + 1):
                 for idx in range(idx_cur - loaded_block_radius,
                         idx_cur + loaded_block_radius + 1):
-                    if Game.past_loop_time() and self.slow_load:
-                        raise GetOutOfLoop
-                    self.get(idx, idy)
+                    if not (idx, idy) in self.blocks:
+                        self.blocks[(idx, idy)] = self.load_block(idx, idy)
+                        if Game.past_loop_time() and self.slow_load:
+                            raise GetOutOfLoop
         except GetOutOfLoop:
             log.debug('load timeout load_surrounding_blocks')
 
@@ -96,6 +96,14 @@ class World(object):
                 block = Block(idx, idy, self, load_turn=self.turn)
             self.blocks[(idx, idy)] = block
 
+        return block
+
+    def load_block(self, idx, idy):
+        # Load from save
+        block = self.a_serializer.load_block(idx, idy, self)
+        # Generate if not from save
+        if not block:
+            block = Block(idx, idy, self, load_turn=self.turn)
         return block
 
     def process(self):
@@ -120,8 +128,6 @@ class World(object):
             #log.debug("new block {} {}x{}".format(new_blocks[0], new_blocks[0].idx, new_blocks[0].idy))
         for block in new_blocks:
             self.blocks[(block.idx, block.idy)] = block
-
-        self.turn += 1
 
         # A little hack to randomize digging tile
         Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)

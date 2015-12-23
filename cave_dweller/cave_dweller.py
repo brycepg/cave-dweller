@@ -24,6 +24,8 @@ from world import GetOutOfLoop
 from objects import Player
 from menu import Menu
 import actions
+import context_menu
+from serializer import Serializer
 
 log = logging.getLogger(__name__)
 
@@ -35,19 +37,20 @@ def run(args, game):
         # Does this get included during executable generation?
         import cave_debug
 
-    world = World(args.seed)
-    settings_obj = world.a_serializer.load_settings(world)
+    a_serializer = Serializer(args.selected_path)
+    settings_obj = a_serializer.load_settings()
+    if settings_obj.get('seed'):
+        seed = settings_obj['seed']
+    else:
+        seed = args.seed
+    world = World(seed)
+    world.a_serializer = a_serializer
+    if settings_obj.get('turn'):
+        world.turn = settings_obj['turn']
     # Get save information / Generate initial objects
-    try:
-        Game.center_x = settings_obj['center_x']
-        Game.center_y = settings_obj['center_y']
-    except KeyError:
-        # No save
-        pass
-        #logging.debug("center x/y not available")
     Game.process()
     world.load_surrounding_blocks()
-    world.process()
+    #world.process()
 
     if settings_obj['player']:
         player = None
@@ -69,9 +72,11 @@ def run(args, game):
         start_block = world.get(Game.idx_cur, Game.idy_cur)
         start_block.objects.append(player)
         start_block.reposition_object(player)
-    world.process()
+        player.update_draw_location(start_block)
+        # Process to initalize object behavior
+        world.process()
     Game.process()
-    world.draw()
+    #world.draw()
     # Get out of loop setting
     world.slow_load = True
 
@@ -87,7 +92,10 @@ def run(args, game):
     # Draw time
     spent_time = 0
 
+    skipped_loads = 0
+
     status_bar = collections.OrderedDict()
+    debug_info = None
     while True:
         Game.record_loop_time()
         if libtcod.console_is_window_closed():
@@ -103,20 +111,21 @@ def run(args, game):
         # TODO, allow FPS separate from movement(multi-turn movement)
         if player.moved:
             world.process()
+            world.turn += 1
             Game.process()
 
-        if not Game.past_loop_time():
-            libtcod.console_clear(Game.game_con)
-            world.draw()
-        else:
-            log.debug("Past draw time")
-        if not Game.past_loop_time():
-            world.load_surrounding_blocks()
-        else:
-            pass
-            #log.info("Past load time")
-        world.cull_old_blocks()
+
+        libtcod.console_clear(Game.game_con)
+        world.draw()
         # Load blocks during draw even if player is not doing anything
+        if not Game.past_loop_time() or skipped_loads > 10:
+            world.load_surrounding_blocks()
+            skipped_loads = 0
+            logging.info("Load blocks")
+        else:
+            logging.info("load timeout")
+            skipped_loads += 1
+        world.cull_old_blocks()
 
         status_txt = get_status_txt(status_bar, player, world)
         libtcod.console_print(Game.status_con, 0, 0, status_txt)
@@ -127,6 +136,8 @@ def run(args, game):
             debug_print(locals())
         libtcod.console_blit(Game.game_con, 0, 0, Game.game_width, Game.game_height, 0, 0, 0)
         libtcod.console_blit(Game.status_con, 0, 0, 0, 0, 0, 0, Game.game_height)
+        #for window in windows:
+        #    window.draw()
         libtcod.console_flush()
         libtcod.console_clear(Game.status_con)
         # ----- keyboard input -----
@@ -137,18 +148,21 @@ def run(args, game):
             #print("lctrl {}".format(key.lctrl))
             if key.vk == libtcod.KEY_NONE:
                 break
+            if Game.debug:
+                debug_info = context_menu.debug_menu(key, debug_info, world)
             #print(event)
             #if event.type == QUIT:
             #    pygame.quit()
             #    sys.exit()
             player.process_input(key)
             game.get_game_input(key)
+
         elapsed = (1/(time.time() - Game.loop_start)) * .1 + elapsed * .9
 
     if return_message['save']:
         world.save_active_blocks()
         logging.debug("saving seed {} at world turn {}".format(world.rand_seed, world.turn))
-        world.a_serializer.save_settings(player)
+        world.a_serializer.save_settings(player, world.rand_seed)
     elif return_message['dead']:
         world.a_serializer.delete_save()
         # Reset movement keys -- bad idea to use static list
@@ -189,13 +203,14 @@ def main():
             if menu.quit:
                 done = True
             is_dead = False
-        if menu.enter_game:
-            if menu.selected_seed:
-                args.seed = menu.selected_seed
+        if menu.enter_game or args.selected_path:
+            if menu.selected_path:
+                args.selected_path = menu.selected_path
             return_message = run(args, game)
+            args.selected_path = None
+            menu.selected_path = None
             done = return_message['quit']
             is_dead = return_message['dead']
-            menu.selected_seed = None
         if is_dead:
             menu.game_over()
         # Sleep to stop crashing if all above if statements are false. Shouldn't 
@@ -206,6 +221,7 @@ def parse_args():
     """Parse command-line arguments"""
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', help="set world seed", default=None)
+    parser.add_argument('--selected-path', help="select data folder(ignore seed)", default=None)
     parser.add_argument('--skip', help="skip main menu to new game", action="store_true")
     parser.add_argument('-v', dest='verbose', help='debug output log', action="store_true")
     args = parser.parse_args()
