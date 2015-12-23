@@ -52,17 +52,19 @@ class Serializer(object):
         block = Block(idx, idy, world=world, tiles=block_sh['tiles'], objects=block_sh['objects'], load_turn=world.turn)
         return block
 
-    def save_settings(self, player, seed):
+    def save_settings(self, player, world):
         """Save Game state, player info"""
+        seed = world.rand_seed
+        turn = world.turn
         logging.info("saving settings")
         path = os.path.join(self.serial_path, "settings")
         settings_sh = shelve.open(path)
         settings_sh['player'] = player
         settings_sh['center_x'] = Game.center_x
         settings_sh['center_y'] = Game.center_y
-        settings_sh['turn'] = player.world.turn
+        settings_sh['turn'] = turn
         settings_sh['seed'] = seed
-        logging.info('turn save {}'.format(player.world.turn))
+        logging.info('turn save {}'.format(turn))
         settings_sh.close()
 
     def load_settings(self):

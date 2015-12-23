@@ -195,11 +195,10 @@ class Fungus(Object):
 class Player(Object):
     """Player-object
        Acts as an object but also manages the viewable center"""
-    def __init__(self, world):
+    def __init__(self):
         super(Player, self).__init__(Game.center_x % Game.map_size,
                                      Game.center_y % Game.map_size,
                                      '@')
-        self.world = world
         self.fg = libtcod.lightest_gray
         self.bg = None
 
@@ -233,8 +232,8 @@ class Player(Object):
         for action in actions.PlayerAction.current_actions:
             action.get_input(key)
 
-    def move(self):
-        block = self.world.get_block(Game.center_x, Game.center_y)
+    def move(self, world):
+        block = world.get_block(Game.center_x, Game.center_y)
         self.moved = False
 
         #if self.last_turn == self.world.turn:

@@ -64,10 +64,9 @@ def run(args, game):
                 logging.error("Player not found")
         except GetOutOfLoop:
             pass
-        player.world = world
         player.register_actions()
     else:
-        player = Player(world)
+        player = Player()
         Game.process()
         start_block = world.get(Game.idx_cur, Game.idy_cur)
         start_block.objects.append(player)
@@ -103,7 +102,7 @@ def run(args, game):
             break
         # Order is important since world modifies current view
         # And game updates the relevant view variables
-        player.move()
+        player.move(world)
         if player.is_dead:
             return_message['dead'] = True
             return_message['save'] = False
@@ -162,7 +161,7 @@ def run(args, game):
     if return_message['save']:
         world.save_active_blocks()
         logging.debug("saving seed {} at world turn {}".format(world.rand_seed, world.turn))
-        world.a_serializer.save_settings(player, world.rand_seed)
+        world.a_serializer.save_settings(player, world)
     elif return_message['dead']:
         world.a_serializer.delete_save()
         # Reset movement keys -- bad idea to use static list
