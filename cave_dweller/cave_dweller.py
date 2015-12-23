@@ -25,6 +25,8 @@ from objects import Player
 from menu import Menu
 import actions
 
+log = logging.getLogger(__name__)
+
 def run(args, game):
     """Main game loop"""
     # Setup variables used in player/world
@@ -40,7 +42,9 @@ def run(args, game):
         Game.center_x = settings_obj['center_x']
         Game.center_y = settings_obj['center_y']
     except KeyError:
-        logging.debug("center x/y not available")
+        # No save
+        pass
+        #logging.debug("center x/y not available")
     Game.process()
     world.load_surrounding_blocks()
     world.process()
@@ -85,10 +89,10 @@ def run(args, game):
 
     status_bar = collections.OrderedDict()
     while True:
+        Game.record_loop_time()
         if libtcod.console_is_window_closed():
             return_message['quit'] = True
             break
-        Game.record_loop_time()
         # Order is important since world modifies current view
         # And game updates the relevant view variables
         player.move()
@@ -97,15 +101,22 @@ def run(args, game):
             return_message['save'] = False
             break
         # TODO, allow FPS separate from movement(multi-turn movement)
-        libtcod.console_clear(Game.game_con)
         if player.moved:
             world.process()
             Game.process()
 
+        if not Game.past_loop_time():
+            libtcod.console_clear(Game.game_con)
+            world.draw()
+        else:
+            log.debug("Past draw time")
+        if not Game.past_loop_time():
+            world.load_surrounding_blocks()
+        else:
+            pass
+            #log.info("Past load time")
         world.cull_old_blocks()
         # Load blocks during draw even if player is not doing anything
-        world.load_surrounding_blocks()
-        world.draw()
 
         status_txt = get_status_txt(status_bar, player, world)
         libtcod.console_print(Game.status_con, 0, 0, status_txt)
@@ -161,10 +172,9 @@ def debug_print(args):
 
 def main():
     """Main menu"""
-    setup_logger()
-    log = logging.getLogger(__name__)
-    log.debug("---New Game---")
     args = parse_args()
+    setup_logger(args.verbose)
+    log.debug("---New Game---")
 
     menu = Menu()
     game = Game()
@@ -197,6 +207,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', help="set world seed", default=None)
     parser.add_argument('--skip', help="skip main menu to new game", action="store_true")
+    parser.add_argument('-v', dest='verbose', help='debug output log', action="store_true")
     args = parser.parse_args()
     return args
 
@@ -219,12 +230,16 @@ def get_status_txt(status_bar, player, world):
     status_txt = ''.join(status_list)
     return status_txt
 
-def setup_logger():
+def setup_logger(verbose=False):
     """Setup logging - 
         Only output INFO and higher to console
         Output everything to gamelog.txt
         TODO: Have an actual game log with game events
               and a separate log for debugging"""
+    if verbose:
+        console_level = logging.DEBUG
+    else:
+        console_level = logging.INFO
     log = logging.getLogger()
     log.setLevel(logging.DEBUG)
     my_format = logging.Formatter("%(asctime)s:%(name)s:%(levelname)s| %(message)s")
@@ -234,7 +249,7 @@ def setup_logger():
     fh.setFormatter(my_format)
     log.addHandler(fh)
     ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
+    ch.setLevel(console_level)
     ch.setFormatter(my_format)
     log.addHandler(ch)
 

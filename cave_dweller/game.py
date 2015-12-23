@@ -34,7 +34,7 @@ class Game(object):
     #show_algorithm = False
     reposition_objects = False
 
-    default_fps = 40
+    default_fps = 30
     fps = default_fps
     move_per_sec = 1.0/15
     default_action_interval = 1.0/20
@@ -97,7 +97,7 @@ class Game(object):
     @classmethod
     def past_loop_time(cls):
         """Check if game loop needs to exit to keep up framerate"""
-        if (time.time() - cls.loop_start) > cls.loop_time/2:
+        if (time.time() - cls.loop_start) > cls.loop_time:
             return True
         else:
             return False

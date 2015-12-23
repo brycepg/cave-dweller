@@ -116,7 +116,8 @@ class World(object):
                 new_blocks += gen_blks
 
         if new_blocks:
-            log.debug("new block {} {}x{}".format(new_blocks[0], new_blocks[0].idx, new_blocks[0].idy))
+            pass
+            #log.debug("new block {} {}x{}".format(new_blocks[0], new_blocks[0].idx, new_blocks[0].idy))
         for block in new_blocks:
             self.blocks[(block.idx, block.idy)] = block
 
@@ -134,11 +135,11 @@ class World(object):
                 block.draw()
 
     def get_block(self, abs_x, abs_y):
-            """Get block at the absolute coordinate"""
-            idx = abs_x // Game.map_size
-            idy = abs_y // Game.map_size
-            block = self.blocks[(idx, idy)]
-            return block
+        """Get block at the absolute coordinate"""
+        idx = abs_x // Game.map_size
+        idy = abs_y // Game.map_size
+        block = self.blocks[(idx, idy)]
+        return block
 
     def save_active_blocks(self):
         logging.info("Saving blocks.. bye bye")

@@ -2,6 +2,7 @@ This is a Procedural Simulation Rougelike I'm currently working on.
 
 Right now:  
 
+- seed-based terrain generation
 - on the fly world generation/serialization
 - basic entiity generation
     - basic stable entity ecosystem

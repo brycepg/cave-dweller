@@ -312,7 +312,7 @@ class Block:
                 a_object.new_block_turn = self.world.turn
                 a_object.x = a_object.x % map_size
                 a_object.y = a_object.y % map_size
-                log.debug("move object {} {}x{}".format(a_object, a_object.x, a_object.y))
+                #log.debug("move object {} {}x{}".format(a_object, a_object.x, a_object.y))
                 free_agent = objects.pop(i)
                 new_block.objects.append(free_agent)
                 new_blocks.append(new_block)
