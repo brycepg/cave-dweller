@@ -11,13 +11,15 @@ class Game(object):
     mutable viewing state,
     and input to change game-wide settings(for debugging)
     """
+    fullscreen = False
+
     map_size = 96
     loaded_block_radius = 1
 
     font_size = 12
 
     screen_width = 62
-    screen_height = 40
+    screen_height = 44
 
     game_width = screen_height - 1
     game_height = screen_height - 1
@@ -60,7 +62,7 @@ class Game(object):
     loop_start = None
     loop_time = 1.0/fps
 
-    font_sizes = [10, 12, 16]
+    font_sizes = [16, 12, 10]
 
     @classmethod
     def in_drawable_coordinates(cls, abs_x, abs_y):
@@ -75,8 +77,17 @@ class Game(object):
         logging.info("game init")
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.font_size_index = 2
+        for index, size in enumerate(Game.font_sizes):
+            res_x, res_y = libtcod.sys_get_current_resolution()
+            if not (Game.screen_height * size + 100 > res_y or
+                    Game.screen_width * size > res_x):
+                    self.font_size_index = index
+                    break
+        else:
+            self.font_size_index = len(Game.font_sizes) - 1
+
         libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False, libtcod.RENDERER_GLSL)
+        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', Game.fullscreen, libtcod.RENDERER_SDL)
         Game.game_con = libtcod.console_new(Game.game_width, Game.game_height)
         libtcod.console_set_default_foreground(Game.game_con, libtcod.white)
         Game.status_con = libtcod.console_new(Game.status_bar_width, Game.status_bar_height)
@@ -116,6 +127,9 @@ class Game(object):
         if key.pressed:
             if key.lctrl and key.rctrl and key.c == ord('d'):
                 Game.debug = False if Game.debug else True
+            if key.vk == libtcod.KEY_F11:
+                Game.fullscreen = False if Game.fullscreen else True
+                libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', Game.fullscreen, libtcod.RENDERER_SDL)
         if Game.debug:
             if key.pressed:
                 mod = key.lctrl
@@ -160,10 +174,10 @@ class Game(object):
                     import pdb; pdb.set_trace()
 
                 font_changed = False
-                if mod and key.c == ord('=') and self.font_size_index < len(type(self).font_sizes) - 1:
+                if mod and key.c == ord('-') and self.font_size_index < len(type(self).font_sizes) - 1:
                         self.font_size_index += 1
                         font_changed = True
-                if mod and key.c == ord('-') and self.font_size_index > 0:
+                if mod and key.c == ord('=') and self.font_size_index > 0:
                         self.font_size_index -= 1
                         font_changed = True
                 if font_changed:
@@ -174,6 +188,6 @@ class Game(object):
                     libtcod.console_set_custom_font(
                             font_path, 
                             libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-                    libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False, libtcod.RENDERER_GLSL)
+                    libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', Game.fullscreen, libtcod.RENDERER_SDL)
                     font_changed = False
  
