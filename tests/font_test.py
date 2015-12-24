@@ -1,9 +1,12 @@
 import os
 import time
 
+import sys
+sys.path.append("cave_dweller")
 import libtcodpy as libtcod 
 
 from game import Game
+
 
 font_size_index = 2
 libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=Game.font_sizes[font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
