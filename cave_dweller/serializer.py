@@ -59,7 +59,8 @@ class Serializer(object):
         logging.info("saving settings")
         path = os.path.join(self.serial_path, "settings")
         settings_sh = shelve.open(path)
-        settings_sh['player'] = player
+        #settings_sh['player'] = player
+        settings_sh['player_index'] = world.blocks[(Game.idx_cur, Game.idy_cur)].objects.index(player)
         settings_sh['center_x'] = Game.center_x
         settings_sh['center_y'] = Game.center_y
         settings_sh['turn'] = turn
@@ -74,7 +75,7 @@ class Serializer(object):
         if not os.path.exists(path):
             return ret_obj
         settings_sh = shelve.open(path)
-        ret_obj['player'] = settings_sh.get('player')
+        ret_obj['player_index'] = settings_sh.get('player_index')
         Game.center_x = settings_sh['center_x']
         Game.center_y = settings_sh['center_y'] 
         ret_obj['turn'] = settings_sh.get('turn', 0)

@@ -52,18 +52,8 @@ def run(args, game):
     world.load_surrounding_blocks()
     #world.process()
 
-    if settings_obj['player']:
-        player = None
-        try:
-            for block in world.blocks.values():
-                for a_object in block.objects:
-                    if isinstance(a_object, Player):
-                        player = a_object
-                        raise GetOutOfLoop
-            else:
-                logging.error("Player not found")
-        except GetOutOfLoop:
-            pass
+    if settings_obj.get('player_index') is not None:
+        player = world.blocks[(Game.idx_cur, Game.idy_cur)].objects[settings_obj['player_index']]
         player.register_actions()
     else:
         player = Player()
