@@ -47,15 +47,19 @@ class World(object):
         # Probably due to variable size constraints in C
         self.perlin_seed = random.randrange(-65565, 65565)
 
-    def cull_old_blocks(self):
+    def cull_old_blocks(self, ignore_load=False):
         """Serialize blocks that are outside of loaded radius, 
-           and have been alive for more than some number of turns"""
+           and have been alive for more than some number of turns
+           ignore_load 
+            if True, ignores how long block has been alive to cull. (default avoids constant loading/deloading from objects/player moving accross boundries)
+           """
+           
         loaded_block_radius = Game.loaded_block_radius
         # TODO serialize old blocks
         for key in list(self.blocks.keys()):
             if (abs(Game.idx_cur - self.blocks[key].idx) > loaded_block_radius or
                     abs(Game.idy_cur - self.blocks[key].idy) > loaded_block_radius):
-                if (self.turn - self.blocks[key].load_turn) > 10:
+                if ignore_load or (self.turn - self.blocks[key].load_turn) > 10:
                     #log.info("Cull %dx%d on turn %d, load_turn %d", self.blocks[key].idx, self.blocks[key].idy, self.turn, self.blocks[key].load_turn)
                     self.a_serializer.save_block(self.blocks[key])
                     del self.blocks[key]
@@ -64,12 +68,13 @@ class World(object):
     def load_surrounding_blocks(self):
         """Loads blocks surrounding player specified by loaded_block_radius"""
 
-        # Load current block first
-        cur_blk = self.get(Game.idx_cur, Game.idy_cur)
-
         idy_cur = Game.idy_cur
         idx_cur = Game.idx_cur
         loaded_block_radius = Game.loaded_block_radius
+
+        # Load current block first
+        if not (Game.idx_cur, Game.idy_cur) in self.blocks:
+            self.blocks[(idx_cur, idy_cur)] = self.load_block(idx_cur, idy_cur)
 
         try:
             for idy in range(idy_cur - loaded_block_radius,

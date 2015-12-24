@@ -74,8 +74,13 @@ def run(args, game):
         player.update_draw_location(start_block)
         # Process to initalize object behavior
         world.process()
+        # Remove cascade of loaded blocks due to 
+        # object generation moving over borders
+        world.cull_old_blocks(ignore_load=True)
     Game.process()
-    #world.draw()
+    # Draw first frame before player moves
+    world.draw()
+
     # Get out of loop setting
     world.slow_load = True
 
@@ -112,15 +117,15 @@ def run(args, game):
             world.process()
             world.turn += 1
             Game.process()
-
-
-        libtcod.console_clear(Game.game_con)
-        world.draw()
+            libtcod.console_clear(Game.game_con)
+            world.draw()
         # Load blocks during draw even if player is not doing anything
+        libtcod.console_clear(Game.status_con)
+        libtcod.console_clear(Game.debug_con)
         if not Game.past_loop_time() or skipped_loads > 10:
             world.load_surrounding_blocks()
             skipped_loads = 0
-            logging.info("Load blocks")
+            #logging.info("Load blocks")
         else:
             logging.info("load timeout")
             skipped_loads += 1
@@ -134,21 +139,33 @@ def run(args, game):
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             debug_print(locals())
         libtcod.console_blit(Game.game_con, 0, 0, Game.game_width, Game.game_height, 0, 0, 0)
+        libtcod.console_blit(Game.debug_con, 0, 0, 0, 0, 0, 0, 0, 1, 0)
         libtcod.console_blit(Game.status_con, 0, 0, 0, 0, 0, 0, Game.game_height)
         #for window in windows:
         #    window.draw()
         libtcod.console_flush()
-        libtcod.console_clear(Game.status_con)
         # ----- keyboard input -----
         while True:
             key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
-            #print("char {}".format((key.c)))
-            #print("vk {}".format(key.vk))
-            #print("lctrl {}".format(key.lctrl))
             if key.vk == libtcod.KEY_NONE:
                 break
+            print("pressed {}".format(key.pressed))
+            print("char {}".format((chr(key.c))))
+            print("vk {}".format(key.vk))
             if Game.debug:
                 debug_info = context_menu.debug_menu(key, debug_info, world)
+                if key.pressed and key.lctrl and key.c == ord('f'):
+                    if Game.action_interval:
+                        Game.action_interval = 0
+                        Game.move_per_sec = 0
+                        libtcod.sys_set_fps(0)
+                        log.info("Fast")
+                    else:
+                        log.info("Normal")
+                        Game.action_interval = Game.default_action_interval
+                        libtcod.sys_set_fps(Game.default_fps)
+                        Game.move_per_sec = 3/4 * Game.default_action_interval
+                        Game.action_interval = Game.default_action_interval
             #print(event)
             #if event.type == QUIT:
             #    pygame.quit()
@@ -174,14 +191,14 @@ def debug_print(args):
     """Pass locals of main loop to print debug information"""
     exec("") # Avoid locals optimization
     locals().update(args)
-    libtcod.console_print(Game.game_con, 1, 1, "FPS: %s" % str(int(elapsed)))
-    libtcod.console_print(Game.game_con, 1, 2, "blocks: %d" % len(world.blocks))
-    libtcod.console_print(Game.game_con, 1, 3, "block: (%d,%d)" % (game.idx_cur, game.idy_cur))
-    libtcod.console_print(Game.game_con, 1, 4, "center: (%dx%d)" % (game.center_x, game.center_y))
-    libtcod.console_print(Game.game_con, 1, 5, "player: (%dx%d)" % (player.x, player.y))
-    libtcod.console_print(Game.game_con, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
+    libtcod.console_print(Game.debug_con, 1, 1, "FPS: %s" % str(int(elapsed)))
+    libtcod.console_print(Game.debug_con, 1, 2, "blocks: %d" % len(world.blocks))
+    libtcod.console_print(Game.debug_con, 1, 3, "block: (%d,%d)" % (game.idx_cur, game.idy_cur))
+    libtcod.console_print(Game.debug_con, 1, 4, "center: (%dx%d)" % (game.center_x, game.center_y))
+    libtcod.console_print(Game.debug_con, 1, 5, "player: (%dx%d)" % (player.x, player.y))
+    libtcod.console_print(Game.debug_con, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
     num_objects = sum([len(block.objects) for block in world.blocks.values()])
-    libtcod.console_print(Game.game_con, 1, 7, "objects: {}".format(num_objects))
+    libtcod.console_print(Game.debug_con, 1, 7, "objects: {}".format(num_objects))
 
 def main():
     """Main menu"""

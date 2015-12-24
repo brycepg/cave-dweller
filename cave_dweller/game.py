@@ -29,15 +29,13 @@ class Game(object):
     status_con = None
 
     debug = True
-    fast = False
     collidable = True
-    #show_algorithm = False
     reposition_objects = False
 
     default_fps = 30
     fps = default_fps
-    move_per_sec = 1.0/15
     default_action_interval = 1.0/20
+    move_per_sec = 3/4 * default_action_interval
     action_interval = default_action_interval
 
     # Drawable window
@@ -78,15 +76,16 @@ class Game(object):
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.font_size_index = 2
         libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', libtcod.RENDERER_GLSL)
+        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False, libtcod.RENDERER_GLSL)
         Game.game_con = libtcod.console_new(Game.game_width, Game.game_height)
         libtcod.console_set_default_foreground(Game.game_con, libtcod.white)
         Game.status_con = libtcod.console_new(Game.status_bar_width, Game.status_bar_height)
+        Game.debug_con = libtcod.console_new(Game.game_width, Game.game_height)
 
         libtcod.mouse_show_cursor(True)
         libtcod.sys_set_fps(type(self).fps)
-        libtcod.console_set_keyboard_repeat(1000, 100)
-        #libtcod.console_disable_keyboard_repeat()
+        #libtcod.console_set_keyboard_repeat(1000, 100)
+        libtcod.console_disable_keyboard_repeat()
 
 
     @classmethod
@@ -120,9 +119,6 @@ class Game(object):
         if Game.debug:
             if key.pressed:
                 mod = key.lctrl
-                if mod and key.c == ord('f'):
-                    Game.fast = False if Game.fast else True
-                    print('toggle speed: {}'.format(Game.fast))
                 if mod and key.c == ord('c'):
                     Game.collidable = False if Game.collidable else True
                     print('toggle collision: {}'.format(Game.collidable))
@@ -163,20 +159,21 @@ class Game(object):
                 if key.shift and mod and key.c == ord('d'):
                     import pdb; pdb.set_trace()
 
-                # TODO can't get font resizing to work yet
-#               font_changed = False
-#               if mod and key.c == ord('=') and self.font_size_index < len(type(self).font_sizes) - 1:
-#                       self.font_size_index += 1
-#                       font_changed = True
-#               if mod and key.c == ord('-') and self.font_size_index > 0:
-#                       self.font_size_index -= 1
-#                       font_changed = True
-#               if font_changed:
-#                   print('set font')
-#                   font_path = os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index]))
-#                   print(font_path)
-#                   libtcod.console_set_custom_font(
-#                           font_path, 
-#                           libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-#                   libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False)
-
+                font_changed = False
+                if mod and key.c == ord('=') and self.font_size_index < len(type(self).font_sizes) - 1:
+                        self.font_size_index += 1
+                        font_changed = True
+                if mod and key.c == ord('-') and self.font_size_index > 0:
+                        self.font_size_index -= 1
+                        font_changed = True
+                if font_changed:
+                    print('set font')
+                    font_path = os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index]))
+                    print(font_path)
+                    libtcod.console_delete(0)
+                    libtcod.console_set_custom_font(
+                            font_path, 
+                            libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+                    libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', False, libtcod.RENDERER_GLSL)
+                    font_changed = False
+ 
