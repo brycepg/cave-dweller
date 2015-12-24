@@ -24,7 +24,8 @@ class World(object):
         self.a_serializer = None
         self.blocks = {}
         self.turn = 0
-        self.slow_load = True
+        # Do not timeout block loading at begginging(a block might not appear)
+        self.slow_load = False
 
     def generate_seeds(self, rand_seed):
         """Generate time seed if not given
@@ -137,13 +138,31 @@ class World(object):
         # A little hack to randomize digging tile
         Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)
 
+    def get_id_from_abs(self, abs_x, abs_y):
+        """Get idx/idy from abs coord"""
+        idx = abs_x // Game.map_size
+        idy = abs_y // Game.map_size
+        return idx, idy
+
     def draw(self):
-        """Call block's draw functions(as to be separate from game logic"""
-        loaded_block_radius = Game.loaded_block_radius
-        for block in self.blocks.values():
-            if (abs(Game.idx_cur - block.idx) <= loaded_block_radius or
-                    abs(Game.idy_cur - block.idy) <= loaded_block_radius):
-                block.draw()
+        """Call viewable block's draw function"""
+        # Draw at max 4 blocks
+        # (Assumption that the viewing size is smaller than the map_size
+        #log.info("---- turn ---- %d", self.turn)
+        sample_locations = [(Game.min_x // Game.map_size, Game.min_y // Game.map_size),
+                            (Game.min_x // Game.map_size, Game.max_y  // Game.map_size),
+                            (Game.max_x // Game.map_size, Game.min_y  // Game.map_size),
+                            (Game.max_x // Game.map_size, Game.max_y  // Game.map_size)]
+
+        selected_blocks = []
+        for loc in sample_locations:
+            block = self.get(*loc)
+            if block not in selected_blocks:
+                selected_blocks.append(block)
+
+        for block in selected_blocks:
+            #log.info("Draw %dx%d", block.idx, block.idy)
+            block.draw()
 
     def get_block(self, abs_x, abs_y):
         """Get block at the absolute coordinate"""
