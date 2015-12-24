@@ -39,7 +39,7 @@ def run(args, game):
 
     a_serializer = Serializer(args.selected_path)
     settings_obj = a_serializer.load_settings()
-    if settings_obj.get('seed'):
+    if settings_obj.get('seed') is not None:
         seed = settings_obj['seed']
     else:
         seed = args.seed
@@ -90,6 +90,11 @@ def run(args, game):
 
     status_bar = collections.OrderedDict()
     debug_info = None
+
+    key = libtcod.Key()
+    mouse = libtcod.Mouse()
+    libtcod.mouse_show_cursor(False)
+
     while True:
         Game.record_loop_time()
         if libtcod.console_is_window_closed():
@@ -110,6 +115,8 @@ def run(args, game):
             libtcod.console_clear(Game.game_con)
             world.draw()
         # Load blocks during draw even if player is not doing anything
+        libtcod.console_clear(Game.sidebar_con)
+        libtcod.console_clear(Game.mouse_con)
         libtcod.console_clear(Game.status_con)
         libtcod.console_clear(Game.debug_con)
         if not Game.past_loop_time() or skipped_loads > 10:
@@ -128,15 +135,25 @@ def run(args, game):
         if Game.debug:
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             debug_print(locals())
-        libtcod.console_blit(Game.game_con, 0, 0, Game.game_width, Game.game_height, 0, 0, 0)
-        libtcod.console_blit(Game.debug_con, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+        #log.info("mouse (x/y) %s,%s", mouse.cx, mouse.cy)
+        # Print mouse cursor
+        # There's a bug where has mouse focus returns true if the mouse starts on 
+        # the console. (hence the edge checks)
+        if libtcod.console_has_mouse_focus() or ((mouse.cx != 0 and mouse.cy != 0) and (mouse.cx != 0 and mouse.cy != Game.screen_height-1) and (mouse.cx != Game.screen_width-1 and mouse.cy != Game.screen_height-1) and (mouse.cx != Game.screen_width-1 and mouse.cy != 0)):
+            libtcod.console_put_char_ex(Game.mouse_con, mouse.cx, mouse.cy, ord('x'), libtcod.yellow, None)
+
+        libtcod.console_blit(Game.game_con, x=0, y=0, w=Game.game_width, h=Game.game_height, dst=0, xdst=0, ydst=0)
+        libtcod.console_blit(Game.debug_con, x=0, y=0, w=0, h=0, dst=0, xdst=0, ydst=0, ffade=1, bfade=0)
         libtcod.console_blit(Game.status_con, 0, 0, 0, 0, 0, 0, Game.game_height)
+        libtcod.console_blit(Game.sidebar_con, x=0, y=0, w=0, h=0, dst=0, xdst=Game.game_width, ydst=0)
+        libtcod.console_blit(Game.mouse_con, x=0, y=0, w=0, h=0, dst=0, xdst=0, ydst=0, ffade=.75, bfade=.0)
         #for window in windows:
         #    window.draw()
         libtcod.console_flush()
         # ----- keyboard input -----
         while True:
-            key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
+            libtcod.sys_check_for_event(libtcod.EVENT_ANY, key, mouse)
+            #key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
             if key.vk == libtcod.KEY_NONE:
                 break
             #print("pressed {}".format(key.pressed))
@@ -156,15 +173,13 @@ def run(args, game):
                         libtcod.sys_set_fps(Game.default_fps)
                         Game.move_per_sec = 3/4 * Game.default_action_interval
                         Game.action_interval = Game.default_action_interval
-            #print(event)
-            #if event.type == QUIT:
-            #    pygame.quit()
-            #    sys.exit()
             player.process_input(key)
             game.get_game_input(key)
 
+
         elapsed = (1/(time.time() - Game.loop_start)) * .1 + elapsed * .9
 
+        
     if return_message['save']:
         world.save_active_blocks()
         logging.debug("saving seed {} at world turn {}".format(world.rand_seed, world.turn))
@@ -172,6 +187,7 @@ def run(args, game):
     elif return_message['dead']:
         world.a_serializer.delete_save()
         # Reset movement keys -- bad idea to use static list
+        # Register into list instance
         # TODO fix
         actions.PlayerAction.current_actions = []
 

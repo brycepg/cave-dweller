@@ -29,6 +29,9 @@ class Game(object):
 
     game_con = None
     status_con = None
+    mouse_con = None
+    debug_con = None
+    sidebar_con = None
 
     debug = True
     collidable = True
@@ -91,7 +94,9 @@ class Game(object):
         Game.game_con = libtcod.console_new(Game.game_width, Game.game_height)
         libtcod.console_set_default_foreground(Game.game_con, libtcod.white)
         Game.status_con = libtcod.console_new(Game.status_bar_width, Game.status_bar_height)
+        Game.sidebar_con = libtcod.console_new(Game.screen_width - Game.game_width, Game.screen_height)
         Game.debug_con = libtcod.console_new(Game.game_width, Game.game_height)
+        Game.mouse_con = libtcod.console_new(Game.screen_width, Game.screen_height)
 
         libtcod.mouse_show_cursor(True)
         libtcod.sys_set_fps(type(self).fps)
