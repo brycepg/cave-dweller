@@ -139,9 +139,9 @@ def run(args, game):
             key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
             if key.vk == libtcod.KEY_NONE:
                 break
-            print("pressed {}".format(key.pressed))
-            print("char {}".format((chr(key.c))))
-            print("vk {}".format(key.vk))
+            #print("pressed {}".format(key.pressed))
+            #print("char {}".format((chr(key.c))))
+            #print("vk {}".format(key.vk))
             if Game.debug:
                 debug_info = context_menu.debug_menu(key, debug_info, world)
                 if key.pressed and key.lctrl and key.c == ord('f'):
