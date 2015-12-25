@@ -158,8 +158,8 @@ class Block:
     def get_drawable_coordinate(self, local_x, local_y):
         """Get drawable coordinate from local block coordinate"""
         abs_x, abs_y = self.get_abs(local_x, local_y)
-        draw_x = abs_x - Game.center_x + Game.game_width//2
-        draw_y = abs_y - Game.center_y + Game.game_height//2
+        draw_x = abs_x - Game.view_x
+        draw_y = abs_y - Game.view_y
         return draw_x, draw_y
 
     def reposition_object(self, a_object):
@@ -172,27 +172,11 @@ class Block:
         to_search = []
         neighbors = get_neighbors(a_object.x, a_object.y)
 
-        # Visualization for debugging/coolness
-        #if Game.show_algorithm:
-        #    draw_x, draw_y = self.get_drawable_coordinate(a_object.x, a_object.y)
-        #    libtcod.console_set_char_background(0, draw_x, draw_y, libtcod.red)
-
         while True:
             for neighbor in neighbors:
                 # Do not search previously searched tiles
                 if neighbor in searched_list:
                     continue
-
-                # Visualization for debugging/coolness
-                #if Game.show_algorithm:
-                #    abs_y = Game.map_size * self.idy + neighbor[1]
-                #    abs_x = Game.map_size * self.idx + neighbor[0]
-                #    libtcod.console_put_char_ex(Game.game_con, 
-                #            abs_x - Game.center_x + Game.game_width//2,
-                #            abs_y - Game.center_y + Game.game_height//2,
-                #            ' ', libtcod.red, libtcod.red)
-                #    libtcod.console_flush()
-                #    log.debug("neighbor %r" % neighbor)
 
                 # Exit condition --- ground open tile
                 if not self.get_tile(*neighbor, generate_new_blocks=True).is_obstacle:
@@ -312,7 +296,7 @@ class Block:
                 a_object.new_block_turn = self.world.turn
                 a_object.x = a_object.x % map_size
                 a_object.y = a_object.y % map_size
-                #log.debug("move object {} {}x{}".format(a_object, a_object.x, a_object.y))
+                log.debug("move object {} {}x{}".format(a_object, a_object.x, a_object.y))
                 free_agent = objects.pop(i)
                 new_block.objects.append(free_agent)
                 new_blocks.append(new_block)
@@ -341,8 +325,8 @@ class Block:
         idx = self.idx
         idy = self.idy
 
-        center_x = Game.center_x
-        center_y = Game.center_y
+        view_x = Game.view_x
+        view_y = Game.view_y
 
         get_tile = self.get_tile
         tiles = self.tiles
@@ -407,8 +391,8 @@ class Block:
                                 draw_char = cur_tile.char
 
                     libtcod.console_put_char_ex(Game.game_con,
-                            abs_x - center_x + game_width//2,
-                            abs_y - center_y + game_height//2,
+                            abs_x - view_x,
+                            abs_y - view_y,
                             draw_char, cur_tile.fg, bg)
 
     def draw_objects(self):
@@ -424,6 +408,6 @@ class Block:
                     cur_bg = self.get_tile(int(a_object.x), int(a_object.y)).bg
 
                 libtcod.console_put_char_ex(Game.game_con,
-                     (abs_x - Game.center_x + Game.game_width//2),
-                     (abs_y - Game.center_y + Game.game_height//2),
+                     (abs_x - Game.view_x),
+                     (abs_y - Game.view_y),
                      a_object.char, a_object.fg, cur_bg)

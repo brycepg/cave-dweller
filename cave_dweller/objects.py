@@ -196,8 +196,8 @@ class Player(Object):
     """Player-object
        Acts as an object but also manages the viewable center"""
     def __init__(self):
-        super(Player, self).__init__(Game.center_x % Game.map_size,
-                                     Game.center_y % Game.map_size,
+        super(Player, self).__init__(Game.map_size//2,
+                                     Game.map_size//2,
                                      '@')
         self.fg = libtcod.lightest_gray
         self.bg = None
@@ -233,7 +233,7 @@ class Player(Object):
             action.get_input(key)
 
     def move(self, world):
-        block = world.get_block(Game.center_x, Game.center_y)
+        block = world.get_block(Game.view_x + Game.game_width//2, Game.view_y + Game.game_height//2)
         self.moved = False
 
         #if self.last_turn == self.world.turn:
@@ -255,8 +255,8 @@ class Player(Object):
 
     def update_draw_location(self, cur_block):
         """NOTE: modifies view of game """
-        Game.center_x = int(self.x + Game.map_size * cur_block.idx)
-        Game.center_y = int(self.y + Game.map_size * cur_block.idy)
+        Game.view_x = int(self.x + Game.map_size * cur_block.idx - Game.game_width//2)
+        Game.view_y = int(self.y + Game.map_size * cur_block.idy - Game.game_height//2)
 
 class CaveGrass(Object):
     """Non-movement entity. Generates cluster of grass initially"""

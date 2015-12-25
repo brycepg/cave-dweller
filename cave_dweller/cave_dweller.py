@@ -202,7 +202,7 @@ def debug_print(args):
     libtcod.console_print(Game.debug_con, 1, 1, "FPS: %s" % str(int(elapsed)))
     libtcod.console_print(Game.debug_con, 1, 2, "blocks: %d" % len(world.blocks))
     libtcod.console_print(Game.debug_con, 1, 3, "block: (%d,%d)" % (game.idx_cur, game.idy_cur))
-    libtcod.console_print(Game.debug_con, 1, 4, "center: (%dx%d)" % (game.center_x, game.center_y))
+    libtcod.console_print(Game.debug_con, 1, 4, "view: (%dx%d)" % (game.view_x, game.view_y))
     libtcod.console_print(Game.debug_con, 1, 5, "player: (%dx%d)" % (player.x, player.y))
     libtcod.console_print(Game.debug_con, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
     num_objects = sum([len(block.objects) for block in world.blocks.values()])

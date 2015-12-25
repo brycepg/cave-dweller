@@ -42,10 +42,8 @@ class Game(object):
     win = None
 
     # Center coordinates of drawable area
-    center_x = 0
-    center_y = 0
-    center_x = screen_width // 2
-    center_y = screen_height // 2
+    view_x = 0
+    view_y = 0
 
     # Bound coordinates of drawable area
     min_x = None
@@ -112,13 +110,13 @@ class Game(object):
     @classmethod
     def process(cls):
         """Update game viewable current location variables"""
-        cls.min_x = cls.center_x - cls.game_width//2
-        cls.max_x = cls.center_x + cls.game_width//2
-        cls.min_y = cls.center_y - cls.game_height//2
-        cls.max_y = cls.center_y + cls.game_height//2
+        cls.min_x = cls.view_x
+        cls.max_x = cls.view_x + cls.game_width
+        cls.min_y = cls.view_y
+        cls.max_y = cls.view_y + cls.game_height
 
-        cls.idx_cur = cls.center_x // cls.map_size
-        cls.idy_cur = cls.center_y // cls.map_size
+        cls.idx_cur = (cls.view_x + Game.game_width) // cls.map_size 
+        cls.idy_cur = (cls.view_y + Game.game_height) // cls.map_size
 
     def get_game_input(self, key):
         if key.pressed:

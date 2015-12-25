@@ -61,8 +61,8 @@ class Serializer(object):
         settings_sh = shelve.open(path)
         #settings_sh['player'] = player
         settings_sh['player_index'] = world.blocks[(Game.idx_cur, Game.idy_cur)].objects.index(player)
-        settings_sh['center_x'] = Game.center_x
-        settings_sh['center_y'] = Game.center_y
+        settings_sh['view_x'] = Game.view_x
+        settings_sh['view_y'] = Game.view_y
         settings_sh['turn'] = turn
         settings_sh['seed'] = seed
         logging.info('turn save {}'.format(turn))
@@ -76,8 +76,8 @@ class Serializer(object):
             return ret_obj
         settings_sh = shelve.open(path)
         ret_obj['player_index'] = settings_sh.get('player_index')
-        Game.center_x = settings_sh['center_x']
-        Game.center_y = settings_sh['center_y'] 
+        Game.view_x = settings_sh['view_x']
+        Game.view_y = settings_sh['view_y'] 
         ret_obj['turn'] = settings_sh.get('turn', 0)
         ret_obj['seed'] = settings_sh.get('seed', None)
         logging.info('turn load {}'.format(settings_sh.get('turn')))
