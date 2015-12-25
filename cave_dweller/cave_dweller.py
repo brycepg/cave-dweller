@@ -153,9 +153,11 @@ def run(args, game):
         libtcod.console_flush()
         libtcod.console_clear(Game.debug_con)
         # ----- keyboard input -----
+        status_bar.is_mode_set = False
         while True:
             libtcod.sys_check_for_event(libtcod.EVENT_ANY, key, mouse)
             #key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
+            status_bar.mode_set(key)
             if key.vk == libtcod.KEY_NONE:
                 break
             #print("pressed {}".format(key.pressed))

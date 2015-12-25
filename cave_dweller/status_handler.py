@@ -3,6 +3,7 @@ import collections
 import libtcodpy as libtcod
 
 from game import Game
+import actions
 
 class StatusBar(object):
     def __init__(self):
@@ -14,7 +15,10 @@ class StatusBar(object):
         self.ordered_status = collections.OrderedDict()
         self.ordered_status['turn'] = []
         self.ordered_status['kills'] = []
+        self.ordered_status['mode'] = []
         self.ordered_status['debug'] = []
+
+        self.is_mode_set = False
 
     def get_txt(self, player, world):
         """Generate status bar text for game"""
@@ -28,8 +32,16 @@ class StatusBar(object):
             self.ordered_status['debug'] = []
 
         status_list = []
-        for a_list in self.ordered_status.values():
-            status_list.append(''.join(a_list))
+        for key in self.ordered_status:
+            if key == 'mode':
+                # Set yellow color to mode
+                # TODO add system for these ugly color codes
+                # TODO add system for colors on status bar?
+                status_list.append("%c%c%c%c" % (libtcod.COLCTRL_FORE_RGB, 255, 255, 1))
+            status_list.append(''.join(self.ordered_status[key]))
+            if key == 'mode':
+                status_list.append("%c" % (libtcod.COLCTRL_STOP))
+                
         status_txt = ''.join(status_list)
         return status_txt
 
@@ -48,3 +60,20 @@ class StatusBar(object):
     def print_status(self, txt):
         """Print text to console"""
         libtcod.console_print(self.con, 0, 0, txt)
+
+    def mode_set(self, key):
+        """Detect which action is being performed and display to status"""
+        for a_action in actions.PlayerAction.current_actions:
+            if isinstance(a_action, actions.PlayerMoveAction):
+                if key.pressed and key.c == a_action.state_key:
+                    mode = type(a_action).__name__
+                    self.ordered_status['mode'] = []
+                    self.ordered_status['mode'].append(' ')
+                    self.ordered_status['mode'].append(mode)
+                    self.is_mode_set = True
+                    #log.info("set %s",mode)
+                if not key.pressed:
+                    if len(self.ordered_status['mode']) > 1:
+                        mode = self.ordered_status['mode'][1]
+                        if mode and mode == type(a_action).__name__:
+                            self.ordered_status['mode'] = []
