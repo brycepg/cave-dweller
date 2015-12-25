@@ -5,6 +5,7 @@ import operator
 import shutil
 
 import libtcodpy as libtcod
+import tiles
 
 from game import Game
 from util import game_path
@@ -16,10 +17,11 @@ class Menu(object):
         self.enter_game = None
         self.quit = False
         self.selected_path = None
+        self.background_con = libtcod.console_new(Game.screen_width, Game.screen_height)
 
     def enter_menu(self):
         key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED)
-        menu_con = libtcod.console_new(Game.screen_width//2, Game.screen_height//2)
+        menu_con = libtcod.console_new(Game.screen_width, Game.screen_height)
         cursor_pos = 0
         menu = ["New Game",
                 "Load Saved Game",
@@ -49,6 +51,9 @@ class Menu(object):
 
         current_list = menu
 
+        x_start = Game.screen_width//2 - 8
+        y_start = Game.screen_height//2-2
+        self.draw_background(x_start, y_start)
         while not menu_done:
             while True:
                 libtcod.console_clear(0)
@@ -97,7 +102,7 @@ class Menu(object):
             if libtcod.console_is_window_closed():
                 self.quit = True
                 menu_done = True
-            libtcod.console_print(menu_con, 0, 0, "%c%c%c%cCave Dweller%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,libtcod.COLCTRL_STOP))
+            libtcod.console_print(menu_con, x_start, y_start, "%c%c%c%cCave Dweller%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,libtcod.COLCTRL_STOP))
             for index, item in enumerate(current_list):
                 if index == 1 and current_list is menu and len(saves) == 0:
                     the_format = [55, 55, 55]
@@ -111,11 +116,10 @@ class Menu(object):
                     the_format = [155, 155, 155]
                 if current_list is saves:
                     item = item.replace("_", " ").capitalize()
-                libtcod.console_print(menu_con, 0, index+1, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,the_format[0], the_format[1], the_format[2], item, libtcod.COLCTRL_STOP))
-            if current_list is saves and (len(saves) == 0 or saves == ['']):
-                libtcod.console_print(menu_con, 0, 1, "%c%c%c%cYou do not have any saves%c" % (libtcod.COLCTRL_FORE_RGB,255, 255, 255, libtcod.COLCTRL_STOP))
+                libtcod.console_print(menu_con, x_start, y_start + 1 + index, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,the_format[0], the_format[1], the_format[2], item, libtcod.COLCTRL_STOP))
 
-            libtcod.console_blit(menu_con, 0, 0, 0, 0, 0, Game.screen_width//2 - 10, Game.screen_height//2-2)
+            libtcod.console_blit(self.background_con, 0, 0, 0, 0, 0, 0, 0)
+            libtcod.console_blit(menu_con, 0, 0, 0, 0, 0, 0, 0, bfade=0)
             libtcod.console_flush()
             time.sleep(Game.action_interval)
 
@@ -137,3 +141,35 @@ class Menu(object):
             msg = "Press enter to continue"
             libtcod.console_print(0, (Game.game_width-len(msg)) // 2, Game.game_height//2+2, "%s"%(msg))
             libtcod.console_flush()
+
+    def draw_background(self, x_start, y_start):
+        # Here be dragons
+        x_length = 19
+        x_offset = 2
+
+        y_offset = 1
+        y_length = 6
+
+        wall = tiles.Tiles.wall
+        ground = tiles.Tiles.ground
+
+        for x in range(Game.screen_width):
+            for y in range(Game.screen_height):
+                libtcod.console_put_char_ex(self.background_con, x, y, ' ', wall.fg, wall.bg)
+        for x in range(x_length):
+            for y in range(y_length):
+                libtcod.console_put_char_ex(self.background_con, x_start+x-x_offset, y_start+y-y_offset, ' ', None, ground.bg)
+        for x in range(x_length-2):
+            libtcod.console_put_char_ex(self.background_con, x + x_start-x_offset+1, y_start-y_offset-2, wall.char, wall.fg, wall.bg)
+            libtcod.console_put_char_ex(self.background_con, x + x_start-x_offset+1, y_start-y_offset-1, ' ', None, ground.bg)
+            libtcod.console_put_char_ex(self.background_con, x + x_start-x_offset+1, y_start-y_offset+y_length, ' ', None, ground.bg)
+            libtcod.console_put_char_ex(self.background_con, x + x_start-x_offset+1, y_start-y_offset+y_length+1, wall.char, wall.fg, wall.bg)
+
+        for y in range(y_length):
+            libtcod.console_put_char_ex(self.background_con, x_start-x_offset-1, y+y_start-y_offset, wall.char, wall.fg, wall.bg)
+            libtcod.console_put_char_ex(self.background_con, x_start-x_offset+x_length, y+y_start-y_offset, wall.char, wall.fg, wall.bg)
+
+        libtcod.console_put_char_ex(self.background_con, x_start-x_offset, y_start-y_offset-1, wall.char, wall.fg, wall.bg)
+        libtcod.console_put_char_ex(self.background_con, x_start-x_offset+x_length-1, y_start-y_offset-1, wall.char, wall.fg, wall.bg)
+        libtcod.console_put_char_ex(self.background_con, x_start-x_offset+x_length-1, y_start-y_offset+y_length, wall.char, wall.fg, wall.bg)
+        libtcod.console_put_char_ex(self.background_con, x_start-x_offset, y_start-y_offset+y_length, wall.char, wall.fg, wall.bg)
