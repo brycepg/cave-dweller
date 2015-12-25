@@ -49,12 +49,18 @@ class World(object):
         self.perlin_seed = random.randrange(-65565, 65565)
 
     def cull_old_blocks(self, ignore_load=False):
-        """Serialize blocks that are outside of loaded radius, 
+        """Serialize blocks that are outside of loaded radius,
            and have been alive for more than some number of turns
-           ignore_load 
-            if True, ignores how long block has been alive to cull. (default avoids constant loading/deloading from objects/player moving accross boundries)
+
+           arguments:
+               ignore_load
+                    if True, ignores how long block has been alive to cull.
+                    (default avoids constant loading/deloading from
+                    objects/player moving accross boundries)
            """
-           
+        # Hard-limit the number of active blocks -- only a problem in fast-mode
+        HARD_LIMIT = 100
+
         loaded_block_radius = Game.loaded_block_radius
         # TODO serialize old blocks
         try:
@@ -65,7 +71,7 @@ class World(object):
                         #log.info("Cull %dx%d on turn %d, load_turn %d", self.blocks[key].idx, self.blocks[key].idy, self.turn, self.blocks[key].load_turn)
                         self.a_serializer.save_block(self.blocks[key])
                         del self.blocks[key]
-                        if Game.past_loop_time():
+                        if Game.past_loop_time() and len(self.blocks) < HARD_LIMIT:
                             raise GetOutOfLoop
         except GetOutOfLoop:
             log.debug("cull timeout")
