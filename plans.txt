@@ -10,7 +10,6 @@ display log of messages to right
 debug menu
 in-game log of accomplishments
 food - hunger/satiety - inventory - harvest - inventory menu
-fix automatic movement from new game
 help menu
 clusters of ore
 different types of rock
@@ -18,9 +17,7 @@ babies(breeding)
 ecosystem management
 towns/buildings/door/crafting
 Centipides - Fish/rivers - Salamanders - Bats
-Don't update turns during setup process(separate turn update from process)
 "Update" a block from when it was previously loaded(take the difference of the block's saved turn and current turn, and run its process loop that number of times)
-Hysteresis for loading/unload block to stop unsteady state
 
 mutable tiles?
 
@@ -28,6 +25,9 @@ mutable tiles?
 map viewer/tuner program
 
 -- Done --
+Hysteresis for loading/unload block to stop unsteady state
+Don't update turns during setup process(separate turn update from process)
+fix automatic movement from new game
 allow objects to move out of map - temporarily load blocks to allow this(stagger cull blocks)
 staggered update of nearby blocks(load, process, no draw) - may need to tweak still
 add basic monster object
