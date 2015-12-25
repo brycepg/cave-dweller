@@ -115,8 +115,8 @@ class Game(object):
         cls.min_y = cls.view_y
         cls.max_y = cls.view_y + cls.game_height
 
-        cls.idx_cur = (cls.view_x + Game.game_width) // cls.map_size 
-        cls.idy_cur = (cls.view_y + Game.game_height) // cls.map_size
+        cls.idx_cur = (cls.view_x + Game.game_width//2) // cls.map_size
+        cls.idy_cur = (cls.view_y + Game.game_height//2) // cls.map_size
 
     def get_game_input(self, key):
         if key.pressed:
