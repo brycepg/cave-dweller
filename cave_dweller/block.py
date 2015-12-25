@@ -309,7 +309,9 @@ class Block:
         self.draw_objects()
 
     def draw_block(self):
-        """Draw block terrain"""
+        """ Draw block terrain.
+        Call assumption: The block needs to be in the drawable area
+        """
         #self.block_generator = libtcod.random_new_from_seed(self.block_seed)
         #block_generator = self.block_generator
         #random_get_int = libtcod.random_get_int
@@ -319,14 +321,13 @@ class Block:
         max_x = Game.max_x
         min_y = Game.min_y
         max_y = Game.max_y
-        game_width = Game.game_width
-        game_height = Game.game_height
 
         idx = self.idx
         idy = self.idy
 
         view_x = Game.view_x
         view_y = Game.view_y
+        game_con = Game.game_con
 
         get_tile = self.get_tile
         tiles = self.tiles
@@ -335,7 +336,7 @@ class Block:
         # Figure out start, end location of tiles which need to be drawn
         # for this block
         block_abs_x_min = map_size * self.idx
-        block_abs_y_min = map_size * self.idy 
+        block_abs_y_min = map_size * self.idy
 
         block_abs_x_max = map_size * (self.idx+1) - 1
         block_abs_y_max = map_size * (self.idy+1) - 1
@@ -351,49 +352,50 @@ class Block:
         loc_x_max = draw_x_max_abs % map_size
         loc_y_max = draw_y_max_abs % map_size
 
+        # Make bound inclusive
         for row in range(loc_y_min, loc_y_max+1):
             abs_y = map_size * idy + row
             for column in range(loc_x_min, loc_x_max+1):
                 #tile_seed = random_get_int(block_generator, 0, 65565)
                 abs_x = map_size * idx + column
-                if((min_x <= abs_x <= max_x) and
-                   (min_y <= abs_y <= max_y)):
+                cur_tile = tile_lookup[tiles[row][column]]
+                draw_char = cur_tile.char
 
-                    cur_tile = tile_lookup[tiles[row][column]]
-                    draw_char = cur_tile.char
+                # TODO generate t/f array for hidden objects
+                if cur_tile.is_obstacle:
+                    right = get_tile(column+1, row)
+                    left = get_tile(column-1, row)
+                    down = get_tile(column, row+1)
+                    up = get_tile(column, row-1)
+                    #print("{} {} {} {}".format(right, left, down, up))
+                    if(up.adjacent_hidden and
+                       down.adjacent_hidden and
+                       left.adjacent_hidden and
+                       right.adjacent_hidden):
+                        draw_char = ' '
+                        bg = Tiles.wall.bg
+                    else:
+                        bg = cur_tile.bg
+                else:
                     bg = cur_tile.bg
 
-                    if cur_tile.is_obstacle:
-                        right = get_tile(column+1, row)
-                        left = get_tile(column-1, row)
-                        down = get_tile(column, row+1)
-                        up = get_tile(column, row-1)
-                        #print("{} {} {} {}".format(right, left, down, up))
-                        if(up.adjacent_hidden and
-                           down.adjacent_hidden and
-                           left.adjacent_hidden and
-                           right.adjacent_hidden):
-                            draw_char = ' '
-                            bg = Tiles.wall.bg
-                            
+                if cur_tile.attributes:
+                    chars = cur_tile.attributes.get('alternative_characters')
+                    if chars:
+                        #char_choice = (self.world.perlin_seed * row + self.block_seed * column) % (len(chars)+1)
+                        #char_choice = random.randint(0, len(chars))
+                        #char_choice = libtcod.random_get_int(self.block_generator, 0, len(chars))
+                        #char_choice = (((self.block_seed*column) % (row*self.world.perlin_seed+1)) + (self.block_seed % (self.world.rand_seed*column+1))) % (len(chars)+1)
+                        char_choice = 2#tile_seed % (len(chars) + 1)
+                        if char_choice != len(chars):
+                            draw_char = chars[char_choice]
+                        else:
+                            draw_char = cur_tile.char
 
-                    if cur_tile.attributes:
-                        chars = cur_tile.attributes.get('alternative_characters')
-                        if chars:
-                            #char_choice = (self.world.perlin_seed * row + self.block_seed * column) % (len(chars)+1)
-                            #char_choice = random.randint(0, len(chars))
-                            #char_choice = libtcod.random_get_int(self.block_generator, 0, len(chars))
-                            #char_choice = (((self.block_seed*column) % (row*self.world.perlin_seed+1)) + (self.block_seed % (self.world.rand_seed*column+1))) % (len(chars)+1)
-                            char_choice = 2#tile_seed % (len(chars) + 1)
-                            if char_choice != len(chars):
-                                draw_char = chars[char_choice]
-                            else:
-                                draw_char = cur_tile.char
-
-                    libtcod.console_put_char_ex(Game.game_con,
-                            abs_x - view_x,
-                            abs_y - view_y,
-                            draw_char, cur_tile.fg, bg)
+                libtcod.console_put_char_ex(game_con,
+                        abs_x - view_x,
+                        abs_y - view_y,
+                        draw_char, cur_tile.fg, bg)
 
     def draw_objects(self):
         """Put block's drawable objects on game con"""
