@@ -164,14 +164,11 @@ class World(object):
                             (Game.max_x // Game.map_size, Game.min_y  // Game.map_size),
                             (Game.max_x // Game.map_size, Game.max_y  // Game.map_size)]
 
-        selected_blocks = []
-        for loc in sample_locations:
-            block = self.get(*loc)
-            if block not in selected_blocks:
-                selected_blocks.append(block)
+        uniq_locs = frozenset(sample_locations)
 
-        for block in selected_blocks:
+        for loc in uniq_locs:
             #log.info("Draw %dx%d", block.idx, block.idy)
+            block = self.get(*loc)
             block.draw()
 
     def get_block(self, abs_x, abs_y):
