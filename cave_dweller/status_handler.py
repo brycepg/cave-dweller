@@ -4,6 +4,7 @@ import libtcodpy as libtcod
 
 from game import Game
 import actions
+from colorizer import colorize
 
 class StatusBar(object):
     def __init__(self):
@@ -33,15 +34,10 @@ class StatusBar(object):
 
         status_list = []
         for key in self.ordered_status:
+            txt = ''.join(self.ordered_status[key])
             if key == 'mode':
-                # Set yellow color to mode
-                # TODO add system for these ugly color codes
-                # TODO add system for colors on status bar?
-                status_list.append("%c%c%c%c" % (libtcod.COLCTRL_FORE_RGB, 255, 255, 1))
-            status_list.append(''.join(self.ordered_status[key]))
-            if key == 'mode':
-                status_list.append("%c" % (libtcod.COLCTRL_STOP))
-                
+                txt = colorize(txt, (255,255,1))
+            status_list.append(txt)
         status_txt = ''.join(status_list)
         return status_txt
 
