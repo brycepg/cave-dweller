@@ -18,6 +18,8 @@ import collections
 import libtcodpy as libtcod 
 
 import menu
+import mouse_handler
+import status_handler
 from game import Game
 from world import World
 from world import GetOutOfLoop
@@ -89,13 +91,13 @@ def run(args, game):
     skipped_loads = 0
     skipped_culls = 0 
 
-    status_bar = collections.OrderedDict()
     debug_info = None
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()
     libtcod.mouse_show_cursor(False)
 
+    status_bar = status_handler.StatusBar()
     while True:
         Game.record_loop_time()
         if libtcod.console_is_window_closed():
@@ -118,7 +120,7 @@ def run(args, game):
         # Load blocks during draw even if player is not doing anything
         libtcod.console_clear(Game.sidebar_con)
         libtcod.console_clear(Game.mouse_con)
-        libtcod.console_clear(Game.status_con)
+        libtcod.console_clear(status_bar.con)
         if not Game.past_loop_time() or skipped_culls > 193:
             world.cull_old_blocks()
             skipped_culls = 0
@@ -132,23 +134,16 @@ def run(args, game):
             log.info("load timeout")
             skipped_loads += 1
 
-
-        status_txt = get_status_txt(status_bar, player, world)
-        libtcod.console_print(Game.status_con, 0, 0, status_txt)
+        status_bar.run(player, world)
         #libtcod.console_print(Game.status_con, 0, 0, "turn %s" % world.turn)
         #    libtcod.console_print(Game.status_con, 10, 0, "kills %s" % player.kills)
         if Game.debug:
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             debug_print(locals())
         #log.info("mouse (x/y) %s,%s", mouse.cx, mouse.cy)
-        # Print mouse cursor
-        # There's a bug where has mouse focus returns true if the mouse starts on 
-        # the console. (hence the edge checks)
-        if libtcod.console_has_mouse_focus() or ((mouse.cx != 0 and mouse.cy != 0) and (mouse.cx != 0 and mouse.cy != Game.screen_height-1) and (mouse.cx != Game.screen_width-1 and mouse.cy != Game.screen_height-1) and (mouse.cx != Game.screen_width-1 and mouse.cy != 0)):
-            libtcod.console_put_char_ex(Game.mouse_con, mouse.cx, mouse.cy, ord('x'), libtcod.yellow, None)
-
+        mouse_handler.conditional_print(mouse)
         libtcod.console_blit(Game.game_con, x=0, y=0, w=Game.game_width, h=Game.game_height, dst=0, xdst=0, ydst=0)
-        libtcod.console_blit(Game.status_con, 0, 0, 0, 0, 0, 0, Game.game_height)
+        status_bar.draw()
         if not debug_info:
             libtcod.console_blit(Game.sidebar_con, x=0, y=0, w=0, h=0, dst=0, xdst=Game.game_width, ydst=0)
         libtcod.console_blit(Game.debug_con, x=0, y=0, w=0, h=0, dst=0, xdst=0, ydst=0, ffade=1, bfade=0)
@@ -183,10 +178,8 @@ def run(args, game):
             player.process_input(key)
             game.get_game_input(key)
 
-
         elapsed = (1/(time.time() - Game.loop_start)) * .1 + elapsed * .9
 
-        
     if return_message['save']:
         world.save_active_blocks()
         logging.debug("saving seed {} at world turn {}".format(world.rand_seed, world.turn))
@@ -242,7 +235,7 @@ def main():
             is_dead = return_message['dead']
         if is_dead:
             menu.game_over()
-        # Sleep to stop crashing if all above if statements are false. Shouldn't 
+        # Sleep to stop crashing if all above if statements are false. Shouldn't
         #   happen though
         time.sleep(.1)
 
@@ -256,27 +249,8 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def get_status_txt(status_bar, player, world):
-    """Generate status bar text for game"""
-    # Dynamic status list
-    status_bar['turn'] = ['Turn ', str(world.turn)]
-    if player.kills > 0:
-        status_bar['kills'] = [' Kills ', str(player.kills)]
-    if Game.debug:
-        status_bar[' '] = [' ']
-        status_bar['debug'] = ['Debug']
-    else:
-        status_bar[' '] = []
-        status_bar['debug'] = []
-
-    status_list = []
-    for a_list in status_bar.values():
-        status_list.append(''.join(a_list))
-    status_txt = ''.join(status_list)
-    return status_txt
-
 def setup_logger(verbose=False):
-    """Setup logging - 
+    """Setup logging -
         Only output INFO and higher to console
         Output everything to gamelog.txt
         TODO: Have an actual game log with game events
@@ -285,7 +259,6 @@ def setup_logger(verbose=False):
         console_level = logging.DEBUG
     else:
         console_level = logging.INFO
-    log = logging.getLogger()
     log.setLevel(logging.DEBUG)
     my_format = logging.Formatter("%(asctime)s:%(name)s:%(levelname)s| %(message)s")
     #logging.basicConfig()

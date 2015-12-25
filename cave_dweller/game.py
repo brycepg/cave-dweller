@@ -5,6 +5,7 @@ import logging
 
 import libtcodpy as libtcod
 
+from font_handler import FontHandler
 
 class Game(object):
     """Manages static constants,
@@ -16,19 +17,13 @@ class Game(object):
     map_size = 96
     loaded_block_radius = 1
 
-    font_size = 12
-
     screen_width = 62
     screen_height = 44
 
     game_width = screen_height - 1
     game_height = screen_height - 1
 
-    status_bar_width = screen_width
-    status_bar_height = screen_height - game_height
-
     game_con = None
-    status_con = None
     mouse_con = None
     debug_con = None
     sidebar_con = None
@@ -65,8 +60,6 @@ class Game(object):
     loop_start = None
     loop_time = 1.0/fps
 
-    font_sizes = [16, 12, 10]
-
     @classmethod
     def in_drawable_coordinates(cls, abs_x, abs_y):
         """Check if absolute coordinate is in drawable area"""
@@ -76,32 +69,31 @@ class Game(object):
         else:
             return False
 
+
     def __init__(self):
         logging.info("game init")
+        # Tries to center the cosnole during init
         os.environ['SDL_VIDEO_CENTERED'] = '1'
-        self.font_size_index = 2
-        for index, size in enumerate(Game.font_sizes):
-            res_x, res_y = libtcod.sys_get_current_resolution()
-            if not (Game.screen_height * size + 100 > res_y or
-                    Game.screen_width * size > res_x):
-                    self.font_size_index = index
-                    break
-        else:
-            self.font_size_index = len(Game.font_sizes) - 1
+        self.font_handler = FontHandler()
+        self.init_consoles()
 
-        libtcod.console_set_custom_font(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index])), libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-        libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', Game.fullscreen, libtcod.RENDERER_SDL)
+    def init_consoles(self):
+        self.bring_up_root()
         Game.game_con = libtcod.console_new(Game.game_width, Game.game_height)
-        libtcod.console_set_default_foreground(Game.game_con, libtcod.white)
-        Game.status_con = libtcod.console_new(Game.status_bar_width, Game.status_bar_height)
-        Game.sidebar_con = libtcod.console_new(Game.screen_width - Game.game_width, Game.screen_height)
+        Game.sidebar_con = libtcod.console_new(Game.screen_width - Game.game_width,
+                                               Game.screen_height)
         Game.debug_con = libtcod.console_new(Game.game_width, Game.game_height)
         Game.mouse_con = libtcod.console_new(Game.screen_width, Game.screen_height)
 
-        libtcod.mouse_show_cursor(True)
-        libtcod.sys_set_fps(type(self).fps)
-        #libtcod.console_set_keyboard_repeat(1000, 100)
+    def bring_up_root(self):
+        """Call relevant settings and then bringing up the root console."""
+        self.font_handler.set_font()
         libtcod.console_disable_keyboard_repeat()
+        libtcod.sys_set_fps(type(self).fps)
+        libtcod.mouse_show_cursor(False)
+        libtcod.console_init_root(Game.screen_width, Game.screen_height,
+                                  'Cave Dweller',
+                                  Game.fullscreen, libtcod.RENDERER_SDL)
 
 
     @classmethod
@@ -134,7 +126,9 @@ class Game(object):
                 Game.debug = False if Game.debug else True
             if key.vk == libtcod.KEY_F11:
                 Game.fullscreen = False if Game.fullscreen else True
-                libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', Game.fullscreen, libtcod.RENDERER_SDL)
+                libtcod.console_delete(0)
+                self.font_handler.set_font()
+                self.bring_up_root()
         if Game.debug:
             if key.pressed:
                 mod = key.lctrl
@@ -175,24 +169,16 @@ class Game(object):
                     Game.loaded_block_radius += 1
                     print("loaded block radius: %d" % Game.loaded_block_radius)
 
-                if key.shift and mod and key.c == ord('d'):
-                    import pdb; pdb.set_trace()
-
                 font_changed = False
-                if mod and key.c == ord('-') and self.font_size_index < len(type(self).font_sizes) - 1:
-                        self.font_size_index += 1
+                if mod and key.c == ord('-') and self.font_handler.decrease_font():
                         font_changed = True
-                if mod and key.c == ord('=') and self.font_size_index > 0:
-                        self.font_size_index -= 1
+                if mod and key.c == ord('=') and self.font_handler.increase_font():
                         font_changed = True
                 if font_changed:
                     print('set font')
-                    font_path = os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'.format(size=type(self).font_sizes[self.font_size_index]))
-                    print(font_path)
                     libtcod.console_delete(0)
-                    libtcod.console_set_custom_font(
-                            font_path, 
-                            libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-                    libtcod.console_init_root(type(self).screen_width, type(self).screen_height, 'Cave Dweller', Game.fullscreen, libtcod.RENDERER_SDL)
-                    font_changed = False
+                    self.bring_up_root()
  
+                if key.shift and mod and key.c == ord('d'):
+                    import pdb; pdb.set_trace()
+
