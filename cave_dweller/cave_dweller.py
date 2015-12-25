@@ -87,6 +87,7 @@ def run(args, game):
     spent_time = 0
 
     skipped_loads = 0
+    skipped_culls = 0 
 
     status_bar = collections.OrderedDict()
     debug_info = None
@@ -118,15 +119,19 @@ def run(args, game):
         libtcod.console_clear(Game.sidebar_con)
         libtcod.console_clear(Game.mouse_con)
         libtcod.console_clear(Game.status_con)
-        libtcod.console_clear(Game.debug_con)
-        if not Game.past_loop_time() or skipped_loads > 10:
+        if not Game.past_loop_time() or skipped_culls > 193:
+            world.cull_old_blocks()
+            skipped_culls = 0
+        else:
+            skipped_culls += 1
+            log.info("skip cull")
+        if not Game.past_loop_time() or skipped_loads > 547:
             world.load_surrounding_blocks()
             skipped_loads = 0
-            #logging.info("Load blocks")
         else:
-            logging.info("load timeout")
+            log.info("load timeout")
             skipped_loads += 1
-        world.cull_old_blocks()
+
 
         status_txt = get_status_txt(status_bar, player, world)
         libtcod.console_print(Game.status_con, 0, 0, status_txt)
@@ -143,13 +148,15 @@ def run(args, game):
             libtcod.console_put_char_ex(Game.mouse_con, mouse.cx, mouse.cy, ord('x'), libtcod.yellow, None)
 
         libtcod.console_blit(Game.game_con, x=0, y=0, w=Game.game_width, h=Game.game_height, dst=0, xdst=0, ydst=0)
-        libtcod.console_blit(Game.debug_con, x=0, y=0, w=0, h=0, dst=0, xdst=0, ydst=0, ffade=1, bfade=0)
         libtcod.console_blit(Game.status_con, 0, 0, 0, 0, 0, 0, Game.game_height)
-        libtcod.console_blit(Game.sidebar_con, x=0, y=0, w=0, h=0, dst=0, xdst=Game.game_width, ydst=0)
+        if not debug_info:
+            libtcod.console_blit(Game.sidebar_con, x=0, y=0, w=0, h=0, dst=0, xdst=Game.game_width, ydst=0)
+        libtcod.console_blit(Game.debug_con, x=0, y=0, w=0, h=0, dst=0, xdst=0, ydst=0, ffade=1, bfade=0)
         libtcod.console_blit(Game.mouse_con, x=0, y=0, w=0, h=0, dst=0, xdst=0, ydst=0, ffade=.75, bfade=.0)
         #for window in windows:
         #    window.draw()
         libtcod.console_flush()
+        libtcod.console_clear(Game.debug_con)
         # ----- keyboard input -----
         while True:
             libtcod.sys_check_for_event(libtcod.EVENT_ANY, key, mouse)

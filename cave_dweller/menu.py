@@ -2,6 +2,7 @@ import logging
 import time
 import os
 import operator
+import shutil
 
 import libtcodpy as libtcod
 
@@ -26,7 +27,14 @@ class Menu(object):
         try:
             # Sort saves by date modified
             saves = os.listdir(game_path('data'))
-            save_paths = [os.path.join(game_path('data'), os.path.join(save, 'settings')) for save in saves]
+            save_paths = []
+            for save in saves:
+                path = os.path.join(game_path('data'), os.path.join(save, 'settings'))
+                if os.path.exists(path):
+                    save_paths.append(path)
+                else:
+                    logging.error("settings doesn't exist for %s... removing", path)
+                    shutil.rmtree(path)
             mtimes = [os.path.getmtime(save) for save in save_paths]
             my_sort = list(zip(saves, mtimes))
             my_sort.sort(key=operator.itemgetter(1), reverse=True)

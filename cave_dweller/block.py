@@ -348,9 +348,28 @@ class Block:
         tiles = self.tiles
         tile_lookup = Tiles.tile_lookup
 
-        for row in range(map_size):
+        # Figure out start, end location of tiles which need to be drawn
+        # for this block
+        block_abs_x_min = map_size * self.idx
+        block_abs_y_min = map_size * self.idy 
+
+        block_abs_x_max = map_size * (self.idx+1) - 1
+        block_abs_y_max = map_size * (self.idy+1) - 1
+
+        draw_x_min_abs = max(block_abs_x_min, min_x)
+        draw_y_min_abs = max(block_abs_y_min, min_y)
+        draw_x_max_abs = min(block_abs_x_max, max_x)
+        draw_y_max_abs = min(block_abs_y_max, max_y)
+
+        loc_x_min = draw_x_min_abs % map_size
+        loc_y_min = draw_y_min_abs % map_size
+
+        loc_x_max = draw_x_max_abs % map_size
+        loc_y_max = draw_y_max_abs % map_size
+
+        for row in range(loc_y_min, loc_y_max+1):
             abs_y = map_size * idy + row
-            for column in range(map_size):
+            for column in range(loc_x_min, loc_x_max+1):
                 #tile_seed = random_get_int(block_generator, 0, 65565)
                 abs_x = map_size * idx + column
                 if((min_x <= abs_x <= max_x) and

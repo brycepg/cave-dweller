@@ -57,14 +57,18 @@ class World(object):
            
         loaded_block_radius = Game.loaded_block_radius
         # TODO serialize old blocks
-        for key in list(self.blocks.keys()):
-            if (abs(Game.idx_cur - self.blocks[key].idx) > loaded_block_radius or
-                    abs(Game.idy_cur - self.blocks[key].idy) > loaded_block_radius):
-                if ignore_load or (self.turn - self.blocks[key].load_turn) > 10:
-                    #log.info("Cull %dx%d on turn %d, load_turn %d", self.blocks[key].idx, self.blocks[key].idy, self.turn, self.blocks[key].load_turn)
-                    self.a_serializer.save_block(self.blocks[key])
-                    del self.blocks[key]
-                    break
+        try:
+            for key in list(self.blocks.keys()):
+                if (abs(Game.idx_cur - self.blocks[key].idx) > loaded_block_radius or
+                        abs(Game.idy_cur - self.blocks[key].idy) > loaded_block_radius):
+                    if ignore_load or (self.turn - self.blocks[key].load_turn) > 10:
+                        #log.info("Cull %dx%d on turn %d, load_turn %d", self.blocks[key].idx, self.blocks[key].idy, self.turn, self.blocks[key].load_turn)
+                        self.a_serializer.save_block(self.blocks[key])
+                        del self.blocks[key]
+                        if Game.past_loop_time():
+                            raise GetOutOfLoop
+        except GetOutOfLoop:
+            log.debug("cull timeout")
 
     def load_surrounding_blocks(self):
         """Loads blocks surrounding player specified by loaded_block_radius"""
