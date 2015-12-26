@@ -6,6 +6,7 @@ import logging
 import libtcodpy as libtcod
 
 from font_handler import FontHandler
+import tiles
 
 class Game(object):
     """Manages static constants,
@@ -80,7 +81,9 @@ class Game(object):
         Game.game_con = libtcod.console_new(Game.game_width, Game.game_height)
         Game.sidebar_con = libtcod.console_new(Game.screen_width - Game.game_width,
                                                Game.screen_height)
+        libtcod.console_set_default_background(Game.sidebar_con, libtcod.dark_gray)
         Game.debug_con = libtcod.console_new(Game.game_width, Game.game_height)
+
         Game.mouse_con = libtcod.console_new(Game.screen_width, Game.screen_height)
 
     def bring_up_root(self):
