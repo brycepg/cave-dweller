@@ -53,12 +53,12 @@ class Menu(object):
 
         x_start = Game.screen_width//2 - 8
         y_start = Game.screen_height//2-2
-        self.draw_background(x_start, y_start)
         while not menu_done:
             while True:
                 libtcod.console_clear(0)
                 libtcod.console_clear(menu_con)
                 key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED)
+                self.draw_background(x_start, y_start, current_list)
                 if current_list is menu:
                     if key.vk == libtcod.KEY_ENTER:
                             # New game
@@ -142,13 +142,15 @@ class Menu(object):
             libtcod.console_print(0, (Game.game_width-len(msg)) // 2, Game.game_height//2+2, "%s"%(msg))
             libtcod.console_flush()
 
-    def draw_background(self, x_start, y_start):
+    def draw_background(self, x_start, y_start, current_list):
         # Here be dragons
         x_length = 19
         x_offset = 2
 
         y_offset = 1
         y_length = 6
+        y_length = len(current_list) + 3
+
 
         wall = tiles.Tiles.wall
         ground = tiles.Tiles.ground
