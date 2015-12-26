@@ -1,7 +1,9 @@
 import libtcodpy as libtcod
 
 white = libtcod.white
-yellow = libtcod.yellow
+darkest_yellow = libtcod.darkest_yellow
+darkest_red = libtcod.darkest_red
+darkest_sepia = libtcod.darkest_sepia
 
 def colorize(txt, lib_color):
     """Using libtcod color codes color txt"""

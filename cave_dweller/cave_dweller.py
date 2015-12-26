@@ -94,7 +94,8 @@ def run(args, game):
     debug_info = None
 
     key = libtcod.Key()
-    mouse = libtcod.Mouse()
+    libmouse = libtcod.Mouse()
+    mouse = mouse_handler.Mouse(libmouse)
     libtcod.mouse_show_cursor(False)
 
     status_bar = status_handler.StatusBar()
@@ -134,14 +135,14 @@ def run(args, game):
             log.info("load timeout")
             skipped_loads += 1
 
-        status_bar.run(player, world)
+        status_bar.run(player, world, mouse)
         #libtcod.console_print(Game.status_con, 0, 0, "turn %s" % world.turn)
         #    libtcod.console_print(Game.status_con, 10, 0, "kills %s" % player.kills)
         if Game.debug:
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             debug_print(locals())
         #log.info("mouse (x/y) %s,%s", mouse.cx, mouse.cy)
-        mouse_handler.conditional_print(mouse)
+        mouse.conditional_print()
         libtcod.console_blit(Game.game_con, x=0, y=0, w=Game.game_width, h=Game.game_height, dst=0, xdst=0, ydst=0)
         status_bar.draw()
         if not debug_info:
@@ -155,9 +156,9 @@ def run(args, game):
         # ----- keyboard input -----
         status_bar.is_mode_set = False
         while True:
-            libtcod.sys_check_for_event(libtcod.EVENT_ANY, key, mouse)
+            libtcod.sys_check_for_event(libtcod.EVENT_ANY, key, mouse.mouse)
             #key = libtcod.console_check_for_keypress(libtcod.KEY_PRESSED|libtcod.KEY_RELEASED)
-            status_bar.mode_set(key)
+            status_bar.get_input(key, mouse)
             if key.vk == libtcod.KEY_NONE:
                 break
             #print("pressed {}".format(key.pressed))
@@ -179,6 +180,7 @@ def run(args, game):
                         Game.action_interval = Game.default_action_interval
             player.process_input(key)
             game.get_game_input(key)
+        mouse.update_coords()
 
         elapsed = (1/(time.time() - Game.loop_start)) * .1 + elapsed * .9
 

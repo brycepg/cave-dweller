@@ -14,10 +14,10 @@ ground_bg = libtcod.darkest_gray
 wall_bg = gray
 
 Tile = namedtuple('Tile', 
-    ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes']
+    ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes', 'name']
 )
 Tile.__new__.__defaults__ = \
-    (' ',    False,    libtcod.black, None, False,          False,     False,        None)
+    (' ',    False,    libtcod.black, None, False,          False,     False,        None,         None)
 
 class Id(object):
     """Defines all the tile ids -- block.tiles vlaues"""
@@ -34,11 +34,11 @@ class Tiles:
     #TODO: offload to configuration files
 
     # Permutation of characters
-    ground  = Tile('-', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]})
-    ground2 = Tile('.', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]})
-    ground3 = Tile('`', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]})
+    ground  = Tile('-', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground2 = Tile('.', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground3 = Tile('`', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
 
-    wall = Tile('x', is_obstacle=True, fg=white, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]})
+    wall = Tile('x', is_obstacle=True, fg=white, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
 
     build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
     build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})

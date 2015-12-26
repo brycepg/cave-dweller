@@ -1,6 +1,7 @@
 """Container for World class"""
 import time
 import random
+import re
 import logging
 
 from tiles import Tiles
@@ -48,6 +49,26 @@ class World(object):
         # Probably due to variable size constraints in C
         self.perlin_seed = random.randrange(-65565, 65565)
 
+    def inspect(self, abs_x, abs_y):
+        idx = abs_x // Game.map_size
+        idy = abs_y // Game.map_size
+        x = abs_x % Game.map_size
+        y = abs_y % Game.map_size
+        block = self.get(idx, idy)
+        obj = block.get_object(x, y)
+        if obj:
+            obj_name = type(obj).__name__
+            # Add spaces before capital characters(except for the first)
+            name_mod = ''.join(' ' + char if char.isupper() and
+                               index != 0 else char for
+                               index, char in enumerate(obj_name))
+            return name_mod
+        tile = block.get_tile(x, y)
+        if tile.name:
+            return tile.name
+        else:
+            return None
+    
     def cull_old_blocks(self, ignore_load=False):
         """Serialize blocks that are outside of loaded radius,
            and have been alive for more than some number of turns

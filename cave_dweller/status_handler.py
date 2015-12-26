@@ -5,20 +5,25 @@ import libtcodpy as libtcod
 from game import Game
 import actions
 import colors
+import tiles
+import mouse_handler
 
 class StatusBar(object):
     def __init__(self):
         # Portion of window that's not the game
-        self.status_bar_width = Game.screen_width
+        self.status_bar_width = Game.game_width
         self.status_bar_height = Game.screen_height - Game.game_height
         self.con = libtcod.console_new(self.status_bar_width,
-                                        self.status_bar_height)
+                                       self.status_bar_height)
+        libtcod.console_set_default_background(self.con, tiles.Tiles.wall.bg)
         self.ordered_status = collections.OrderedDict()
         self.ordered_status['turn'] = []
         self.ordered_status['kills'] = []
         self.ordered_status['mode'] = []
+        self.ordered_status['inspect'] = []
         self.ordered_status['debug'] = []
 
+        self.inspect = None
         self.is_mode_set = False
 
     def get_txt(self, player, world):
@@ -31,19 +36,36 @@ class StatusBar(object):
             self.ordered_status['debug'] = [' ', 'Debug']
         else:
             self.ordered_status['debug'] = []
+        if self.inspect:
+            self.ordered_status['inspect'] = [' ', self.inspect]
+        else:
+            self.ordered_status['inspect'] = []
 
         status_list = []
+        status_raw = ''.join([''.join(self.ordered_status[key]) for key in self.ordered_status])
         for key in self.ordered_status:
             txt = ''.join(self.ordered_status[key])
             if key == 'mode':
-                txt = colors.colorize(txt, colors.yellow)
+                txt = colors.colorize(txt, colors.darkest_yellow)
+            if key == 'kills':
+                txt = colors.colorize(txt, colors.darkest_red)
+            if key == 'inspect':
+                txt = colors.colorize(txt, colors.darkest_sepia)
             status_list.append(txt)
         status_txt = ''.join(status_list)
-        return status_txt
+        if len(status_txt) < self.status_bar_width:
+            end_txt = " " + '-' * (self.status_bar_width - len(status_raw) - 2)
+        else:
+            end_txt = ""
+        return status_txt + end_txt
 
 
-    def run(self, player, world):
+    def run(self, player, world, mouse):
         """Process information and print"""
+        if mouse.abs_x and mouse.abs_y:
+            self.inspect = world.inspect(mouse.abs_x, mouse.abs_y)
+        else:
+            self.inspect = None
         status_txt = self.get_txt(player, world)
         self.print_status(status_txt)
 
@@ -57,10 +79,12 @@ class StatusBar(object):
         """Print text to console"""
         libtcod.console_print(self.con, 0, 0, txt)
 
+    def get_input(self, key, mouse):
+        self.mode_set(key)
     def mode_set(self, key):
         """Detect which action is being performed and display to status"""
         for a_action in actions.PlayerAction.current_actions:
-            if isinstance(a_action, actions.PlayerMoveAction):
+            if hasattr(a_action, "state_key"):
                 if key.pressed and key.c == a_action.state_key:
                     mode = type(a_action).__name__
                     self.ordered_status['mode'] = []
