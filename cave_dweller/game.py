@@ -17,8 +17,8 @@ class Game(object):
     map_size = 96
     loaded_block_radius = 1
 
-    screen_width = 62
-    screen_height = 44
+    screen_width = 80
+    screen_height = 51
 
     game_width = screen_height - 1
     game_height = screen_height - 1
