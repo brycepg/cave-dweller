@@ -1,6 +1,6 @@
 This is a Procedural Simulation Rougelike I'm currently working on.
 
-Right now:  
+# Current Features
 
 - seed-based terrain generation
 - on the fly world generation/serialization
@@ -8,28 +8,40 @@ Right now:
     - basic stable entity ecosystem
 - basic player actions(movement, wait, dig, build, kill)
 
-To kill(for entities): `k + ↑↓←→`
+ # Controls
 
-To dig(for diggable tiles): `d + ↑↓←→`
+ * To kill(for entities): `k + ↑↓←→`
+ * To dig(for diggable tiles): `d + ↑↓←→`
+ * To build(for generic wall tile): `b + ↑↓←→`
+ * '.' to wait
 
-To build(for generic wall tile): `b + ↑↓←→`
-
+Inspect with mouse
 4-way movement with arrow keys
+Shift . to enter fast mode
 
 # Install
 
-* Install python 2.7
-* Install libtcod (dll)
-* Install noise (python package)
+To run the game, you'll need to install:
+
+* python 2.7
+* libtcod (dll)
+* SDL 1.2 (for libtcod)
+* noise (python package for simplex noise)
 
 Make sure libtcod.so is the right architecture for your computer/OS. The current is Linux 64-bit. If not, grab and combile the right version from the bitbucket repo: (https://bitbucket.org/libtcod/libtcod/downloads)
 
-Install python 2.7 and then install noise
+After python 2.7 is installed, install noise via pip
 
     pip install noise
+
+At some point i'll do releases with py2exe
 
 # To Run
 
 from the root directory run
 
-    python cave_dweller/cave_dweller.py
+    ./cave-dweller.py
+
+# Image
+
+(media/fungus-growth.gif)
