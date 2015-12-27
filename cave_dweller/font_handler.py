@@ -3,6 +3,7 @@ import os
 import libtcodpy as libtcod
 
 import game
+from util import game_path
 
 class FontHandler(object):
 
@@ -19,7 +20,7 @@ class FontHandler(object):
         """Select font from font index"""
         if font_index == None:
             font_index = self.font_size_index
-        font_path = os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png'
+        font_path = game_path(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png')
             .format(size=self.font_sizes[self.font_size_index]))
         libtcod.console_set_custom_font(font_path,
             libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
