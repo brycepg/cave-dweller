@@ -17,12 +17,12 @@ class GetOutOfLoop(Exception):
 
 class World(object):
     """Holds all blocks. Updates and draws world"""
-    def __init__(self, rand_seed=None):
+    def __init__(self, a_serializer, rand_seed=None,):
         """TODO, make seed separate from timestamp"""
         self.rand_seed = rand_seed
         self.perlin_seed = None
         self.generate_seeds(self.rand_seed)
-        self.a_serializer = None
+        self.a_serializer = a_serializer
         self.blocks = {}
         self.turn = 0
 
@@ -101,15 +101,16 @@ class World(object):
             self.blocks[(Game.idx_cur, Game.idy_cur)] = self.load_block(Game.idx_cur, Game.idy_cur)
 
 
-    def load_surrounding_blocks(self):
-        """Loads blocks surrounding player specified by loaded_block_radius"""
-        # Do not timeout block loading at begginging(a block might not appear)
+    def load_surrounding_blocks(self, idx_cur, idy_cur,
+                                loaded_block_radius=Game.loaded_block_radius,
+                                ignore_time=True):
+        """Loads blocks around the point (idx_cur, idy_cur) 
+        in a square grid whose width/height
+        is specified by loaded_block_radius
 
-        idx_cur = Game.idx_cur
-        idy_cur = Game.idy_cur
-
-        loaded_block_radius = Game.loaded_block_radius
-
+        ignore_time
+            if false uses game time to determine if the loop needs to exit
+        """
         try:
             # Load blocks in a square 'radius' around player
             for idy in range(idy_cur - Game.loaded_block_radius,
@@ -118,7 +119,7 @@ class World(object):
                                  idx_cur + loaded_block_radius + 1):
                     if not (idx, idy) in self.blocks:
                         self.blocks[(idx, idy)] = self.load_block(idx, idy)
-                        if Game.past_loop_time():
+                        if not ignore_time and Game.past_loop_time():
                             raise GetOutOfLoop
         except GetOutOfLoop:
             pass
