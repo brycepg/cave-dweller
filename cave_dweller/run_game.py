@@ -26,8 +26,7 @@ def run(args, game):
         seed = settings_obj['seed']
     else:
         seed = args.seed
-    world = World(seed)
-    world.a_serializer = a_serializer
+    world = World(a_serializer, seed)
     if settings_obj.get('turn'):
         world.turn = settings_obj['turn']
     # Get save information / Generate initial objects
@@ -105,7 +104,9 @@ def run(args, game):
             skipped_culls += 1
             #log.info("skip cull")
         if not Game.past_loop_time() or skipped_loads > 547:
-            world.load_surrounding_blocks()
+            world.load_surrounding_blocks(Game.idx_cur, Game.idy_cur,
+                                          Game.loaded_block_radius,
+                                          ignore_time=False)
             skipped_loads = 0
         else:
             #log.info("load timeout")
