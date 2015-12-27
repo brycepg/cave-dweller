@@ -44,4 +44,4 @@ from the root directory run
 
 # Image
 
-(media/fungus-growth.gif)
+(/media/fungus-growth.gif)
