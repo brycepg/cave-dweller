@@ -8,3 +8,4 @@ dist
 *.spec
 gamelog.txt
 data/
+.idea
