@@ -26,9 +26,15 @@
 #
 
 import sys
+import os
 import ctypes
 import struct
 from ctypes import *
+
+def game_path(rel_path):
+    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    final_path = os.path.join(base_path, rel_path)
+    return final_path
 
 if not hasattr(ctypes, "c_bool"):   # for Python < 2.6
     c_bool = c_uint8
@@ -44,7 +50,7 @@ MAC=False
 MINGW=False
 MSVC=False
 if sys.platform.find('linux') != -1:
-    _lib = ctypes.cdll['./libtcod.so']
+    _lib = ctypes.cdll[game_path('libtcod.so')]
     LINUX=True
 elif sys.platform.find('darwin') != -1:
     _lib = ctypes.cdll['./libtcod.dylib']
