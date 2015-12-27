@@ -44,4 +44,4 @@ from the root directory run
 
 # Image
 
-(/media/fungus-growth.gif)
+(https://raw.githubusercontent.com/brycepg/cave-dweller/master/media/fungus-growth.gif)
