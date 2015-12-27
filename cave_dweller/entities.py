@@ -1,16 +1,14 @@
-"""Container for Object and it's special subclass Player"""
+"""Container for Entity and it's special subclass Player"""
 
-import random 
+import random
 import time
 
 import libtcodpy as libtcod
 
 from game import Game
-from tiles import Id
 import actions
-import util
 
-class Object(object):
+class Entity(object):
     """ Non-terrain entities
         TODO: - rename to entity
               - introduce component system to make object class smaller"""
@@ -38,7 +36,7 @@ class Object(object):
 
     def decompose(self, cur_block):
         """After death(called in world) if a body isn't consumed
-           An entity will decompose and 
+           An entity will decompose and
            be replaced with fungus after a set time"""
         self.death_count += 1
         if self.death_count > 1000:
@@ -79,7 +77,7 @@ class Object(object):
         self.bg = libtcod.darkest_red
         self.is_dead = True
 
-class Cat(Object):
+class Cat(Entity):
     """First dummy non-player entity. Just moves around
        TODO: eats CaveGrass/Rats
              breeding"""
@@ -92,7 +90,7 @@ class Cat(Object):
         y_new = self.y + random.choice([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
         self.move((x_new, y_new), cur_block)
 
-class Spider(Object):
+class Spider(Entity):
     """agressive entity. Kills and eats animals to survive"""
     def __init__(self, x, y):
         super(Spider, self).__init__(x, y, 'S')
@@ -125,7 +123,7 @@ class Spider(Object):
             self.kill()
 
 
-class Mole(Object):
+class Mole(Entity):
     """Eats fungus to survive and reproduce"""
     def __init__(self, x, y):
         super(Mole, self).__init__(x, y, 'm')
@@ -174,7 +172,7 @@ class Mole(Object):
             self.kill()
 
 
-class Fungus(Object):
+class Fungus(Entity):
     """Spreads from decomposed bodies and is impossible to move across"""
     def __init__(self, x, y, growth=0):
         SPONGE_BLOCK = 176
@@ -185,6 +183,7 @@ class Fungus(Object):
         self.growth_turn = 0
 
     def process(self, cur_block):
+        """Randomly spread every turns_per_growth"""
         self.growth_turn += 1
         if self.growth_turn != 0 and self.growth_turn % self.turns_per_growth == 0:
             growth_loc = random.choice([[1, 0], [-1, 0], [0, 1], [0, -1]])
@@ -192,7 +191,7 @@ class Fungus(Object):
             growth_loc[1] += self.y
             cur_block.set_object(Fungus, growth_loc[0], growth_loc[1])
 
-class Player(Object):
+class Player(Entity):
     """Player-object
        Acts as an object but also manages the viewable center"""
     def __init__(self):
@@ -208,21 +207,24 @@ class Player(Object):
         self.last_action_time = 0
 
         self.new_turn = False
-        
+
         self.kills = 0
 
         # Count frames
         self.last_turn = 0
+
         self.register_actions()
 
 
     def register_actions(self):
-        actions.Build()
-        actions.Dig()
-        actions.Attack()
+        """Register action subclasses into internal list"""
+        actions.PlayerAction.register(actions.Build)
+        actions.PlayerAction.register(actions.Dig)
+        actions.PlayerAction.register(actions.Attack)
         # Order is imporant -- move last since it doesn't require a state key
-        actions.Move()
-        actions.Wait()
+        actions.PlayerAction.register(actions.Move)
+        # Register wait after move to allow movement while in fast mode
+        actions.PlayerAction.register(actions.Wait)
 
     def process_input(self, key):
         """ Process event keys -- set state of player
@@ -233,6 +235,7 @@ class Player(Object):
             action.get_input(key)
 
     def move(self, world):
+        """Run player actions if within ime interval"""
         block = world.get_block(Game.view_x + Game.game_width//2, Game.view_y + Game.game_height//2)
         self.moved = False
 
@@ -251,14 +254,15 @@ class Player(Object):
         self.last_action_time = time.time()
 
     def process(self, cur_block):
-        self.update_draw_location(cur_block)
+        self.update_view_location(cur_block)
 
-    def update_draw_location(self, cur_block):
+    def update_view_location(self, cur_block):
         """NOTE: modifies view of game """
         Game.view_x = int(self.x + Game.map_size * cur_block.idx - Game.game_width//2)
         Game.view_y = int(self.y + Game.map_size * cur_block.idy - Game.game_height//2)
+        Game.update_view()
 
-class CaveGrass(Object):
+class CaveGrass(Entity):
     """Non-movement entity. Generates cluster of grass initially"""
     def __init__(self, x, y, growth_count=0):
         UP_ARROW_CHAR = 24
@@ -298,7 +302,7 @@ class CaveGrass(Object):
 
 
 
-class Empty(Object):
+class Empty(Entity):
     def process(self, cur_block):
         pass
 
@@ -314,7 +318,9 @@ generation_table = [
 
 # Utitlity function for categorizing entities
 ANIMALS = [Player, Cat, Mole]
+
 def isin(class_list, a_object):
+    """Check if a class is in a list of classes"""
     for a_class in class_list:
         if isinstance(a_object, a_class):
             return True

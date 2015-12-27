@@ -7,6 +7,8 @@ from util import game_path
 from block import Block
 from game import Game
 
+log = logging.getLogger(__name__)
+
 class Serializer(object):
     """Serialize objects into save
        TODO: make folder name separate from seed"""
@@ -34,22 +36,30 @@ class Serializer(object):
 
     def save_block(self, block):
         """Save tiles/objects for block"""
-        block_name = "block{x},{y}".format(x=block.idx, y=block.idy)
+        block_name = "block%d,%d" % (block.idx, block.idy)
         block_path = os.path.join(self.serial_path, block_name)
         block_sh = shelve.open(block_path)
         block_sh['tiles'] = block.tiles
         block_sh['objects'] = block.objects
+        block_sh['save_turn'] = block.world.turn
         block_sh.close()
+
+    def is_block(self, idx, idy):
+        block_name = "block%d,%d" % (idx, idy)
+        block_path = os.path.join(self.serial_path, block_name)
+        return os.path.exists(block_path)
 
     def load_block(self, idx, idy, world):
         """Load tiles/objects and generate block object"""
-        block_name = "block{x},{y}".format(x=idx, y=idy)
+        block_name = "block%d,%d" % (idx, idy)
         block_path = os.path.join(self.serial_path, block_name)
-        if not os.path.exists(block_path):
-            return None
-
         block_sh = shelve.open(block_path)
         block = Block(idx, idy, world=world, tiles=block_sh['tiles'], objects=block_sh['objects'], load_turn=world.turn)
+
+        save_turn = block_sh['save_turn']
+        turn_delta = world.turn - save_turn
+        block.turn_delta = turn_delta
+
         return block
 
     def save_settings(self, player, world):
@@ -78,6 +88,7 @@ class Serializer(object):
         ret_obj['player_index'] = settings_sh.get('player_index')
         Game.view_x = settings_sh['view_x']
         Game.view_y = settings_sh['view_y'] 
+        Game.update_view()
         ret_obj['turn'] = settings_sh.get('turn', 0)
         ret_obj['seed'] = settings_sh.get('seed', None)
         logging.info('turn load {}'.format(settings_sh.get('turn')))

@@ -14,7 +14,7 @@ class Mouse:
 
     def update_coords(self):
         self.draw_x, self.draw_y = self.evaluate_mouse()
-        if (self.draw_x and self.draw_y and
+        if (self.draw_x is not None and self.draw_y is not None and
             self.mouse.cx < Game.game_width and
             self.mouse.cy < Game.game_height):
             self.abs_x = self.draw_x + Game.view_x
@@ -29,7 +29,8 @@ class Mouse:
         # There's a bug where has mouse focus returns true if the mouse starts on
         # the console. (hence the edge checks to still place mouse if the
         # coordinates are not on the edge)
-        if (libtcod.console_has_mouse_focus() or
+        if (Game.fullscreen or
+            libtcod.console_has_mouse_focus() or
             ((self.mouse.cx != 0 and self.mouse.cy != 0) and
              (self.mouse.cx != 0 and self.mouse.cy != Game.screen_height-1) and
              (self.mouse.cx != Game.screen_width-1 and self.mouse.cy != Game.screen_height-1) and
@@ -46,7 +47,7 @@ class Mouse:
     def conditional_print(self):
         """Print mouse if within frame"""
         x, y = self.evaluate_mouse()
-        if x and y:
+        if x is not None and y is not None:
             libtcod.console_put_char_ex(Game.mouse_con,
                                         x, y,
                                         ord('x'), libtcod.yellow, None)

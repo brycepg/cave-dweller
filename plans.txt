@@ -1,5 +1,5 @@
 -- Todo -- 
-Using mouse/keyboard for inspection
+Clickable menu
 Add system for mutli-turn movements(Like diagnal movement)
 fix player(object?) block movement accross blocks(two move jump?)
 Use mouse for movement
@@ -7,7 +7,6 @@ Use mouse for movement
     - better AI for monster movement(hand in hand with enitity component system, storing objects in array?)
     - priority for showing entities. tiles -> ground entityies(plants) -> monster -> player
 display log of messages to right
-debug menu
 in-game log of accomplishments
 food - hunger/satiety - inventory - harvest - inventory menu
 help menu
@@ -18,13 +17,17 @@ ecosystem management
 towns/buildings/door/crafting
 Centipides - Fish/rivers - Salamanders - Bats
 "Update" a block from when it was previously loaded(take the difference of the block's saved turn and current turn, and run its process loop that number of times)
+wait screen
 
+-- consideration --
 mutable tiles?
 
 -- shelved --
 map viewer/tuner program
 
 -- Done --
+debug menu
+Using mouse for inspection
 Hysteresis for loading/unload block to stop unsteady state
 Don't update turns during setup process(separate turn update from process)
 fix automatic movement from new game

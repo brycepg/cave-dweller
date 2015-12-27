@@ -21,12 +21,14 @@ class Game(object):
     screen_width = 80
     screen_height = 51
 
-    game_width = screen_height - 1
+    sidebar_enabled = False
+    game_width = screen_height - 1 if sidebar_enabled else screen_width
     game_height = screen_height - 1
 
     game_con = None
     mouse_con = None
     debug_con = None
+
     sidebar_con = None
 
     debug = True
@@ -75,6 +77,7 @@ class Game(object):
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.font_handler = FontHandler()
         self.init_consoles()
+        self.update_view()
 
     def init_consoles(self):
         self.bring_up_root()
@@ -111,7 +114,7 @@ class Game(object):
             return False
 
     @classmethod
-    def process(cls):
+    def update_view(cls):
         """Update game viewable current location variables"""
         cls.min_x = cls.view_x
         cls.max_x = cls.view_x + cls.game_width
@@ -127,8 +130,6 @@ class Game(object):
                 Game.debug = False if Game.debug else True
             if key.vk == libtcod.KEY_F11:
                 Game.fullscreen = False if Game.fullscreen else True
-                libtcod.console_delete(0)
-                self.font_handler.set_font()
                 self.bring_up_root()
         if Game.debug:
             if key.pressed:

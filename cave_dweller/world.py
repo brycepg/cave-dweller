@@ -16,7 +16,7 @@ class GetOutOfLoop(Exception):
     pass
 
 class World(object):
-    """Holds all blocks updates and draws world"""
+    """Holds all blocks. Updates and draws world"""
     def __init__(self, rand_seed=None):
         """TODO, make seed separate from timestamp"""
         self.rand_seed = rand_seed
@@ -25,8 +25,6 @@ class World(object):
         self.a_serializer = None
         self.blocks = {}
         self.turn = 0
-        # Do not timeout block loading at begginging(a block might not appear)
-        self.slow_load = False
 
     def generate_seeds(self, rand_seed):
         """Generate time seed if not given
@@ -69,77 +67,105 @@ class World(object):
         else:
             return None
     
-    def cull_old_blocks(self, ignore_load=False):
+    def cull_old_blocks(self, force_cull=False):
         """Serialize blocks that are outside of loaded radius,
            and have been alive for more than some number of turns
 
            arguments:
-               ignore_load
+               force_cull
                     if True, ignores how long block has been alive to cull.
                     (default avoids constant loading/deloading from
                     objects/player moving accross boundries)
            """
         # Hard-limit the number of active blocks -- only a problem in fast-mode
         HARD_LIMIT = 100
+        past_limit = not (len(self.blocks) < HARD_LIMIT)
 
         loaded_block_radius = Game.loaded_block_radius
-        # TODO serialize old blocks
         try:
-            for key in list(self.blocks.keys()):
-                if (abs(Game.idx_cur - self.blocks[key].idx) > loaded_block_radius or
-                        abs(Game.idy_cur - self.blocks[key].idy) > loaded_block_radius):
-                    if ignore_load or (self.turn - self.blocks[key].load_turn) > 10:
-                        #log.info("Cull %dx%d on turn %d, load_turn %d", self.blocks[key].idx, self.blocks[key].idy, self.turn, self.blocks[key].load_turn)
-                        self.a_serializer.save_block(self.blocks[key])
-                        del self.blocks[key]
-                        if Game.past_loop_time() and len(self.blocks) < HARD_LIMIT:
+            for block in self.blocks.values():
+                if (abs(Game.idx_cur - block.idx) > loaded_block_radius or
+                        abs(Game.idy_cur - block.idy) > loaded_block_radius):
+                    if force_cull or (self.turn - block.load_turn) > 10 or past_limit:
+                        self.a_serializer.save_block(block)
+                        del self.blocks[(block.idx, block.idy)]
+                        if Game.past_loop_time() and not past_limit and not force_cull:
                             raise GetOutOfLoop
         except GetOutOfLoop:
             log.debug("cull timeout")
 
-    def load_surrounding_blocks(self):
-        """Loads blocks surrounding player specified by loaded_block_radius"""
-
-        idy_cur = Game.idy_cur
-        idx_cur = Game.idx_cur
-        loaded_block_radius = Game.loaded_block_radius
-
+    def current_block_init(self):
+        """Load current block for start of game"""
         # Load current block first
         if not (Game.idx_cur, Game.idy_cur) in self.blocks:
-            self.blocks[(idx_cur, idy_cur)] = self.load_block(idx_cur, idy_cur)
+            self.blocks[(Game.idx_cur, Game.idy_cur)] = self.load_block(Game.idx_cur, Game.idy_cur)
+
+
+    def load_surrounding_blocks(self):
+        """Loads blocks surrounding player specified by loaded_block_radius"""
+        # Do not timeout block loading at begginging(a block might not appear)
+
+        idx_cur = Game.idx_cur
+        idy_cur = Game.idy_cur
+
+        loaded_block_radius = Game.loaded_block_radius
 
         try:
-            for idy in range(idy_cur - loaded_block_radius,
-                    idy_cur + loaded_block_radius + 1):
+            # Load blocks in a square 'radius' around player
+            for idy in range(idy_cur - Game.loaded_block_radius,
+                             idy_cur + loaded_block_radius + 1):
                 for idx in range(idx_cur - loaded_block_radius,
-                        idx_cur + loaded_block_radius + 1):
+                                 idx_cur + loaded_block_radius + 1):
                     if not (idx, idy) in self.blocks:
                         self.blocks[(idx, idy)] = self.load_block(idx, idy)
-                        if Game.past_loop_time() and self.slow_load:
+                        if Game.past_loop_time():
                             raise GetOutOfLoop
         except GetOutOfLoop:
-            log.debug('load timeout load_surrounding_blocks')
+            pass
+            #log.debug('load timeout load_surrounding_blocks')
 
     def get(self, idx, idy):
-        """Generate requested block and return reference
+        """
+        Tries to get a block at (idx, idy).
+        If not in active blocks,
+        see if it's serialized.
+        If it's not serialized,
+        generate it.
+
+        Generate requested block and return reference
         Python doesn't like negative indices. use idx,idy coordinates as hash table
         Required since each block is dynamically generated
         """
-        try:
+        if (idx, idy) in self.blocks:
+            # Load from active blocks
             block = self.blocks[(idx, idy)]
-        except KeyError:
+        elif self.a_serializer.is_block(idx, idy):
+            # Load from disk
             block = self.a_serializer.load_block(idx, idy, self)
-            if not block:
-                block = Block(idx, idy, self, load_turn=self.turn)
-            self.blocks[(idx, idy)] = block
+        else:
+            # Generate block
+            block = Block(idx, idy, self, load_turn=self.turn)
+
+        # Side-effect to promote ease of use and to 
+        #   stop bugs from duplicate blocks
+        self.blocks[(idx, idy)] = block
+
+        #if block.turn_delta is not None:
+        #    print("Turn delta %d on %dx%d" % (block.turn_delta, idx, idy))
+        #    while block.turn_delta > 0:
+        #        print("Process %d" % block.turn_delta)
+        #        block.turn_delta -= 1
+        #        block.process()
 
         return block
 
     def load_block(self, idx, idy):
+        """load without without checking active blocks or storing"""
         # Load from save
-        block = self.a_serializer.load_block(idx, idy, self)
-        # Generate if not from save
-        if not block:
+        if self.a_serializer.is_block(idx, idy):
+            block = self.a_serializer.load_block(idx, idy, self)
+        else:
+            # Generate if not from save
             block = Block(idx, idy, self, load_turn=self.turn)
         return block
 
@@ -147,24 +173,8 @@ class World(object):
         """Do game calculations
         Mainly for loading and de-loading blocks relative to the viewable area
         """
-        new_blocks = []
-
-        #if Game.reposition_objects:
-        #    Game.reposition_objects = False
-        #    blocks = self.blocks.values()
-        #    for block in blocks:
-        #        block.reposition_objects()
-
         for block in self.blocks.values():
-            gen_blks = block.process()
-            if gen_blks:
-                new_blocks += gen_blks
-
-        if new_blocks:
-            pass
-            #log.debug("new block {} {}x{}".format(new_blocks[0], new_blocks[0].idx, new_blocks[0].idy))
-        for block in new_blocks:
-            self.blocks[(block.idx, block.idy)] = block
+            block.process()
 
         # A little hack to randomize digging tile
         Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)

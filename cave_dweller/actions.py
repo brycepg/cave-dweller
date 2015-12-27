@@ -1,3 +1,4 @@
+"""Implement player actions"""
 import random
 import time
 
@@ -6,6 +7,7 @@ import libtcodpy as libtcod
 from game import Game
 
 class PlayerAction(object):
+    """Virtual class"""
     current_actions = []
 
     def __init__(self):
@@ -13,14 +15,22 @@ class PlayerAction(object):
         self.var = False
         self.done = False
 
+    @classmethod
+    def register(cls, subclass):
+        """Register subclass into list to be later processed by player"""
+        cls.current_actions.append(subclass())
+
     def get_input(self, key):
+        """Separate input from action"""
         pass
 
     def process(self, player, cur_block):
+        """Separate action from input"""
         pass
 
 class PlayerMoveAction(PlayerAction):
-    def __init__(self, state_key = None):
+    """Movements with states and/or that are directional in relation to the player"""
+    def __init__(self, state_key=None):
         """
         Action controlled by optional state-key followed by arrow keys
         Assummed to be mutually exclusive
@@ -28,10 +38,11 @@ class PlayerMoveAction(PlayerAction):
         super(PlayerMoveAction, self).__init__()
         self.state_key = state_key
         self.dir_dict = {'up': False, 'down': False, 'left': False, 'right': False}
+        self.key = None
 
     def get_input(self, key):
         """
-        var - state key is pressed - 
+        var - state key is pressed -
         dir_dict - arrow key movement state
         """
         if key.pressed:
@@ -132,7 +143,6 @@ class Move(PlayerMoveAction):
                 player.x, player.y = coordinates
                 player.moved = True
 
-red = libtcod.red
 class Attack(PlayerMoveAction):
     def __init__(self):
         super(type(self), self).__init__(state_key=ord('k'))
@@ -147,7 +157,7 @@ class Attack(PlayerMoveAction):
 
 class Wait(PlayerAction):
     """Wait(.), skip a turn
-       Wait fast(>), keep skipping turns until escape is pressed. 
+       Wait fast(>), keep skipping turns until escape is pressed.
        (probably should only enable for debug)"""
 
     def __init__(self):
@@ -164,7 +174,6 @@ class Wait(PlayerAction):
             self.wait = False
 
         if key.vk == libtcod.KEY_ESCAPE:
-            self.wait_queue = 0 
             self.wait_fast = False
 
 

@@ -1,10 +1,7 @@
 """container for Block"""
 
-import math
-import time
 import random
 import logging
-import traceback
 
 import libtcodpy as libtcod
 
@@ -12,9 +9,8 @@ from gen_map import generate_block
 
 from game import Game
 from tiles import Tiles
-import objects as obj
+import entities
 from util import get_neighbors
-from util import within_bounds
 
 log = logging.getLogger(__name__)
 
@@ -22,14 +18,14 @@ class Block:
     """Segment of world populated by object and terrain"""
     def __init__(self, idx, idy, world, tiles=None, objects=None, load_turn=0):
         #print("init new block: {}x{}".format(idx, idy))
-        #traceback.print_stack()
         if (idx, idy) in world.blocks:
-            raise RuntimeError("Block already created");
+            raise RuntimeError("Block already created")
 
         self.world = world
         self.idx = idx
         self.idy = idy
         self.load_turn = load_turn
+        self.turn_delta = None
         #log.info("%dx%d load_turn: %d", self.idx, self.idy, load_turn)
 
         self.block_seed = self.world.rand_seed + (self.idx * 65565 + self.idy)
@@ -46,40 +42,19 @@ class Block:
             self.objects = objects
 
     def generate_objects(self):
+        """Generate object from generation table"""
         objects = []
-        for monster, spawn_chance, amt in obj.generation_table:
+        for monster, spawn_chance, amt in entities.generation_table:
             for _ in range(amt):
-                if random.randint(0,100) < spawn_chance:
+                if random.randint(0, 100) < spawn_chance:
                     x = random.randint(0, Game.map_size)
                     y = random.randint(0, Game.map_size)
-                    if not self.get_tile(x, y).is_obstacle and not self.get_object(x, y):
+                    if (not self.get_tile(x, y).is_obstacle and
+                            not self.get_object(x, y)):
                         m = monster(x, y)
                         m.initial = True
                         objects.append(m)
         return objects
-
-#    def object_at(self, x, y, generate_new_blocks=False):
-#        if (0 <= x < Game.map_size and 0 <= y < Game.map_size):
-#            blk = self
-#        else:
-#            idx_mod = x // Game.map_size
-#            idy_mod = y // Game.map_size
-#            x = x % Game.map_size
-#            y = y % Game.map_size
-#            if generate_new_blocks:
-#                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-#            else:
-#                try:
-#                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-#                except KeyError:
-#                    log.debug("Should not happen: object at failed")
-#                    return True
-#
-#        for a_obj in blk.objects:
-#            if a_obj.x == x and a_obj.y == y:
-#                return True
-#
-#        return False
 
     def remove_object(self, a_object, x, y):
         """Remove object at location relative to block coordinates"""
@@ -88,15 +63,13 @@ class Block:
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
+            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
-            try:
-                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            except KeyError:
-                log.debug("Bad: Remove object block not available")
-        blk.objects.remove(a_object)
+        entity = blk.objects.remove(a_object)
+        return entity
 
-    def set_object(self, a_class, x, y, kw_dict=None, generate_new_objects=True):
-        """create an object from a_class at relative block location x,y. 
+    def set_object(self, a_class, x, y, kw_dict=None):
+        """create an object from a_class at relative block location x,y.
            give keyword args to entity."""
         if kw_dict is None:
             kw_dict = {}
@@ -105,26 +78,18 @@ class Block:
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
-            if generate_new_objects:
-                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            else:
-                try:
-                    blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-                    #blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-                except KeyError:
-                    log.debug("Bad: Set object not available")
-                    return None
             x = x % Game.map_size
             y = y % Game.map_size
+            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
         if not blk.get_tile(x, y).is_obstacle and not blk.get_object(x, y):
-            a_obj = a_class(x % Game.map_size, y % Game.map_size, **kw_dict)
+            a_obj = a_class(x, y, **kw_dict)
             blk.objects.append(a_obj)
             return a_obj
         else:
             return None
 
-    def get_object(self, x, y, generate_new_blocks=True):
+    def get_object(self, x, y):
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
@@ -132,22 +97,14 @@ class Block:
             idy_mod = y // Game.map_size
             x = x % Game.map_size
             y = y % Game.map_size
-            if generate_new_blocks:
-                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            else:
-                try:
-                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-                except KeyError:
-                    log.debug("Cannot get object from {}x{} coord {}x{}".format(self.idx + idx_mod, self.idy + idy_mod, x, y))
-                    return obj.Empty()
+            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
+        # TODO put objects in their own array
         for a_obj in blk.objects:
             if a_obj.x == x and a_obj.y == y:
                 return a_obj
 
         return None
-
-
 
     def get_abs(self, local_x, local_y):
         """Get absolute coordinate from local block coordiante"""
@@ -166,7 +123,7 @@ class Block:
         """Breadth first search for nearest non-obstacle to reposition object
         if's its stuck in an obstacle during generation"""
 
-        if not self.get_tile(a_object.x,a_object.y, True).is_obstacle:
+        if not self.get_tile(a_object.x, a_object.y).is_obstacle:
             return
         searched_list = [(a_object.x, a_object.y)]
         to_search = []
@@ -179,91 +136,50 @@ class Block:
                     continue
 
                 # Exit condition --- ground open tile
-                if not self.get_tile(*neighbor, generate_new_blocks=True).is_obstacle:
+                if not self.get_tile(*neighbor).is_obstacle:
                     a_object.x, a_object.y = neighbor
                     return
                 else:
-                    # Searched position but haven't 
+                    # Searched position but haven't
                     searched_list.append(neighbor)
                     # searched positions next to it
                     to_search.append(neighbor)
 
             # Use list like queue to to bfs search
             neighbors = get_neighbors(*to_search.pop(0))
-        
+
     def reposition_objects(self):
         """Move objects until square is found that's not an obstacle"""
         for a_object in self.objects:
             self.reposition_object(a_object)
 
-    def get_tile(self, x, y, generate_new_blocks=True):
-        """"Get namedtuple of tile location, even if out of bounds.
-        Note: This is not merged into get_tile_id because of performance
-        ~10fps increase by not calling get_tile_id"""
-        tile = None
-        blk = None
-        if within_bounds(x, y):
-            return Tiles.tile_lookup[self.tiles[y][x]]
+    def get_tile(self, x, y):
+        """Get namedtuple of tile location, even if out of bounds."""
+        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
+            tile_id = self.tiles[y][x]
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
-            if generate_new_blocks:
-                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            else:
-                try:
-                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-                except KeyError:
-                    log.debug("No tile at {}x{} coord {}x{}".format(self.idx + idx_mod, self.idy + idy_mod, x, y))
-            if blk is not None:
-                new_x = x % Game.map_size
-                new_y = y % Game.map_size
-                tile = blk.tiles[new_y][new_x]
+            new_x = x % Game.map_size
+            new_y = y % Game.map_size
+            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
+            tile_id = blk.tiles[new_y][new_x]
         #print "tile: {}".format(tile)
         #print "tile lookup: {}".format(self.tile_lookup[tile])
-        return Tiles.tile_lookup[tile]
+        return Tiles.tile_lookup[tile_id]
 
-    def set_tile(self, x, y, tile, generate_new_blocks=False):
+    def set_tile(self, x, y, tile):
+        """Set tile at location"""
         #print("tile :{}".format(tile))
-        if within_bounds(x, y):
+        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             self.tiles[y][x] = tile
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
-            if generate_new_blocks:
-                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            else:
-                try:
-                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-                except KeyError:
-                    log.error('Cannot set tile %dx%d', x, y)
-                    return
-
             new_x = x % Game.map_size
             new_y = y % Game.map_size
+            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
             blk.tiles[new_y][new_x] = tile
-
-    def get_tile_id(self, x, y, generate_new_blocks=False):
-        """Get id of tile, even if outside of blocks bounds."""
-        tile = None
-        blk = None
-        if within_bounds(x, y):
-            return self.tiles[y][x]
-        else:
-            idx_mod = x // Game.map_size
-            idy_mod = y // Game.map_size
-            if generate_new_blocks:
-                blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            else:
-                try:
-                    blk = self.world.blocks[(self.idx + idx_mod, self.idy + idy_mod)]
-                except KeyError:
-                    pass
-            if blk is not None:
-                new_x = x % Game.map_size
-                new_y = y % Game.map_size
-                tile = blk.tiles[new_y][new_x]
-            return tile
-
 
     def generate_tile_map(self):
         """Generate tiles from map function"""
@@ -273,12 +189,10 @@ class Block:
     def process(self):
         """Do block calculations. Manage block objects update"""
 
-        new_blocks = []
         objects = self.objects
         idx = self.idx
         idy = self.idy
         map_size = Game.map_size
-        world = self.world
 
         for a_object in objects:
             if a_object.new_block_turn == self.world.turn:
@@ -289,19 +203,22 @@ class Block:
                 a_object.decompose(self)
 
 
+        # Reverse enumerate to allow removal of object
         for i, a_object in reversed(list(enumerate(objects))):
             if a_object.out_of_bounds():
                 # Transfer object to new block-coordinate system
-                new_block = self.world.get(idx+ (a_object.x//map_size), idy + (a_object.y//map_size))
-                a_object.new_block_turn = self.world.turn
+                idx_mod = a_object.x // map_size
+                idy_mod = a_object.y // map_size
                 a_object.x = a_object.x % map_size
                 a_object.y = a_object.y % map_size
-                log.debug("move object {} {}x{}".format(a_object, a_object.x, a_object.y))
+                new_block = self.world.get(idx + idx_mod,
+                                           idy + idy_mod)
+                a_object.new_block_turn = self.world.turn
+                #log.debug("object crossed border at {} {}x{}".format(a_object,
+                #                                        a_object.x,
+                #                                        a_object.y))
                 free_agent = objects.pop(i)
                 new_block.objects.append(free_agent)
-                new_blocks.append(new_block)
-
-        return new_blocks
 
     def draw(self):
         """Draw block cells that are in frame"""
@@ -352,41 +269,33 @@ class Block:
         loc_x_max = draw_x_max_abs % map_size
         loc_y_max = draw_y_max_abs % map_size
 
-        # Make bound inclusive
+        # +1 makes bound inclusive
         for row in range(loc_y_min, loc_y_max+1):
             abs_y = map_size * idy + row
             for column in range(loc_x_min, loc_x_max+1):
                 #tile_seed = random_get_int(block_generator, 0, 65565)
                 abs_x = map_size * idx + column
                 cur_tile = tile_lookup[tiles[row][column]]
-                draw_char = cur_tile.char
 
                 # TODO generate t/f array for hidden objects
-                if cur_tile.is_obstacle:
-                    right = get_tile(column+1, row)
-                    left = get_tile(column-1, row)
-                    down = get_tile(column, row+1)
-                    up = get_tile(column, row-1)
-                    #print("{} {} {} {}".format(right, left, down, up))
-                    if(up.adjacent_hidden and
-                       down.adjacent_hidden and
-                       left.adjacent_hidden and
-                       right.adjacent_hidden):
-                        draw_char = ' '
-                        bg = Tiles.wall.bg
-                    else:
-                        bg = cur_tile.bg
+                #print("{} {} {} {}".format(right, left, down, up))
+                # Hide obstacles that are hidden by other hidden blocks
+                if(get_tile(column+1, row).adjacent_hidden and
+                   get_tile(column-1, row).adjacent_hidden and
+                   get_tile(column, row+1).adjacent_hidden and
+                   get_tile(column, row-1).adjacent_hidden):
+                    draw_char = ' '
+                    bg = Tiles.wall.bg
+                    fg = None
                 else:
+                    draw_char = cur_tile.char
                     bg = cur_tile.bg
+                    fg = cur_tile.fg
 
                 if cur_tile.attributes:
                     chars = cur_tile.attributes.get('alternative_characters')
                     if chars:
-                        #char_choice = (self.world.perlin_seed * row + self.block_seed * column) % (len(chars)+1)
-                        #char_choice = random.randint(0, len(chars))
-                        #char_choice = libtcod.random_get_int(self.block_generator, 0, len(chars))
-                        #char_choice = (((self.block_seed*column) % (row*self.world.perlin_seed+1)) + (self.block_seed % (self.world.rand_seed*column+1))) % (len(chars)+1)
-                        char_choice = 2#tile_seed % (len(chars) + 1)
+                        char_choice = 2
                         if char_choice != len(chars):
                             draw_char = chars[char_choice]
                         else:
@@ -395,7 +304,7 @@ class Block:
                 libtcod.console_put_char_ex(game_con,
                         abs_x - view_x,
                         abs_y - view_y,
-                        draw_char, cur_tile.fg, bg)
+                        draw_char, fg, bg)
 
     def draw_objects(self):
         """Put block's drawable objects on game con"""
