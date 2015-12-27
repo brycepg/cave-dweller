@@ -29,7 +29,7 @@ class StatusBar(object):
     def get_txt(self, player, world):
         """Generate status bar text for game"""
         # Dynamic status list
-        self.ordered_status['turn'] = ['Turn ', str(world.turn)]
+        self.ordered_status['turn'] = ['--- Turn ', str(world.turn)]
         if player.kills > 0:
             self.ordered_status['kills'] = [' Kills ', str(player.kills)]
         if Game.debug:
