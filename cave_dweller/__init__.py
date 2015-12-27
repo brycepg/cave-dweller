@@ -1,1 +1,1 @@
-from cave_dweller import *
+from cave_dweller import main
