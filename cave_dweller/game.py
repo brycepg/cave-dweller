@@ -33,7 +33,6 @@ class Game(object):
 
     debug = True
     collidable = True
-    reposition_objects = False
 
     default_fps = 30
     fps = default_fps
@@ -137,8 +136,6 @@ class Game(object):
                 if mod and key.c == ord('c'):
                     Game.collidable = False if Game.collidable else True
                     print('toggle collision: {}'.format(Game.collidable))
-                    if Game.collidable:
-                        Game.reposition_objects = True
                 # TODO get working again
                 if mod and key.c == ord('-') and Game.fps > 0:
                     Game.fps -= 1

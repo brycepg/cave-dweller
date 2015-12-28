@@ -11,7 +11,7 @@ def setup_logger(verbose=False):
         console_level = logging.DEBUG
     else:
         console_level = logging.INFO
-    log = logging.getLogger(__name__)
+    log = logging.getLogger()
     log.setLevel(logging.DEBUG)
     my_format = logging.Formatter("%(asctime)s:%(name)s:%(levelname)s| %(message)s")
     #logging.basicConfig()

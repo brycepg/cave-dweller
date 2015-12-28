@@ -1,11 +1,12 @@
--- Todo -- 
+-- Todo --
+    array for walkable tiles
+    array for hidden tiles
+    better AI for monster movement(hand in hand with enitity component system, storing objects in array?)
+    priority for showing entities. tiles -> ground entityies(plants) -> monster -> player
 Clickable menu
 Add system for mutli-turn movements(Like diagnal movement)
 fix player(object?) block movement accross blocks(two move jump?)
 Use mouse for movement
-- use array for storing objects OR BSP?
-    - better AI for monster movement(hand in hand with enitity component system, storing objects in array?)
-    - priority for showing entities. tiles -> ground entityies(plants) -> monster -> player
 display log of messages to right
 in-game log of accomplishments
 food - hunger/satiety - inventory - harvest - inventory menu
@@ -18,6 +19,7 @@ towns/buildings/door/crafting
 Centipides - Fish/rivers - Salamanders - Bats
 "Update" a block from when it was previously loaded(take the difference of the block's saved turn and current turn, and run its process loop that number of times)
 wait screen
+Advanced generation menu(tweak generator/ set seed)
 
 -- consideration --
 mutable tiles?
@@ -26,6 +28,9 @@ mutable tiles?
 map viewer/tuner program
 
 -- Done --
+spaw x, y for map generation
+| change all access to tiles array
+use array for storing objects
 debug menu
 Using mouse for inspection
 Hysteresis for loading/unload block to stop unsteady state

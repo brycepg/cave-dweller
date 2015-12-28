@@ -2,11 +2,14 @@
 
 import random
 import time
+import logging
 
 import libtcodpy as libtcod
 
 from game import Game
 import actions
+
+log = logging.getLogger(__name__)
 
 class Entity(object):
     """ Non-terrain entities
@@ -29,7 +32,7 @@ class Entity(object):
         self.move_up = False
         self.move_down = False
 
-        self.new_block_turn = None
+        self.last_move_turn = None
         self.death_count = 0
         self.food = 1000
 
@@ -41,8 +44,8 @@ class Entity(object):
         self.death_count += 1
         if self.death_count > 1000:
             # Spawn decomposer in place of body
-            cur_block.objects.remove(self)
-            cur_block.set_object(Fungus, self.x, self.y)
+            cur_block.entities[self.x][self.y].remove(self)
+            cur_block.set_entity(Fungus, self.x, self.y)
 
     def process(self, cur_block):
         """Configuration that changes object state"""
@@ -62,11 +65,11 @@ class Entity(object):
     def move(self, coordinates, cur_block):
         """Move entity if location doesn't have an obstacle tile/entity"""
         tile = cur_block.get_tile(*coordinates)
-        obj = cur_block.get_object(*coordinates)
+        obj = cur_block.get_entity(*coordinates)
         # Tricky if statement
         #   check if object exists before checking if it's an obstacle
         if not (obj and obj.is_obstacle) and not tile.is_obstacle:
-            self.x, self.y = coordinates
+            cur_block.move_entity(self, *coordinates)
             return True
         else:
             return False
@@ -103,15 +106,18 @@ class Spider(Entity):
         random.shuffle(possible_locations)
         for offset in possible_locations:
             new_loc = [self.x + offset[0], self.y + offset[1]]
-            adj_object = cur_block.get_object(*new_loc)
-            if adj_object and isin(ANIMALS, adj_object):
-                adj_object.kill()
-                adj_object.food -= 100
+            adj_entity = cur_block.get_entity(*new_loc)
+            if adj_entity and isin(ANIMALS, adj_entity):
+                adj_entity.kill()
+                adj_entity.food -= 100
                 self.hunger += 100
-                if adj_object.food <= 0:
-                    cur_block.remove_object(adj_object, *new_loc)
+                if adj_entity.food <= 0:
+                    try:
+                        cur_block.remove_entity(adj_entity, *new_loc)
+                    except ValueError:
+                        import pdb; pdb.set_trace()
                     if self.hunger >= self.MAX_HUNGER:
-                        cur_block.set_object(type(self), *new_loc)
+                        cur_block.set_entity(type(self), *new_loc)
                 break
         else:
             self.hunger -= 1
@@ -142,13 +148,15 @@ class Mole(Entity):
             new_loc = [self.x + offset[0], self.y + offset[1]]
             #if not util.within_bounds(new_loc[0], new_loc[1]) and cur_block.idx == -1 and cur_block.idy == 3:
             #    import pdb; pdb.set_trace()
-            adj_object = cur_block.get_object(*new_loc)
-            if adj_object and isinstance(adj_object, Fungus):
-                #cur_block.objects.remove(adj_object)
-                cur_block.remove_object(adj_object, *new_loc)
+            adj_entity = cur_block.get_entity(*new_loc)
+            if adj_entity and isinstance(adj_entity, Fungus):
+                try:
+                    cur_block.remove_entity(adj_entity, *new_loc)
+                except ValueError:
+                    import pdb; pdb.set_trace()
                 if self.hunger > self.MAX_HUNGER:
                     # Spawn new mole
-                    cur_block.set_object(type(self), *new_loc)
+                    cur_block.set_entity(type(self), *new_loc)
                     self.hunger -= 1000
                     break
                 else:
@@ -158,6 +166,7 @@ class Mole(Entity):
                     break
         else:
             # No fungus
+            log.info("Mole %r %sx%s", self, self.x, self.y)
             self.hunger -= 1
             if not self.cur_direction:
                 self.cur_direction = possible_locations[0]
@@ -189,7 +198,7 @@ class Fungus(Entity):
             growth_loc = random.choice([[1, 0], [-1, 0], [0, 1], [0, -1]])
             growth_loc[0] += self.x
             growth_loc[1] += self.y
-            cur_block.set_object(Fungus, growth_loc[0], growth_loc[1])
+            cur_block.set_entity(Fungus, growth_loc[0], growth_loc[1])
 
 class Player(Entity):
     """Player-object
@@ -293,8 +302,8 @@ class CaveGrass(Entity):
             for coordinates in possible_locations:
                 new_loc = [coordinates[0] + self.x, coordinates[1] + self.y]
                 tile = cur_block.get_tile(*new_loc)
-                if not tile.is_obstacle and not cur_block.get_object(*new_loc):
-                    cur_block.set_object(type(self), *new_loc, kw_dict={'growth_count':self.growth_count})
+                if not tile.is_obstacle and not cur_block.get_entity(*new_loc):
+                    cur_block.set_entity(type(self), *new_loc, kw_dict={'growth_count':self.growth_count})
                     break
             else:
                 pass
@@ -319,9 +328,9 @@ generation_table = [
 # Utitlity function for categorizing entities
 ANIMALS = [Player, Cat, Mole]
 
-def isin(class_list, a_object):
+def isin(class_list, a_entity):
     """Check if a class is in a list of classes"""
     for a_class in class_list:
-        if isinstance(a_object, a_class):
+        if isinstance(a_entity, a_class):
             return True
     return False

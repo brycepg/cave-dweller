@@ -52,7 +52,7 @@ class World(object):
         x = abs_x % Game.map_size
         y = abs_y % Game.map_size
         block = self.get(idx, idy)
-        obj = block.get_object(x, y)
+        obj = block.get_entity(x, y)
         if obj:
             obj_name = type(obj).__name__
             # Add spaces before capital characters(except for the first)
@@ -194,7 +194,7 @@ class World(object):
         for loc in uniq_locs:
             #log.info("Draw %dx%d", block.idx, block.idy)
             block = self.get(*loc)
-            block.draw()
+            block.draw_block()
 
     def get_block(self, abs_x, abs_y):
         """Get block at the absolute coordinate"""

@@ -11,6 +11,7 @@ from game import Game
 from serializer import Serializer
 from world import World
 from entities import Player
+from actions import PlayerAction
 
 log = logging.getLogger(__name__)
 
@@ -33,14 +34,16 @@ def run(args, game):
 
     if settings_obj.get('player_index') is not None:
         world.current_block_init()
-        player = (world.blocks[(Game.idx_cur, Game.idy_cur)]
-                  .objects[settings_obj['player_index']])
+        player_x = settings_obj['player_x']
+        player_y = settings_obj['player_y']
+        player_index = settings_obj['player_index']
+        player = world.blocks[(Game.idx_cur, Game.idy_cur)].entities[player_x][player_y].pop(player_index)
         player.register_actions()
     else:
         player = Player()
         start_block = world.get(Game.idx_cur, Game.idy_cur)
-        start_block.objects.append(player)
-        start_block.reposition_object(player)
+        start_block.entities[player.x][player.y].append(player)
+        start_block.reposition_entity(player)
         player.update_view_location(start_block)
         Game.update_view()
         # Process to initalize object behavior
@@ -89,6 +92,7 @@ def run(args, game):
             break
         # TODO, allow FPS separate from movement(multi-turn movement)
         if player.moved:
+            log.info("------------- turn %d -----------", world.turn)
             world.process()
             world.turn += 1
             libtcod.console_clear(Game.game_con)

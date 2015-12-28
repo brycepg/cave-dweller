@@ -1,6 +1,7 @@
 """Implement player actions"""
 import random
 import time
+import traceback
 
 import libtcodpy as libtcod
 
@@ -9,6 +10,7 @@ from game import Game
 class PlayerAction(object):
     """Virtual class"""
     current_actions = []
+    turn_delta = 0
 
     def __init__(self):
         PlayerAction.current_actions.append(self)
@@ -77,16 +79,16 @@ class PlayerMoveAction(PlayerAction):
     def process(self, player, cur_block):
         self.done = False
         if self.state_key is None or self.var:
-            self.dir('up', (player.x, player.y-1), cur_block, player)
+            cur_block = self.dir('up', (player.x, player.y-1), cur_block, player)
             if self.done:
                 return
-            self.dir('down', (player.x, player.y+1), cur_block, player)
+            cur_block = self.dir('down', (player.x, player.y+1), cur_block, player)
             if self.done:
                 return
-            self.dir('left', (player.x-1, player.y), cur_block, player)
+            cur_block = self.dir('left', (player.x-1, player.y), cur_block, player)
             if self.done:
                 return
-            self.dir('right', (player.x+1, player.y), cur_block, player)
+            cur_block = self.dir('right', (player.x+1, player.y), cur_block, player)
             if self.done:
                 return
 
@@ -100,12 +102,13 @@ class Build(PlayerMoveAction):
     def dir(self, direction, coordinates, cur_block, player=None):
         """If tile is buildable, then get it's 'build' tile"""
         tile = cur_block.get_tile(*coordinates)
-        if self.dir_dict[direction] and tile.buildable and not cur_block.get_object(*coordinates):
+        if self.dir_dict[direction] and tile.buildable and not cur_block.get_entity(*coordinates):
             tile_choices = tile.attributes['build']
             new_tile = random.choice(tile_choices)
             cur_block.set_tile(coordinates[0], coordinates[1], new_tile)
             player.moved = True
             self.done = True
+        return cur_block
 
 class Dig(PlayerMoveAction):
     def __init__(self):
@@ -120,6 +123,7 @@ class Dig(PlayerMoveAction):
             cur_block.set_tile(coordinates[0], coordinates[1], new_tile)
             player.moved = True
             self.done = True
+        return cur_block
 
 class Move(PlayerMoveAction):
     def __init__(self):
@@ -138,10 +142,11 @@ class Move(PlayerMoveAction):
         """Move player if tile desired is not collidable or if collision is turned off"""
         tile = cur_block.get_tile(*coordinates)
         if self.dir_dict[direction]:
-            obj = cur_block.get_object(*coordinates)
+            obj = cur_block.get_entity(*coordinates)
             if not (obj and obj.is_obstacle) and not tile.is_obstacle or not Game.collidable:
-                player.x, player.y = coordinates
+                cur_block = cur_block.move_entity(player, *coordinates)
                 player.moved = True
+        return cur_block
 
 class Attack(PlayerMoveAction):
     def __init__(self):
@@ -149,11 +154,12 @@ class Attack(PlayerMoveAction):
 
     def dir(self, direction, coordinates, cur_block, player):
         if self.dir_dict[direction]:
-            obj = cur_block.get_object(*coordinates)
+            obj = cur_block.get_entity(*coordinates)
             if obj and not obj.is_dead:
                 obj.kill()
                 player.moved = True
                 player.kills += 1
+        return cur_block
 
 class Wait(PlayerAction):
     """Wait(.), skip a turn
