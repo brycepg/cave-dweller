@@ -156,14 +156,14 @@ class Block:
     def get_tile(self, x, y):
         """Get namedtuple of tile location, even if out of bounds."""
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
-            tile_id = self.tiles[y][x]
+            tile_id = self.tiles[x][y]
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
             new_x = x % Game.map_size
             new_y = y % Game.map_size
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            tile_id = blk.tiles[new_y][new_x]
+            tile_id = blk.tiles[new_x][new_y]
         #print "tile: {}".format(tile)
         #print "tile lookup: {}".format(self.tile_lookup[tile])
         return Tiles.tile_lookup[tile_id]
@@ -172,14 +172,14 @@ class Block:
         """Set tile at location"""
         #print("tile :{}".format(tile))
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
-            self.tiles[y][x] = tile
+            self.tiles[x][y] = tile
         else:
             idx_mod = x // Game.map_size
             idy_mod = y // Game.map_size
             new_x = x % Game.map_size
             new_y = y % Game.map_size
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-            blk.tiles[new_y][new_x] = tile
+            blk.tiles[new_x][new_y] = tile
 
     def generate_tile_map(self):
         """Generate tiles from map function"""
@@ -270,20 +270,20 @@ class Block:
         loc_y_max = draw_y_max_abs % map_size
 
         # +1 makes bound inclusive
-        for row in range(loc_y_min, loc_y_max+1):
-            abs_y = map_size * idy + row
-            for column in range(loc_x_min, loc_x_max+1):
+        for x_row in range(loc_x_min, loc_x_max+1):
+            abs_x = map_size * idx + x_row
+            for y_column in range(loc_y_min, loc_y_max+1):
+                abs_y = map_size * idy + y_column
                 #tile_seed = random_get_int(block_generator, 0, 65565)
-                abs_x = map_size * idx + column
-                cur_tile = tile_lookup[tiles[row][column]]
+                cur_tile = tile_lookup[tiles[x_row][y_column]]
 
                 # TODO generate t/f array for hidden objects
                 #print("{} {} {} {}".format(right, left, down, up))
                 # Hide obstacles that are hidden by other hidden blocks
-                if(get_tile(column+1, row).adjacent_hidden and
-                   get_tile(column-1, row).adjacent_hidden and
-                   get_tile(column, row+1).adjacent_hidden and
-                   get_tile(column, row-1).adjacent_hidden):
+                if(get_tile(x_row+1, y_column).adjacent_hidden and
+                   get_tile(x_row-1, y_column).adjacent_hidden and
+                   get_tile(x_row, y_column+1).adjacent_hidden and
+                   get_tile(x_row, y_column-1).adjacent_hidden):
                     draw_char = ' '
                     bg = Tiles.wall.bg
                     fg = None
