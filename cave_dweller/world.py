@@ -1,7 +1,6 @@
 """Container for World class"""
 import time
 import random
-import re
 import logging
 
 from tiles import Tiles
@@ -180,12 +179,6 @@ class World(object):
         # A little hack to randomize digging tile
         Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)
 
-    def get_id_from_abs(self, abs_x, abs_y):
-        """Get idx/idy from abs coord"""
-        idx = abs_x // Game.map_size
-        idy = abs_y // Game.map_size
-        return idx, idy
-
     def draw(self):
         """Call viewable block's draw function"""
         # Draw at max 4 blocks
@@ -214,3 +207,10 @@ class World(object):
         logging.info("Saving blocks.. bye bye")
         for block in self.blocks.values():
             self.a_serializer.save_block(block)
+
+def get_id_from_abs(abs_x, abs_y):
+    """Get idx/idy from abs coord"""
+    idx = abs_x // Game.map_size
+    idy = abs_y // Game.map_size
+    return idx, idy
+

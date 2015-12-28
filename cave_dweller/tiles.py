@@ -1,5 +1,4 @@
 from collections import namedtuple
-import random
 
 #from util import classproperty
 
