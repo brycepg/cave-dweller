@@ -29,10 +29,12 @@ def generate_block(seed, idx=0, idy=0, map_size=256):
     octaves = 8
     freq = 16.0 * octaves
     block = []
-    for y in range(map_size):
+    size = range(map_size)
+    append_blk = block.append
+    for y in size:
         x_line = []
         append = x_line.append
-        for x_cell in range(map_size):
+        for x_cell in size:
             val = snoise2((idx * map_size + x_cell) / freq,
                                 (idy * map_size + y) / freq, 
                                 octaves, base=seed,                                      
@@ -43,5 +45,5 @@ def generate_block(seed, idx=0, idy=0, map_size=256):
             else:
                 out = 255
             append(out)
-        block.append(x_line)
+        append_blk(x_line)
     return block
