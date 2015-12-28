@@ -272,14 +272,14 @@ class Block:
         # +1 makes bound inclusive
         for x_row in range(loc_x_min, loc_x_max+1):
             abs_x = map_size * idx + x_row
+            x_tiles = self.tiles[x_row]
             for y_column in range(loc_y_min, loc_y_max+1):
                 abs_y = map_size * idy + y_column
-                #tile_seed = random_get_int(block_generator, 0, 65565)
-                cur_tile = tile_lookup[tiles[x_row][y_column]]
+                cur_tile = tile_lookup[x_tiles[y_column]]
 
-                # TODO generate t/f array for hidden objects
                 #print("{} {} {} {}".format(right, left, down, up))
                 # Hide obstacles that are hidden by other hidden blocks
+                # TODO generate own array
                 if(get_tile(x_row+1, y_column).adjacent_hidden and
                    get_tile(x_row-1, y_column).adjacent_hidden and
                    get_tile(x_row, y_column+1).adjacent_hidden and
