@@ -37,7 +37,8 @@ def run(args, game):
         player_x = settings_obj['player_x']
         player_y = settings_obj['player_y']
         player_index = settings_obj['player_index']
-        player = world.blocks[(Game.idx_cur, Game.idy_cur)].entities[player_x][player_y].pop(player_index)
+        player = world.blocks[(Game.idx_cur, Game.idy_cur)].entities[player_x][player_y][player_index]
+        log.info("Player loaded %r block", player)
         player.register_actions()
     else:
         player = Player()
