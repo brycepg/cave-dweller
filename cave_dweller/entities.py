@@ -146,14 +146,9 @@ class Mole(Entity):
         random.shuffle(possible_locations)
         for offset in possible_locations:
             new_loc = [self.x + offset[0], self.y + offset[1]]
-            #if not util.within_bounds(new_loc[0], new_loc[1]) and cur_block.idx == -1 and cur_block.idy == 3:
-            #    import pdb; pdb.set_trace()
             adj_entity = cur_block.get_entity(*new_loc)
             if adj_entity and isinstance(adj_entity, Fungus):
-                try:
-                    cur_block.remove_entity(adj_entity, *new_loc)
-                except ValueError:
-                    import pdb; pdb.set_trace()
+                cur_block.remove_entity(adj_entity, *new_loc)
                 if self.hunger > self.MAX_HUNGER:
                     # Spawn new mole
                     cur_block.set_entity(type(self), *new_loc)
@@ -166,7 +161,6 @@ class Mole(Entity):
                     break
         else:
             # No fungus
-            log.info("Mole %r %sx%s", self, self.x, self.y)
             self.hunger -= 1
             if not self.cur_direction:
                 self.cur_direction = possible_locations[0]
