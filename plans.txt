@@ -4,13 +4,14 @@
 |Add system for mutli-turn movements(Like diagnal movement)
 |fix player block movement accross blocks(two move jump?)
 
-|entity system
-|better AI for monster movement(hand in hand with enitity component system)
-|Centipides - Fish/rivers - Salamanders - Bats - Tree-like objects
-
+|better input system
 
 |Clickable menu
     - System for menus
+
+|entity system
+|better AI for monster movement(hand in hand with enitity component system)
+|Centipides - Fish/rivers - Salamanders - Bats - Tree-like objects
 
 |biomes - world generation algo tweaking - dynamic generation of build dig tiles?
 |Advanced generation menu(tweak generator/ set seed)
@@ -28,8 +29,12 @@ help menu
 | different types of rock
 
 ecosystem management
-towns/buildings/door/crafting
+towns/buildings/doors/crafting
 wait screen
+
+stats/skills
+wound/combat system
+'speed' affecting movement
 
 -- consideration --
 mutable tiles?
@@ -58,20 +63,4 @@ staggered update of nearby blocks(load, process, no draw) - may need to tweak st
 add basic monster object
 move off of root console(space of ui)
 adding turns -> turn counter for moves at bottom of screen
-
-# using mouse/keyboard for inspection
-
--- Detailed Plans --
-Determine position of mouse on screen
-| if withing game position
-| based on center loc, find mouse
-| center (abs coordinates)
-| center_x mouse_console_x
-Show object if any
-if no object show tile
-For objects, show "You see a(n) (Class name)"
-If not hidden(?! just for tiles now)
-For tiles, show "You see a(n) (Tile name)"
-If no object and no tiles, 
-show nothing
-in the future, show items(between objects and tiles)
+using mouse/keyboard for inspection
