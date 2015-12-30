@@ -18,6 +18,7 @@ class Serializer(object):
         if not os.path.exists(game_path('data')):
             os.mkdir(game_path('data'))
 
+
         # Find general name for folder
         if not folder:
             num = 1
@@ -29,10 +30,14 @@ class Serializer(object):
                     os.mkdir(self.serial_path)
                     break
                 num += 1
+            self.init_lock()
+            self.set_lock()
         else:
             self.serial_path = os.path.join(game_path('data'), folder)
-
-
+            if not os.path.exists(self.serial_path):
+                raise RuntimeError("Given folder %s does not exist" %
+                                   self.serial_path)
+            self.init_lock()
 
     def save_block(self, block):
         """Save tiles/objects for block"""
@@ -71,6 +76,10 @@ class Serializer(object):
 
     def save_settings(self, player, world):
         """Save Game state, player info"""
+        if not self.lock_exists():
+            log.debug("Something when wrong. lock still present")
+        self.remove_lock()
+
         seed = world.rand_seed
         turn = world.turn
         logging.info("saving settings")
@@ -89,10 +98,16 @@ class Serializer(object):
 
     def load_settings(self):
         """load Game state, player info into dict"""
+
         path = os.path.join(self.serial_path, "settings")
         ret_obj = {'player': None, 'game': None}
         if not os.path.exists(path):
             return ret_obj
+
+        if self.lock_exists():
+            raise RuntimeError("Save %s did not save correctly or is already open" % self.serial_path)
+        self.set_lock()
+
         with closing(shelve.open(path)) as settings_sh:
             ret_obj['player_x'] = settings_sh['player_x']
             ret_obj['player_y'] = settings_sh['player_y']
@@ -108,3 +123,15 @@ class Serializer(object):
     def delete_save(self):
         """Permadeath"""
         shutil.rmtree(self.serial_path)
+
+    def init_lock(self):
+        self.lock = os.path.join(self.serial_path, 'lock')
+
+    def set_lock(self):
+        open(self.lock, 'a').close()
+
+    def lock_exists(self):
+        return os.path.exists(self.lock)
+
+    def remove_lock(self):
+        os.remove(self.lock)
