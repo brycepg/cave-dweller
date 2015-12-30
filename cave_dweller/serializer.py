@@ -18,7 +18,6 @@ class Serializer(object):
             os.mkdir(game_path('data'))
 
         # Find general name for folder
-        #import pdb; pdb.set_trace()
         if not folder:
             num = 1
             dir_prefix = "world"
@@ -43,7 +42,8 @@ class Serializer(object):
         block_sh['entities'] = block.entities
         block_sh['hidden_map'] = block.hidden_map
         block_sh['obstacle_map'] = block.obstacle_map
-        block_sh['save_turn'] = block.world.turn
+        save_turn = block.world.turn if block.save_turn is None else block.save_turn
+        block_sh['save_turn'] = save_turn
         block_sh.close()
 
     def is_block(self, idx, idy):

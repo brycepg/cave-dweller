@@ -23,6 +23,7 @@ class World(object):
         self.generate_seeds(self.rand_seed)
         self.a_serializer = a_serializer
         self.blocks = {}
+        self.inactive_blocks = {}
         self.turn = 0
 
     def generate_seeds(self, rand_seed):
@@ -83,17 +84,23 @@ class World(object):
         past_limit = not (len(self.blocks) < HARD_LIMIT)
 
         loaded_block_radius = Game.loaded_block_radius
+        for block in self.blocks.values():
+            if (abs(Game.idx_cur - block.idx) > loaded_block_radius or
+                    abs(Game.idy_cur - block.idy) > loaded_block_radius):
+                if force_cull or (self.turn - block.load_turn) > 10 or past_limit:
+                    block.save_turn = self.turn
+                    self.inactive_blocks[(block.idx, block.idy)] = \
+                            self.blocks.pop((block.idx, block.idy))
+
         try:
-            for block in self.blocks.values():
-                if (abs(Game.idx_cur - block.idx) > loaded_block_radius or
-                        abs(Game.idy_cur - block.idy) > loaded_block_radius):
-                    if force_cull or (self.turn - block.load_turn) > 10 or past_limit:
-                        self.a_serializer.save_block(block)
-                        del self.blocks[(block.idx, block.idy)]
-                        if Game.past_loop_time() and not past_limit and not force_cull:
-                            raise GetOutOfLoop
+            for block in self.inactive_blocks.values():
+                if self.turn - block.save_turn  > 1000:
+                    self.a_serializer.save_block(block)
+                    del self.inactive_blocks[(block.idx, block.idy)]
+                    if Game.past_loop_time() and not force_cull:
+                        raise GetOutOfLoop
         except GetOutOfLoop:
-            log.debug("cull timeout")
+            log.debug("serialization timeout")
 
     def current_block_init(self):
         """Load current block for start of game"""
@@ -141,6 +148,8 @@ class World(object):
         if (idx, idy) in self.blocks:
             # Load from active blocks
             block = self.blocks[(idx, idy)]
+        elif (idx, idy) in self.inactive_blocks:
+            block = self.inactive_blocks.pop((idx, idy))
         elif self.a_serializer.is_block(idx, idy):
             # Load from disk
             block = self.a_serializer.load_block(idx, idy, self)
@@ -164,7 +173,9 @@ class World(object):
     def load_block(self, idx, idy):
         """load without without checking active blocks or storing"""
         # Load from save
-        if self.a_serializer.is_block(idx, idy):
+        if (idx, idy) in self.inactive_blocks:
+            block = self.inactive_blocks.pop((idx, idy))
+        elif self.a_serializer.is_block(idx, idy):
             block = self.a_serializer.load_block(idx, idy, self)
         else:
             # Generate if not from save
@@ -191,6 +202,7 @@ class World(object):
                             (Game.max_x // Game.map_size, Game.min_y  // Game.map_size),
                             (Game.max_x // Game.map_size, Game.max_y  // Game.map_size)]
 
+        # Get unique block identifiers
         uniq_locs = frozenset(sample_locations)
 
         for loc in uniq_locs:
@@ -205,9 +217,12 @@ class World(object):
         block = self.blocks[(idx, idy)]
         return block
 
-    def save_active_blocks(self):
+    def save_memory_blocks(self):
         logging.info("Saving blocks.. bye bye")
         for block in self.blocks.values():
+            self.a_serializer.save_block(block)
+
+        for block in self.inactive_blocks.values():
             self.a_serializer.save_block(block)
 
 def get_id_from_abs(abs_x, abs_y):

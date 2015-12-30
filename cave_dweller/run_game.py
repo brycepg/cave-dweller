@@ -168,7 +168,7 @@ def run(args, game):
         mouse.update_coords()
 
     if return_message['save']:
-        world.save_active_blocks()
+        world.save_memory_blocks()
         logging.debug("saving seed {} at world turn {}".format(world.rand_seed, world.turn))
         world.a_serializer.save_settings(player, world)
     elif return_message['dead']:

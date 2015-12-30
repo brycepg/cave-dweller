@@ -29,6 +29,7 @@ class Block:
         self.idx = idx
         self.idy = idy
         self.load_turn = load_turn
+        self.save_turn = None
         self.turn_delta = None
         #log.info("%dx%d load_turn: %d", self.idx, self.idy, load_turn)
 
