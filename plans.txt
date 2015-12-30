@@ -5,13 +5,20 @@
 |fix player block movement accross blocks(two move jump?)
 
 |better input system
+|abstract input system
 
+|Game state machine
 |Clickable menu
     - System for menus
 
 |entity system
 |better AI for monster movement(hand in hand with enitity component system)
 |Centipides - Fish/rivers - Salamanders - Bats - Tree-like objects
+
+|move determining hidden blocks out of draw into initial generation to allow
+|   reposition_objects or monster generation to avoid these hidden locations.
+|Two-step process. 1. For generating hidden tiles(simple), 2. Updating edges relying on
+|   ungenerated blocks(difficult)
 
 |biomes - world generation algo tweaking - dynamic generation of build dig tiles?
 |Advanced generation menu(tweak generator/ set seed)
