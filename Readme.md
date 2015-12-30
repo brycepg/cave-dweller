@@ -6,6 +6,7 @@ This is a Procedural Simulation Rougelike I'm currently working on.
 - on the fly world generation/serialization
 - basic entiity generation
     - basic stable entity ecosystem
+- turn-based movement
 - basic player actions(movement, wait, dig, build, kill)
 
  # Controls
@@ -13,7 +14,8 @@ This is a Procedural Simulation Rougelike I'm currently working on.
  * To kill(for entities): `k + ↑↓←→`
  * To dig(for diggable tiles): `d + ↑↓←→`
  * To build(for generic wall tile): `b + ↑↓←→`
- * '.' to wait
+ * '.' to wait, 
+ * shift + '.' to fast wait, ESC to exit
 
 Inspect with mouse
 4-way movement with arrow keys
@@ -24,11 +26,10 @@ Shift . to enter fast mode
 To run the game, you'll need to install:
 
 * python 2.7
-* libtcod (dll)
-* SDL 1.2 (for libtcod)
 * noise (python package for simplex noise)
+* SDL 1.2? Not for Windows?
 
-Make sure libtcod.so is the right architecture for your computer/OS. The current is Linux 64-bit. If not, grab and combile the right version from the bitbucket repo: (https://bitbucket.org/libtcod/libtcod/downloads)
+Windows and linux dll/so s are included
 
 After python 2.7 is installed, install noise via pip
 
