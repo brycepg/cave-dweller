@@ -4,6 +4,7 @@ import random
 
 from noise import snoise2
 from tiles import Id
+from tiles import Tiles
 
 def write_map(block, idx=0, idy=0, path=None):
     """Write map to file in pgm format"""
@@ -45,3 +46,25 @@ def generate_block(seed, idx=0, idy=0, map_size=256):
             append(out)
         append_blk(y_line)
     return block
+
+def generate_obstacle_map(tiles, map_size):
+    """Generates map of tiles that are obstacles.
+       Entities are added onto the map as they are generated"""
+    obstacle_map = []
+    list_append = obstacle_map.append
+    tile_lookup = Tiles.tile_lookup
+    for x in range(map_size):
+        x_slice = []
+        cell_append = x_slice.append
+        tile_slice = tiles[x]
+        for y in range(map_size):
+            if tile_lookup[tile_slice[y]].is_obstacle:
+                cell_append(True)
+            else:
+                cell_append(False)
+        list_append(x_slice)
+    return obstacle_map
+
+def generate_hidden_map(map_size):
+    """Have to generate most of the map at draw runtime due to boundry issues"""
+    return [[None for _ in range(map_size)] for _ in range(map_size)]

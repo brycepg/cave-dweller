@@ -64,11 +64,7 @@ class Entity(object):
 
     def move(self, coordinates, cur_block):
         """Move entity if location doesn't have an obstacle tile/entity"""
-        tile = cur_block.get_tile(*coordinates)
-        obj = cur_block.get_entity(*coordinates)
-        # Tricky if statement
-        #   check if object exists before checking if it's an obstacle
-        if not (obj and obj.is_obstacle) and not tile.is_obstacle:
+        if not cur_block.is_obstacle(*coordinates):
             cur_block.move_entity(self, *coordinates)
             return True
         else:
@@ -112,12 +108,10 @@ class Spider(Entity):
                 adj_entity.food -= 100
                 self.hunger += 100
                 if adj_entity.food <= 0:
-                    try:
-                        cur_block.remove_entity(adj_entity, *new_loc)
-                    except ValueError:
-                        import pdb; pdb.set_trace()
+                    cur_block.remove_entity(adj_entity, *new_loc)
                     if self.hunger >= self.MAX_HUNGER:
-                        cur_block.set_entity(type(self), *new_loc)
+                        if not cur_block.is_obstacle(*new_loc):
+                            cur_block.set_entity(type(self), *new_loc)
                 break
         else:
             self.hunger -= 1
@@ -151,7 +145,8 @@ class Mole(Entity):
                 cur_block.remove_entity(adj_entity, *new_loc)
                 if self.hunger > self.MAX_HUNGER:
                     # Spawn new mole
-                    cur_block.set_entity(type(self), *new_loc)
+                    if not cur_block.is_obstacle(*new_loc):
+                        cur_block.set_entity(type(self), *new_loc)
                     self.hunger -= 1000
                     break
                 else:
@@ -192,7 +187,8 @@ class Fungus(Entity):
             growth_loc = random.choice([[1, 0], [-1, 0], [0, 1], [0, -1]])
             growth_loc[0] += self.x
             growth_loc[1] += self.y
-            cur_block.set_entity(Fungus, growth_loc[0], growth_loc[1])
+            if not cur_block.is_obstacle(*growth_loc):
+                cur_block.set_entity(Fungus, *growth_loc)
 
 class Player(Entity):
     """Player-object

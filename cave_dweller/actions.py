@@ -140,10 +140,9 @@ class Move(PlayerMoveAction):
 
     def dir(self, direction, coordinates, cur_block, player):
         """Move player if tile desired is not collidable or if collision is turned off"""
-        tile = cur_block.get_tile(*coordinates)
         if self.dir_dict[direction]:
-            obj = cur_block.get_entity(*coordinates)
-            if not (obj and obj.is_obstacle) and not tile.is_obstacle or not Game.collidable:
+            obstacle = cur_block.is_obstacle(*coordinates)
+            if not obstacle or not Game.collidable:
                 cur_block = cur_block.move_entity(player, *coordinates)
                 player.moved = True
         return cur_block

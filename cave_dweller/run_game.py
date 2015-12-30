@@ -48,7 +48,10 @@ def run(args, game):
         player.update_view_location(start_block)
         Game.update_view()
         # Process to initalize object behavior
+        # object process only works once per turn to stop multiple actions 
+        world.turn=-1
         world.process()
+        world.turn+=1
         # Remove cascade of loaded blocks due to
         # object generation moving over borders
         world.cull_old_blocks(force_cull=True)
@@ -102,19 +105,19 @@ def run(args, game):
         libtcod.console_clear(Game.sidebar_con)
         libtcod.console_clear(Game.mouse_con)
         libtcod.console_clear(status_bar.con)
-        if not Game.past_loop_time() or skipped_culls > 193:
+        if not Game.past_loop_time() or skipped_culls > 93:
             world.cull_old_blocks()
             skipped_culls = 0
         else:
             skipped_culls += 1
-            #log.info("skip cull")
+            log.debug("skip cull")
         if not Game.past_loop_time() or skipped_loads > 547:
             world.load_surrounding_blocks(Game.idx_cur, Game.idy_cur,
                                           Game.loaded_block_radius,
                                           ignore_time=False)
             skipped_loads = 0
         else:
-            #log.info("load timeout")
+            log.debug("load timeout")
             skipped_loads += 1
 
         status_bar.run(player, world, mouse)

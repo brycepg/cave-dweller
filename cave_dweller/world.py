@@ -53,6 +53,8 @@ class World(object):
         y = abs_y % Game.map_size
         block = self.get(idx, idy)
         obj = block.get_entity(x, y)
+        if block.hidden_map[x][y] is True:
+            return None
         if obj:
             obj_name = type(obj).__name__
             # Add spaces before capital characters(except for the first)

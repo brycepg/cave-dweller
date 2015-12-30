@@ -6,15 +6,17 @@ import libtcodpy as libtcod
 from context_menu import ContextMenu
 from game import Game
 
+# TODO fix with entities update
+
 # Check entity types
 def display_cur_entities(world):
-    count = collections.Counter([type(obj).__name__ for aos in world.blocks.values() for obj in aos.entities])
+    count = collections.Counter([type(entity).__name__ for block in world.blocks.values() for a_slice in block.entities for cell in a_slice for entity in a_slice])
     return count
 
 def obj_type_per_block(world):
     count = {}
     for key in world.blocks:
-        count[key] = collections.Counter([type(obj).__name__ for obj in world.blocks[key].entities])
+        count[key] = collections.Counter([type(entity).__name__ for a_slice in world.blocks[key].entities for cell in a_slice for entity in cell])
 
     return count
 
@@ -46,10 +48,13 @@ def debug_print(args):
     libtcod.console_print(Game.debug_con, 1, 4, "view: (%dx%d)" % (game.view_x, game.view_y))
     libtcod.console_print(Game.debug_con, 1, 5, "player: (%dx%d)" % (player.x, player.y))
     libtcod.console_print(Game.debug_con, 1, 6, "process/draw time: ({0:.4f})".format(spent_time))
-    num_entities = sum([len(block.entities) for block in world.blocks.values()])
+    #num_entities = sum([len(block.entities) for block in world.blocks.values()])
+    num_entities = sum([len(a_cell) for block in world.blocks.values() for a_slice in block.entities for a_cell in a_slice])
     libtcod.console_print(Game.debug_con, 1, 7, "entities: {}".format(num_entities))
 
 def debug_menu(key, debug_info, world):
+    # Doesn't work with entities update -- too slow
+    return
     """Show some stats for entity overseeing"""
     import cave_debug
     if key.lctrl and key.pressed and key.c == ord('q') and Game.debug:
