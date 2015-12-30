@@ -263,13 +263,15 @@ class Player(Entity):
 
 class CaveGrass(Entity):
     """Non-movement entity. Generates cluster of grass initially"""
-    def __init__(self, x, y, growth_count=0):
+    def __init__(self, x, y, growth_count=0, cur_block=None):
         UP_ARROW_CHAR = 24
         super(type(self), self).__init__(x, y, UP_ARROW_CHAR)
         self.is_obstacle = False
         self.fg = libtcod.white
         self.init_check = False
         self.growth_count = growth_count
+        if cur_block:
+            self.process(cur_block)
 
     def process(self, cur_block):
         if not self.init_check:
@@ -293,7 +295,7 @@ class CaveGrass(Entity):
                 new_loc = [coordinates[0] + self.x, coordinates[1] + self.y]
                 tile = cur_block.get_tile(*new_loc)
                 if not tile.is_obstacle and not cur_block.get_entity(*new_loc):
-                    cur_block.set_entity(type(self), *new_loc, kw_dict={'growth_count':self.growth_count})
+                    cur_block.set_entity(type(self), *new_loc, kw_dict={'growth_count':self.growth_count, 'cur_block': cur_block})
                     break
             else:
                 pass
