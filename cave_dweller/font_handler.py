@@ -18,6 +18,7 @@ class FontHandler(object):
 
     def set_font(self, font_index=None):
         """Select font from font index"""
+        # TODO modify libtcod to fix cursor problem with resize
         if font_index == None:
             font_index = self.font_size_index
         font_path = game_path(os.path.join('fonts', 'dejavu{size}x{size}_gs_tc.png')

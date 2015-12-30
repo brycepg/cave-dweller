@@ -44,14 +44,14 @@ def run(args, game):
         player = Player()
         start_block = world.get(Game.idx_cur, Game.idy_cur)
         start_block.entities[player.x][player.y].append(player)
-        start_block.reposition_entity(player)
+        start_block.reposition_entity(player, avoid_hidden=True)
         player.update_view_location(start_block)
         Game.update_view()
         # Process to initalize object behavior
         # object process only works once per turn to stop multiple actions 
-        world.turn=-1
+        world.turn = -1
         world.process()
-        world.turn+=1
+        world.turn += 1
         # Remove cascade of loaded blocks due to
         # object generation moving over borders
         world.cull_old_blocks(force_cull=True)

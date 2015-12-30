@@ -72,4 +72,5 @@ def generate_obstacle_map(tiles, map_size):
 
 def generate_hidden_map(map_size):
     """Have to generate most of the map at draw runtime due to boundry issues"""
+    # TODO generate, ignore boundry tiles. Update boundry tiles when block available
     return [[None for _ in range(map_size)] for _ in range(map_size)]

@@ -94,6 +94,7 @@ class Game(object):
     def bring_up_root(self):
         """Call relevant settings and then bringing up the root console."""
         self.font_handler.set_font()
+        # TODO modify libtcod to fix cursor problem
         libtcod.console_disable_keyboard_repeat()
         libtcod.sys_set_fps(type(self).fps)
         libtcod.mouse_show_cursor(False)

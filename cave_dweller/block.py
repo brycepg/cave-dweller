@@ -193,9 +193,13 @@ class Block:
         draw_y = abs_y - Game.view_y
         return draw_x, draw_y
 
-    def reposition_entity(self, a_entity):
+    def reposition_entity(self, a_entity, avoid_hidden=False):
         """Breadth first search for nearest non-obstacle to reposition object
-        if's its stuck in an obstacle during generation"""
+        if's its stuck in an obstacle during generation
+        
+        TODO FIX (move determine what's hidden out of draw)
+        avoid hidden
+            also do not reposition entity into hidden tiles"""
 
         if not self.get_tile(a_entity.x, a_entity.y).is_obstacle:
             return
@@ -210,7 +214,8 @@ class Block:
                     continue
 
                 # Exit condition --- ground open tile
-                if not self.is_obstacle(*neighbor):
+                if not self.is_obstacle(*neighbor):# and not (avoid_hidden or 
+                                                  #          self.get_hidden(*neighbor)):
                     self.move_entity(a_entity, *neighbor)
                     #a_entity.x, a_entity.y = neighbor
                     return
@@ -253,7 +258,6 @@ class Block:
         # Assumes called from coorect view?
         # TODO flood fill to determine hidden areas?
         # TODO player detection(do not make hidden if player is in them)
-        # TODO make work for init draw
         if iteration < 0:
             return
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
