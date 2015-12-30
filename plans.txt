@@ -1,31 +1,47 @@
 -- Todo --
 |Use mouse for movement
+|mouse actions
 |Add system for mutli-turn movements(Like diagnal movement)
-better AI for monster movement(hand in hand with enitity component system, storing objects in array?)
+|fix player block movement accross blocks(two move jump?)
+
+|entity system
+|better AI for monster movement(hand in hand with enitity component system)
+|Centipides - Fish/rivers - Salamanders - Bats - Tree-like objects
+
+
 |Clickable menu
     - System for menus
-fix player(object?) block movement accross blocks(two move jump?)
-display log of messages to right
-in-game log of accomplishments
-food - hunger/satiety - inventory - harvest - inventory menu
+
+|biomes - world generation algo tweaking - dynamic generation of build dig tiles?
+|Advanced generation menu(tweak generator/ set seed)
+
+
+| display log of messages 
+| in-game log of accomplishments
+
+| food - hunger/satiety - inventory - harvest - inventory menu
+| babies(breeding)
+
 help menu
-clusters of ore
-different types of rock
-babies(breeding)
+
+| clusters of ore
+| different types of rock
+
 ecosystem management
 towns/buildings/door/crafting
-Centipides - Fish/rivers - Salamanders - Bats
-"Update" a block from when it was previously loaded(take the difference of the block's saved turn and current turn, and run its process loop that number of times)
 wait screen
-Advanced generation menu(tweak generator/ set seed)
 
 -- consideration --
 mutable tiles?
 
 -- shelved --
 map viewer/tuner program
+"Update" a block from when it was previously loaded(take the difference of the block's saved turn and current turn, and run its process loop that number of times)
+    - too slow / buggy (partial updates?)
+    - 'general update' of block instead of object movement?
 
 -- Done --
+inactive, in memory blocks
 priority for showing entities. tiles -> ground entityies(plants) -> monster -> player (last movement right now)
 array for walkable tiles
 array for hidden tiles
