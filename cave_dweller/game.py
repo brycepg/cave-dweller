@@ -71,6 +71,9 @@ class Game(object):
 
 
     def __init__(self):
+        if max(Game.game_width, Game.game_height) > Game.map_size:
+            raise RuntimeError("Screen window is bigger than map size"
+                               "(need to change draw algorithm)")
         logging.info("game init")
         # Tries to center the cosnole during init
         os.environ['SDL_VIDEO_CENTERED'] = '1'
