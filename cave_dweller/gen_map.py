@@ -30,6 +30,9 @@ def generate_block(seed, idx=0, idy=0, map_size=256):
     block = []
     size = range(map_size)
     append_blk = block.append
+    any_ground = Id.any_ground 
+    chose = random.choice 
+    wall = Id.wall
     for x in size:
         y_line = []
         append = y_line.append
@@ -39,11 +42,13 @@ def generate_block(seed, idx=0, idy=0, map_size=256):
                           octaves, base=seed,
                           repeatx=65536,
                           repeaty=65536)
-            if val < 0 and val > -.2:
-                out = random.choice(Id.any_ground)
+            # Can be tweaked for more / less floor/ground
+            if -.2 < val < 0:
+                # Floor tiles 
+                append(chose(any_ground))
             else:
-                out = 255
-            append(out)
+                # Wall tile
+                append(wall)
         append_blk(y_line)
     return block
 
