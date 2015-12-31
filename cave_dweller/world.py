@@ -10,6 +10,8 @@ from game import Game
 
 log = logging.getLogger(__name__)
 
+import gen_map
+
 class GetOutOfLoop(Exception):
     """Exception used to break out of multiple for-loops"""
     pass
@@ -21,6 +23,7 @@ class World(object):
         self.rand_seed = rand_seed
         self.perlin_seed = None
         self.generate_seeds(self.rand_seed)
+        #self.block_generator = gen_map.BlockGenerator(self.perlin_seed)
         self.a_serializer = a_serializer
         self.blocks = {}
         self.inactive_blocks = {}

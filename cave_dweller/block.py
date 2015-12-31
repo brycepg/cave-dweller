@@ -307,6 +307,7 @@ class Block:
 
     def generate_tile_map(self):
         """Generate tiles from map function"""
+        #return self.world.block_generator.generate_block( self.idx, self.idy, map_size=Game.map_size)
         return generate_block(self.world.perlin_seed,
                               self.idx, self.idy,
                               map_size=Game.map_size)

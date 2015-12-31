@@ -2,6 +2,8 @@
 
 import random
 
+import libtcodpy as libtcod
+
 from noise import snoise2
 from tiles import Id
 from tiles import Tiles
@@ -51,6 +53,45 @@ def generate_block(seed, idx=0, idy=0, map_size=256):
                 append(wall)
         append_blk(y_line)
     return block
+
+class BlockGenerator(object):
+    """Using libtcod libraries instead of noise"""
+
+    def __init__(self, seed):
+        self.my_random = libtcod.random_new_from_seed(seed, algo=libtcod.RNG_CMWC)
+        self.noise2d = libtcod.noise_new(2, random=self.my_random)
+
+    def generate_block(self, idx=0, idy=0, map_size=256):
+        """Block generation algorithm using simplex noise"""
+        octaves = 8
+        freq = 16.0 * octaves
+        block = []
+        size = range(map_size)
+        append_blk = block.append
+        any_ground = Id.any_ground 
+        chose = random.choice 
+        wall = Id.wall
+        noise2d = self.noise2d
+        for x in size:
+            y_line = []
+            append = y_line.append
+            for y in size:
+                val = libtcod.noise_get_fbm(noise2d, [(idx * map_size + x) / freq,
+                              (idy * map_size + y) / freq],
+                              octaves)
+                # Can be tweaked for more / less floor/ground
+                if -.2 < val < 0:
+                    # Floor tiles 
+                    append(chose(any_ground))
+                else:
+                    # Wall tile
+                    append(wall)
+            append_blk(y_line)
+        return block
+
+    def disable(self):
+        libtcod.noise_delete(self.noise2d)
+        libtcod.random_delete(self.my_random)
 
 def generate_obstacle_map(tiles, map_size):
     """Generates map of tiles that are obstacles.
