@@ -263,8 +263,6 @@ class Block:
         # Assumes called from coorect view?
         # TODO flood fill to determine hidden areas?
         # TODO player detection(do not make hidden if player is in them)
-        if iteration < 0:
-            return
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
@@ -285,8 +283,9 @@ class Block:
             blk.hidden_map[x][y] = True
         else:
             blk.hidden_map[x][y] = False
-        for neighbor_coord in neighbor_coords:
-            blk.update_hidden(*neighbor_coord, iteration=iteration)
+        if not iteration < 1:
+            for neighbor_coord in neighbor_coords:
+                blk.update_hidden(*neighbor_coord, iteration=iteration)
 
 
 
