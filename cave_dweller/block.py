@@ -4,6 +4,7 @@ import random
 import logging
 import operator
 import itertools
+from collections import deque
 
 import libtcodpy as libtcod
 
@@ -208,7 +209,7 @@ class Block:
         if not self.get_tile(a_entity.x, a_entity.y).is_obstacle:
             return
         searched_list = [(a_entity.x, a_entity.y)]
-        to_search = []
+        to_search = deque()
         neighbors = get_neighbors(a_entity.x, a_entity.y)
 
         while True:
@@ -230,7 +231,7 @@ class Block:
                     to_search.append(neighbor)
 
             # Use list like queue to to bfs search
-            neighbors = get_neighbors(*to_search.pop(0))
+            neighbors = get_neighbors(*to_search.popleft())
 
     def get_tile(self, x, y):
         """Get namedtuple of tile location, even if out of bounds."""
