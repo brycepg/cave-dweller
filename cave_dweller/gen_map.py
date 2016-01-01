@@ -54,6 +54,7 @@ def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
         append_blk(y_line)
     return block
 
+
 def generate_obstacle_map(tiles, map_size):
     """Generates map of tiles that are obstacles.
        Entities are added onto the map as they are generated later"""
@@ -72,10 +73,20 @@ def generate_obstacle_map(tiles, map_size):
         list_append(x_slice)
     return obstacle_map
 
+
 def generate_hidden_map(map_size):
     """Have to generate most of the map at draw runtime due to boundry issues"""
     # TODO generate, ignore boundry tiles. Update boundry tiles when block available
     return [[None for _ in range(map_size)] for _ in range(map_size)]
+
+
+def string_seed(my_str):
+    """Quick 'hashing' of string to float"""
+    my_hash = 0.
+    for char in my_str:
+        my_hash = 31 * my_hash + ord(char)
+    # Seeds don't work above this number
+    return my_hash % 65536
 
 ## ----------------------Code below is not in use in game----------------------
 
@@ -94,7 +105,6 @@ def write_map(block, idx=0, idy=0, path=None):
             for x in x_line:
                 out = 255 if x == 0 else 0
                 pgm_out.write("%s\n" % out)
-
 
 
 def block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8):
@@ -129,6 +139,7 @@ def block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8):
                 append(wall)
         append_blk(y_line)
     return block
+
 
 class BlockGenerator(object):
     """Using libtcod libraries instead of noise"""
@@ -223,11 +234,3 @@ def tune_block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8, lacunarit
                 append(wall)
         append_blk(y_line)
     return block
-
-def string_seed(my_str):
-    """Quick 'hashing' of string to float"""
-    my_hash = 0.
-    for char in my_str:
-        my_hash = 31 * my_hash + ord(char)
-    # Seeds don't work above this number
-    return my_hash % 65536
