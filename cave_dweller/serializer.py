@@ -80,7 +80,8 @@ class Serializer(object):
             log.debug("Something when wrong. lock still present")
         self.remove_lock()
 
-        seed = world.rand_seed
+        seed_str = world.seed_str
+        seed_int = world.seed_int
         turn = world.turn
         logging.info("saving settings")
         path = os.path.join(self.serial_path, "settings")
@@ -93,7 +94,8 @@ class Serializer(object):
             settings_sh['view_x'] = Game.view_x
             settings_sh['view_y'] = Game.view_y
             settings_sh['turn'] = turn
-            settings_sh['seed'] = seed
+            settings_sh['seed_str'] = seed_str
+            settings_sh['seed_int'] = seed_int
             logging.info('turn save %d', turn)
 
     def load_settings(self):
@@ -116,7 +118,8 @@ class Serializer(object):
             Game.view_y = settings_sh['view_y'] 
             Game.update_view()
             ret_obj['turn'] = settings_sh.get('turn', 0)
-            ret_obj['seed'] = settings_sh.get('seed', None)
+            ret_obj['seed_str'] = settings_sh.get('seed_str', None)
+            ret_obj['seed_int'] = settings_sh['seed_int']
             logging.info('turn load %d', settings_sh.get('turn'))
         return ret_obj
 

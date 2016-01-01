@@ -30,10 +30,13 @@ class Block:
         self.idy = idy
         self.load_turn = load_turn
         self.save_turn = None
-        self.turn_delta = None
-        #log.info("%dx%d load_turn: %d", self.idx, self.idy, load_turn)
 
-        self.block_seed = self.world.rand_seed + (self.idx * 65565 + self.idy)
+        # Could be used in the future to determine update need of block
+        self.turn_delta = None
+
+        # Not used yet. Maybe for block specific features? 
+        # Probably better to seed a generator for the block using this seed
+        self.block_seed = self.world.seed_int + (self.idx * 1073741823 + self.idy)
 
         if not tiles:
             self.tiles = []
@@ -48,7 +51,8 @@ class Block:
             self.obstacle_map = obstacle_map
 
         if not entities:
-            self.entities = [[[] for _ in range(Game.map_size)] for _ in range(Game.map_size)]
+            self.entities = [[[] for _ in range(Game.map_size)]
+                             for _ in range(Game.map_size)]
             self.generate_entities(self.entities)
         else:
             self.entities = entities
@@ -308,9 +312,9 @@ class Block:
     def generate_tile_map(self):
         """Generate tiles from map function"""
         #return self.world.block_generator.generate_block( self.idx, self.idy, map_size=Game.map_size)
-        return generate_block(self.world.perlin_seed,
-                              self.idx, self.idy,
-                              map_size=Game.map_size)
+        return generate_block(self.world.seed_int,
+                             self.idx, self.idy,
+                             map_size=Game.map_size)
     def process(self):
         """Do block calculations. Manage block objects update"""
         turn = self.world.turn
@@ -347,9 +351,6 @@ class Block:
         """ Draw block terrain.
         Call assumption: The block needs to be in the drawable area
         """
-        #self.block_generator = libtcod.random_new_from_seed(self.block_seed)
-        #block_generator = self.block_generator
-        #random_get_int = libtcod.random_get_int
         map_size = Game.map_size
 
         block_abs_x_min = map_size * self.idx

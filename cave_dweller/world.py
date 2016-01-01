@@ -18,39 +18,36 @@ class GetOutOfLoop(Exception):
 
 class World(object):
     """Holds all blocks. Updates and draws world"""
-    def __init__(self, a_serializer, rand_seed=None,):
+    def __init__(self, a_serializer, seed_str=None, block_seed=None):
         """TODO, make seed separate from timestamp"""
-        self.rand_seed = rand_seed
-        self.perlin_seed = None
-        self.generate_seeds(self.rand_seed)
+        self.seed_str, self.seed_int = self.generate_seeds(seed_str, block_seed)
         #self.block_generator = gen_map.BlockGenerator(self.perlin_seed)
+        log.info("Seed string: %s", self.seed_str)
+        log.info("Block seed: %d", self.seed_int)
         self.a_serializer = a_serializer
         self.blocks = {}
         self.inactive_blocks = {}
         self.turn = 0
 
-    def generate_seeds(self, rand_seed):
-        """Generate time seed if not given
-        Seed rand
-        Generate reduced size seed for C perlin function"""
-        if rand_seed is None:
-            rand_seed = time.time()
-        else:
-            rand_seed = int(rand_seed)
-        # Do not use floating point time
-        rand_seed = int(rand_seed)
-        log.info("seed: %d", rand_seed)
+    def generate_seeds(self, seed_str=None, seed_int=None):
+        """Hash seed str to generate seed int for noise function
+        
+        If neither provided, use random int
 
-        self.rand_seed = rand_seed
-
-        # Seed random
-        random.seed(self.rand_seed)
-
-        # Seed for perlin noise -- doesn't work with big numbers?
-        # Probably due to variable size constraints in C
-        self.perlin_seed = random.randrange(-65565, 65565)
+        If seed int is provided from command-line, use that(no seed str)
+        """
+        if seed_str is None and seed_int is None:
+            # snoise starts acting weird at at higher values...
+            seed_int = random.randrange(-65536, 65536)
+        elif seed_str is not None and seed_int is None:
+            seed_int = gen_map.string_seed(seed_str)
+        elif seed_int is not None:
+            seed_int = seed_int
+        return seed_str, seed_int
 
     def inspect(self, abs_x, abs_y):
+        """Inspect tile for a description of current tiles/entity"""
+        #TODO should be offloaded somewhere else?
         idx = abs_x // Game.map_size
         idy = abs_y // Game.map_size
         x = abs_x % Game.map_size

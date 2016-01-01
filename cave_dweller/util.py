@@ -1,14 +1,12 @@
 import os
 
 def get_neighbors(x, y):
-    from game import Game 
     """Get taxicab neighbors(4-way) from coordinates"""
     return [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
 
-def within_bounds(x, y):
-    from game import Game 
+def within_bounds(x, y, map_size=96):
     """Check whether local coordinates are inside its local block bounds"""
-    return (0 <= x < Game.map_size and 0 <= y < Game.map_size)
+    return (0 <= x < map_size and 0 <= y < map_size)
 
 def game_path(rel_path):
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

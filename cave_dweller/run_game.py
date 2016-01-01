@@ -23,11 +23,17 @@ def run(args, game):
     # Try to load save if available
     a_serializer = Serializer(args.selected_path)
     settings_obj = a_serializer.load_settings()
-    if settings_obj.get('seed') is not None:
-        seed = settings_obj['seed']
+    if settings_obj.get('seed_str') is not None:
+        seed = settings_obj['seed_str']
     else:
         seed = args.seed
-    world = World(a_serializer, seed)
+
+    if settings_obj.get('seed_float') is not None:
+        block_seed = settings_obj['seed_float']
+    else:
+        block_seed = args.block_seed
+
+    world = World(a_serializer, seed_str=seed, block_seed=block_seed)
     if settings_obj.get('turn'):
         world.turn = settings_obj['turn']
     # Get save information / Generate initial objects
@@ -169,7 +175,7 @@ def run(args, game):
 
     if return_message['save']:
         world.save_memory_blocks()
-        logging.debug("saving seed {} at world turn {}".format(world.rand_seed, world.turn))
+        logging.debug("saving seed {} at world turn {}".format(world.seed_int, world.turn))
         world.a_serializer.save_settings(player, world)
     elif return_message['dead']:
         world.a_serializer.delete_save()
