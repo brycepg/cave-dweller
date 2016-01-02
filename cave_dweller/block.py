@@ -301,39 +301,59 @@ class Block:
             y = y % Game.map_size
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
-        limit = Game.map_size
         if cur_adj_hidden:
             log.info("New adj hidden")
             # Potentially created hidden tiles
             neighbor_coords = get_neighbors(x,y)
+            valid_coords = []
             for coord in neighbor_coords:
                 tile_obj = blk.get_tile(*coord)
-                if not tile_obj.adjacent_hidden and not blk.get_hidden(*coord):
-                    unhidden_list = self.flood_find_unhidden(*coord)
-                    log.info("unHidden list: %r", unhidden_list)
-                    if unhidden_list:
-                        for loc in unhidden_list:
-                            self.set_hidden(*loc, value = True)
-                        for loc in unhidden_list:
-                            self.update_hidden(*loc)
+                if not tile_obj.adjacent_hidden and blk.get_hidden(*coord):
+                    valid_coords.append(coord)
+            log.info("valid coords: %d", len(valid_coords))
+            if len(valid_coords) > 2:
+                valid_coords = []
+            for coord in valid_coords:
+                unhidden_list = self.flood_find_unhidden(*coord)
+                log.info("unHidden list: %r", unhidden_list)
+                if unhidden_list:
+                    for loc in unhidden_list:
+                        self.set_hidden(*loc, value = True)
+                    for loc in unhidden_list:
+                        self.update_hidden(*loc, iteration=2)
+            else:
+                self.update_hidden(x,y)
+            if not valid_coords:
+                self.update_hidden(x,y)
 
 
         else:
-            # Potentially created hidden tiles
+            # Unmasking hidden tiles
             log.info("try unhidden")
             neighbor_coords = get_neighbors(x,y)
             log.info("-neighbors %r", neighbor_coords)
+            valid_coords = []
             for coord in neighbor_coords:
                 tile_obj = blk.get_tile(*coord)
-                if not tile_obj.adjacent_hidden:
-                    log.info("flood find hidden at %dx%d", coord[0], coord[1])
-                    hidden_list = self.flood_find_hidden(*coord, ign_x=x, ign_y=y)
-                    log.info("unHidden list: %r", hidden_list)
-                    if hidden_list:
-                        for loc in hidden_list:
-                            self.set_hidden(*loc, value = False)
-                        for loc in hidden_list:
-                            self.update_hidden(*loc)
+                if not tile_obj.adjacent_hidden and blk.get_hidden(*coord):
+                    valid_coords.append(coord)
+
+            # No need to update a tile placed in an open area
+            if len(valid_coords) > 2:
+                valid_coords = []
+            for coord in valid_coords:
+                log.info("flood find hidden at %dx%d", coord[0], coord[1])
+                hidden_list = self.flood_find_hidden(*coord, ign_x=x, ign_y=y)
+                log.info("hidden list: %r", hidden_list)
+                if hidden_list:
+                    for loc in hidden_list:
+                        self.set_hidden(*loc, value = False)
+                    for loc in hidden_list:
+                        self.update_hidden(*loc, iteration=1)
+            else:
+                self.update_hidden(x,y)
+            if not valid_coords:
+                self.update_hidden(x,y)
 
     def set_hidden(self, x, y, value):
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
@@ -360,7 +380,7 @@ class Block:
                     continue
 
                 # Exit condition --- ground open tile
-                if not self.get_tile(*neighbor).adjacent_hidden:
+                if not self.get_tile(*neighbor).adjacent_hidden and self.get_hidden(*neighbor):
                     if max(abs(neighbor[0] - x), abs(neighbor[1] - y)) > 10:
                         print(to_search)
                         log.info("neighbor %r too far away", neighbor)
@@ -411,9 +431,9 @@ class Block:
             except IndexError:
                 return found_list
 
-    def set_tile(self, x, y, tile):
-        """Set tile at location"""
-        #print("tile :{}".format(tile))
+    def set_tile(self, x, y, new_tile):
+        """Set new_tile at location"""
+        #print("new_tile :{}".format(new_tile))
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
@@ -424,12 +444,14 @@ class Block:
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
         prev_tile_adj_hidden = Tiles.tile_lookup[blk.tiles[x][y]].adjacent_hidden
-        blk.tiles[x][y] = tile
-        tile_obj = Tiles.tile_lookup[tile]
-        #blk.update_hidden(x, y)
-        blk.update_hidden(x, y)
+        blk.tiles[x][y] = new_tile
+        tile_obj = Tiles.tile_lookup[new_tile]
         if prev_tile_adj_hidden != tile_obj.adjacent_hidden:
+            # Adjacent hidden changed -> maybe there's a change in what's hidden
             blk.update_hidden_flood(x, y, tile_obj.adjacent_hidden)
+        else:
+            blk.update_hidden(x, y)
+        #blk.update_hidden(x, y)
 
         if tile_obj.is_obstacle:
             blk.obstacle_map[x][y] = True
@@ -457,22 +479,6 @@ class Block:
                         a_entity.process(self)
                     else:
                         a_entity.decompose(self)
-
-        ## Reverse enumerate to allow removal of object
-        #for i, a_object in reversed(list(enumerate(objects))):
-        #    if a_object.out_of_bounds():
-        #        # Transfer object to new block-coordinate system
-        #        free_agent = objects[a_object.x][a_object.y].remove(a_object)
-        #        idx_mod = a_object.x // map_size
-        #        idy_mod = a_object.y // map_size
-        #        a_object.x = a_object.x % map_size
-        #        a_object.y = a_object.y % map_size
-        #        new_block = self.world.get(idx + idx_mod,
-        #                                   idy + idy_mod)
-        #        #log.debug("object crossed border at {} {}x{}".format(a_object,
-        #        #                                        a_object.x,
-        #        #                                        a_object.y))
-        #        new_block.objects.append(free_agent)
 
     def draw_block(self):
         """ Draw block terrain.
@@ -524,15 +530,9 @@ class Block:
                 draw_char = cur_tile.char
                 bg = cur_tile.bg
                 fg = cur_tile.fg
+                # TODO move in block gen
                 if hidden_slice[y_column] is None:
                     self.update_hidden(x_row, y_column)
-                    #if(get_tile(x_row+1, y_column).adjacent_hidden and
-                    #   get_tile(x_row-1, y_column).adjacent_hidden and
-                    #   get_tile(x_row, y_column+1).adjacent_hidden and
-                    #   get_tile(x_row, y_column-1).adjacent_hidden):
-                    #    hidden_slice[y_column] = True
-                    #else:
-                    #    hidden_slice[y_column] = False
 
                 if cur_tile.attributes:
                     chars = cur_tile.attributes.get('alternative_characters')
