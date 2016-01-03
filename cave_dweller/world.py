@@ -94,7 +94,7 @@ class World(object):
 
         try:
             for block in self.inactive_blocks.values():
-                if self.turn - block.save_turn  > 1000:
+                if self.turn - block.save_turn  > 10000:
                     self.a_serializer.save_block(block)
                     del self.inactive_blocks[(block.idx, block.idy)]
                     if Game.past_loop_time() and not force_cull:
