@@ -74,12 +74,6 @@ def generate_obstacle_map(tiles, map_size):
     return obstacle_map
 
 
-def generate_hidden_map(map_size):
-    """Have to generate most of the map at draw runtime due to boundry issues"""
-    # TODO generate, ignore boundry tiles. Update boundry tiles when block available
-    return [[None for _ in range(map_size)] for _ in range(map_size)]
-
-
 def string_seed(my_str):
     """Quick 'hashing' of string to float"""
     my_hash = 0.

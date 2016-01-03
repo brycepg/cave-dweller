@@ -8,12 +8,12 @@ from collections import deque
 
 import libtcodpy as libtcod
 
-from gen_map import generate_block
-from gen_map import generate_obstacle_map
-from gen_map import generate_hidden_map
+import hidden_map_handler
+import entities
 from game import Game
 from tiles import Tiles
-import entities
+from gen_map import generate_block
+from gen_map import generate_obstacle_map
 from util import get_neighbors
 
 log = logging.getLogger(__name__)
@@ -59,11 +59,9 @@ class Block:
             self.entities = entities
 
         if not hidden_map:
-            self.hidden_map = generate_hidden_map(Game.map_size)
+            self.hidden_map = hidden_map_handler.generate_map(Game.map_size)
         else:
             self.hidden_map = hidden_map
-
-
 
     def is_obstacle(self, x, y):
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
@@ -219,10 +217,8 @@ class Block:
                     continue
 
                 # Exit condition --- ground open tile
-                if not self.is_obstacle(*neighbor):# and not (avoid_hidden or 
-                                                  #          self.get_hidden(*neighbor)):
+                if not self.is_obstacle(*neighbor):
                     self.move_entity(a_entity, *neighbor)
-                    #a_entity.x, a_entity.y = neighbor
                     return
                 else:
                     # Searched position but haven't
@@ -249,6 +245,7 @@ class Block:
         return Tiles.tile_lookup[tile_id]
 
     def get_hidden(self, x, y):
+        """Get hidden value on map safely with bounds checking"""
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
@@ -259,103 +256,8 @@ class Block:
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
         return blk.hidden_map[x][y]
 
-    def update_hidden(self, x, y, iteration=2):
-        # Assumes called from coorect view?
-        # TODO flood fill to determine hidden areas?
-        # TODO player detection(do not make hidden if player is in them)
-        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
-            blk = self
-        else:
-            idx_mod = x // Game.map_size
-            idy_mod = y // Game.map_size
-            x = x % Game.map_size
-            y = y % Game.map_size
-            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-        iteration -= 1
-        cur_tile = blk.get_tile(x,y)
-        neighbor_coords = get_neighbors(x,y)
-        neighbor_tiles = itertools.starmap(blk.get_tile, neighbor_coords)
-        adjacent_hidden = operator.attrgetter('adjacent_hidden')
-        obstacle_result = map(adjacent_hidden, neighbor_tiles)
-        hidden_map_result = list(itertools.starmap(blk.get_hidden, neighbor_coords))
-        should_be_hidden = all(map(any, zip(obstacle_result, hidden_map_result)))
-        if should_be_hidden:
-            blk.hidden_map[x][y] = True
-        else:
-            blk.hidden_map[x][y] = False
-        if not iteration < 0:
-            for neighbor_coord in neighbor_coords:
-                blk.update_hidden(*neighbor_coord, iteration=iteration)
-
-    def update_hidden_flood(self, x, y, cur_adj_hidden):
-        # Assumes called from coorect view?
-        # TODO flood fill to determine hidden areas?
-        # TODO player detection(do not make hidden if player is in them)
-        log.info("flood hidden call")
-        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
-            blk = self
-        else:
-            idx_mod = x // Game.map_size
-            idy_mod = y // Game.map_size
-            x = x % Game.map_size
-            y = y % Game.map_size
-            blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
-
-        if cur_adj_hidden:
-            log.info("New adj hidden")
-            # Potentially created hidden tiles
-            neighbor_coords = get_neighbors(x,y)
-            valid_coords = []
-            for coord in neighbor_coords:
-                tile_obj = blk.get_tile(*coord)
-                if not tile_obj.adjacent_hidden and blk.get_hidden(*coord):
-                    valid_coords.append(coord)
-            log.info("valid coords: %d", len(valid_coords))
-            if len(valid_coords) > 2:
-                valid_coords = []
-            for coord in valid_coords:
-                unhidden_list = self.flood_find_unhidden(*coord)
-                log.info("unHidden list: %r", unhidden_list)
-                if unhidden_list:
-                    for loc in unhidden_list:
-                        self.set_hidden(*loc, value = True)
-                    for loc in unhidden_list:
-                        self.update_hidden(*loc, iteration=2)
-            else:
-                self.update_hidden(x,y)
-            if not valid_coords:
-                self.update_hidden(x,y)
-
-
-        else:
-            # Unmasking hidden tiles
-            log.info("try unhidden")
-            neighbor_coords = get_neighbors(x,y)
-            log.info("-neighbors %r", neighbor_coords)
-            valid_coords = []
-            for coord in neighbor_coords:
-                tile_obj = blk.get_tile(*coord)
-                if not tile_obj.adjacent_hidden and blk.get_hidden(*coord):
-                    valid_coords.append(coord)
-
-            # No need to update a tile placed in an open area
-            if len(valid_coords) > 2:
-                valid_coords = []
-            for coord in valid_coords:
-                log.info("flood find hidden at %dx%d", coord[0], coord[1])
-                hidden_list = self.flood_find_hidden(*coord, ign_x=x, ign_y=y)
-                log.info("hidden list: %r", hidden_list)
-                if hidden_list:
-                    for loc in hidden_list:
-                        self.set_hidden(*loc, value = False)
-                    for loc in hidden_list:
-                        self.update_hidden(*loc, iteration=1)
-            else:
-                self.update_hidden(x,y)
-            if not valid_coords:
-                self.update_hidden(x,y)
-
     def set_hidden(self, x, y, value):
+        """Set hidden value on map safely with bounds checking"""
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
@@ -366,70 +268,6 @@ class Block:
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
         blk.hidden_map[x][y] = value
-
-    def flood_find_hidden(self, x, y, ign_x, ign_y):
-        to_search = deque()
-        found_list = set([(x, y)])
-        searched_list = set([(x, y), (ign_x, ign_y)])
-
-        neighbors = get_neighbors(x, y)
-        while True:
-            for neighbor in neighbors:
-                # Do not search previously searched tiles
-                if neighbor in searched_list:
-                    continue
-
-                # Exit condition --- ground open tile
-                if not self.get_tile(*neighbor).adjacent_hidden and self.get_hidden(*neighbor):
-                    if max(abs(neighbor[0] - x), abs(neighbor[1] - y)) > 10:
-                        print(to_search)
-                        log.info("neighbor %r too far away", neighbor)
-                        return None
-                    found_list.add(neighbor)
-                    to_search.append(neighbor)
-                else:
-                    searched_list.add(neighbor)
-
-            # Use list like queue to to bfs search
-            try:
-                log.info("len %d", len(to_search))
-                search_coord = to_search.popleft()
-                neighbors = get_neighbors(*search_coord)
-                searched_list.add(search_coord)
-            except IndexError:
-                return found_list
-
-    def flood_find_unhidden(self, x, y):
-        log.info("flood find at %dx%d", x, y)
-        to_search = deque()
-        found_list = [(x, y)]
-        searched_list = [(x, y)]
-
-        neighbors = get_neighbors(x, y)
-        while True:
-            for neighbor in neighbors:
-                # Do not search previously searched tiles
-                if neighbor in searched_list:
-                    continue
-
-                # Exit condition --- ground open tile
-                if (not self.get_tile(*neighbor).adjacent_hidden
-                        and not self.get_hidden(*neighbor)):
-                    if max(abs(neighbor[0] - x), abs(neighbor[1] - y)) > 10:
-                        log.info("neighbor %r too far away", neighbor)
-                        return None
-                    found_list.append(neighbor)
-                    to_search.append(neighbor)
-                else:
-                    searched_list.append(neighbor)
-
-            # Use list like queue to to bfs search
-            try:
-                search_coord = to_search.popleft()
-                neighbors = get_neighbors(*search_coord)
-                searched_list.append(search_coord)
-            except IndexError:
-                return found_list
 
     def set_tile(self, x, y, new_tile):
         """Set new_tile at location"""
@@ -448,10 +286,9 @@ class Block:
         tile_obj = Tiles.tile_lookup[new_tile]
         if prev_tile_adj_hidden != tile_obj.adjacent_hidden:
             # Adjacent hidden changed -> maybe there's a change in what's hidden
-            blk.update_hidden_flood(x, y, tile_obj.adjacent_hidden)
+            hidden_map_handler.update_hidden_flood(self, x, y, tile_obj.adjacent_hidden)
         else:
-            blk.update_hidden(x, y)
-        #blk.update_hidden(x, y)
+            hidden_map_handler.update_hidden(self, x, y)
 
         if tile_obj.is_obstacle:
             blk.obstacle_map[x][y] = True
@@ -510,12 +347,14 @@ class Block:
         view_y = Game.view_y
         game_con = Game.game_con
 
-        get_tile = self.get_tile
+        #get_tile = self.get_tile
         tile_lookup = Tiles.tile_lookup
         tiles = self.tiles
         entities = self.entities
+        init_hidden = hidden_map_handler.init_hidden
 
         hidden_map = self.hidden_map
+        update_hidden_flood = hidden_map_handler.update_hidden_flood
         # Figure out start, end location of tiles which need to be drawn
         # for this block
         # +1 makes bound inclusive
@@ -532,7 +371,10 @@ class Block:
                 fg = cur_tile.fg
                 # TODO move in block gen
                 if hidden_slice[y_column] is None:
-                    self.update_hidden(x_row, y_column)
+                    #if not self.get_tile(x_row, y_column).adjacent_hidden:
+                    #    update_hidden_flood(self, x_row, y_column, cur_adj_hidden=True, timeout_radius=10)
+                    #else:
+                    init_hidden(self, x_row, y_column)
 
                 if cur_tile.attributes:
                     chars = cur_tile.attributes.get('alternative_characters')
