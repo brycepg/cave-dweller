@@ -30,7 +30,7 @@ class FontHandler(object):
         """Set font size based on resolution"""
         for index, size in enumerate(self.font_sizes):
             res_x, res_y = libtcod.sys_get_current_resolution()
-            if not (game.Game.screen_height * size + 100 > res_y or
+            if not (game.Game.screen_height * size + 50 > res_y or
                     game.Game.screen_width * size > res_x):
                 font_index = index
                 break
