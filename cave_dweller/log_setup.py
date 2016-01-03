@@ -1,6 +1,8 @@
 import logging
 import sys
 
+from util import game_path
+
 def setup_logger(verbose=False):
     """Setup logging -
         Only output INFO and higher to console
@@ -15,7 +17,7 @@ def setup_logger(verbose=False):
     log.setLevel(logging.DEBUG)
     my_format = logging.Formatter("%(asctime)s:%(name)s:%(levelname)s| %(message)s")
     #logging.basicConfig()
-    fh = logging.FileHandler("gamelog.txt")
+    fh = logging.FileHandler(game_path("gamelog.txt"))
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(my_format)
     log.addHandler(fh)
