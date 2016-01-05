@@ -18,9 +18,9 @@ def generate_map(map_size):
     return [[None for _ in range(map_size)] for _ in range(map_size)]
 
 def init_hidden(calling_block, x, y):
-    """For drawing"""
-    neighbor_tiles = itertools.starmap(calling_block.get_tile, [(x+1, y), (x, y-1), (x-1, y), (x, y+1)])
-    adjacent_hidden_result = map(operator.attrgetter('adjacent_hidden'), neighbor_tiles)
+    """For drawing. Just determines if the local tile needs to be hidden if it's adjacent to all adjacent hidden blocks"""
+    neighbor_tiles = [calling_block.get_tile(*coord) for coord in [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]]
+    adjacent_hidden_result = [neighbor_tile.adjacent_hidden for neighbor_tile in neighbor_tiles]
     if all(adjacent_hidden_result):
         calling_block.hidden_map[x][y] = True
     else:
@@ -50,18 +50,16 @@ def update_hidden(calling_block, x, y, iteration=3):
                                       calling_block.idy + idy_mod)
     # Get surrounding tiles
     neighbor_coords = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
-    neighbor_tiles = itertools.starmap(blk.get_tile, neighbor_coords)
+    neighbor_tiles = [calling_block.get_tile(*coord) for coord in neighbor_coords]
 
-    # Get surrounding tiles adjacent hidden attribute and 
-    # hidden attribute
-    adjacent_hidden = operator.attrgetter('adjacent_hidden')
-    obstacle_result = map(adjacent_hidden, neighbor_tiles)
+    # Get surrounding tiles adjacent hidden attribute and map hidden
+    adjacent_hidden_result = [neighbor_tile.adjacent_hidden for neighbor_tile in neighbor_tiles]
+    hidden_map_result = [blk.get_hidden(*coord) for coord in neighbor_coords]
+
     # Group them together
-    hidden_map_result = list(itertools.starmap(blk.get_hidden, neighbor_coords))
-
     # If all of the surrounding tiles have either of these attributes,
     # then make the current tile hidden
-    should_be_hidden = all(map(any, zip(obstacle_result, hidden_map_result)))
+    should_be_hidden = all(map(any, zip(adjacent_hidden_result, hidden_map_result)))
 
     if should_be_hidden:
         blk.hidden_map[x][y] = True
@@ -76,8 +74,18 @@ def update_hidden(calling_block, x, y, iteration=3):
 
 
 def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game.map_size):
+    """ Detects hidden are or the destruction of a hidden area due to change of 
+    tile state from calling_block at x, y
+
+    If the cur_adj_hidden at x,y changed is False, then check for destruction
+    (that is cur_adj_hidden is False)
+    If cur_adj_hidden at x,y is True, then check for creation of hidden area
+    (that is cur_adj_hidden is True)
+
+    timeout_radius
+        largest possile hidden area to check for before timing out
+    """
     # Assumes called from coorect view?
-    # TODO flood fill to determine hidden areas?
     # TODO player detection(do not make hidden if player is in them)
     log.info("flood hidden call as %dx%d", x, y)
     if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
