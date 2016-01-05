@@ -46,7 +46,10 @@ from the root directory run
 
 Fungus Growth
 
+#### Fungus Growth
+
 ![Fungus Growth](media/fungus-growth.gif)
 
-"Overworld"
+#### "Overworld"
+
 !["Overworld"](media/4096.png)
