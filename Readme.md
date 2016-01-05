@@ -17,9 +17,8 @@ This is a Procedural Simulation Rougelike I'm currently working on.
  * '.' to wait, 
  * shift + '.' to fast wait, ESC to exit
 
-Inspect with mouse
-4-way movement with arrow keys
-Shift . to enter fast mode
+Inspect with mouse  
+4-way movement with arrow keys  
 
 # Install
 
@@ -27,7 +26,7 @@ To run the game, you'll need to install:
 
 * python 2.7
 * noise (python package for simplex noise)
-* SDL 1.2? Not for Windows?
+* SDL 1.2 for libtcod on linux?
 
 Windows and linux dll/so s are included
 
@@ -35,7 +34,7 @@ After python 2.7 is installed, install noise via pip
 
     pip install noise
 
-At some point i'll do releases with py2exe
+At some point i'll do releases with pyinstaller
 
 # To Run
 
@@ -43,6 +42,11 @@ from the root directory run
 
     ./cave-dweller.py
 
-# Image
+# Gameplay
 
-![Fungus Growth](https://raw.githubusercontent.com/brycepg/cave-dweller/master/media/fungus-growth.gif)
+Fungus Growth
+
+![Fungus Growth](media/fungus-growth.gif)
+
+"Overworld"
+!["Overworld"](media/4096.png)
