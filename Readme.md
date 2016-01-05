@@ -44,10 +44,14 @@ from the root directory run
 
 # Gameplay
 
-#### Fungus Growth
+#### Digging(and viewable/hidden areas)
+
+![Hidden Areas](media/hidden-areas.gif)
+
+#### Fungus Growth in Fast Mode
 
 ![Fungus Growth](media/fungus-growth.gif)
 
-#### "Overworld"
+#### An "Overworld"
 
 !["Overworld"](media/4096.png)
