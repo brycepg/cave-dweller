@@ -44,8 +44,6 @@ from the root directory run
 
 # Gameplay
 
-Fungus Growth
-
 #### Fungus Growth
 
 ![Fungus Growth](media/fungus-growth.gif)
