@@ -3,8 +3,7 @@
 import random
 import time
 import logging
-
-import libtcodpy as libtcod
+import colors
 
 from game import Game
 import actions
@@ -72,8 +71,8 @@ class Entity(object):
 
     def kill(self):
         """Placeholder for death. is_dead is important for decomposing in world/block"""
-        self.fg = libtcod.red
-        self.bg = libtcod.darkest_red
+        self.fg = colors.red
+        self.bg = colors.darkest_red
         self.is_dead = True
 
 class Cat(Entity):
@@ -82,7 +81,7 @@ class Cat(Entity):
              breeding"""
     def __init__(self, x, y):
         super(Cat, self).__init__(x, y, 'c')
-        self.fg = libtcod.grey
+        self.fg = colors.gray
 
     def process(self, cur_block):
         x_new = self.x + random.choice([-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
@@ -93,7 +92,7 @@ class Spider(Entity):
     """agressive entity. Kills and eats animals to survive"""
     def __init__(self, x, y):
         super(Spider, self).__init__(x, y, 'S')
-        self.fg = libtcod.black
+        self.fg = colors.black
         self.MAX_HUNGER = 10000
         self.hunger = 1000 + random.randint(0, 5000)
 
@@ -127,7 +126,7 @@ class Mole(Entity):
     """Eats fungus to survive and reproduce"""
     def __init__(self, x, y):
         super(Mole, self).__init__(x, y, 'm')
-        self.fg = libtcod.sepia
+        self.fg = colors.sepia
         self.cur_direction = None
         self.MAX_HUNGER = 10000
         self.hunger = 1000 + random.randint(0, 1000)
@@ -175,7 +174,7 @@ class Fungus(Entity):
     def __init__(self, x, y, growth=0):
         SPONGE_BLOCK = 176
         super(Fungus, self).__init__(x, y, SPONGE_BLOCK)
-        self.fg = libtcod.purple
+        self.fg = colors.purple
         self.is_edible = False
         self.turns_per_growth = random.randint(90, 110)
         self.growth_turn = 0
@@ -197,7 +196,7 @@ class Player(Entity):
         super(Player, self).__init__(Game.map_size//2,
                                      Game.map_size//2,
                                      '@')
-        self.fg = libtcod.lightest_gray
+        self.fg = colors.lightest_gray
         self.bg = None
 
         self.moved = False
@@ -267,7 +266,7 @@ class CaveGrass(Entity):
         UP_ARROW_CHAR = 24
         super(type(self), self).__init__(x, y, UP_ARROW_CHAR)
         self.is_obstacle = False
-        self.fg = libtcod.white
+        self.fg = colors.white
         self.init_check = False
         self.growth_count = growth_count
         if cur_block:

@@ -1,8 +1,26 @@
 import libtcodpy as libtcod
 
-white = libtcod.white
+# Player
+lightest_gray = libtcod.lightest_gray 
+
+white = libtcod.white # Cave Grass
+black = libtcod.black # Spider
+
+# Ground fg / wall bg / cat
+gray = libtcod.gray
+
+# Ground bg
+darkest_gray = libtcod.darkest_gray
+
+purple = libtcod.purple # Fungus
+sepia = libtcod.sepia # mole
+
+# Dead
+red = libtcod.red
+
+# Status Bar
 darkest_yellow = libtcod.darkest_yellow
-darkest_red = libtcod.darkest_red
+darkest_red = libtcod.darkest_red # Death too
 darkest_sepia = libtcod.darkest_sepia
 
 def colorize(txt, lib_color):

@@ -1,22 +1,20 @@
+"""Collection of nametuples defining attributes for game tiles, and ids which
+reference those attributes in a lookup table
+"""
+import colors
 from collections import namedtuple
 
-#from util import classproperty
+ground_bg = colors.darkest_gray
+ground_fg = colors.gray
 
-import libtcodpy as libtcod
-
-white = libtcod.white
-black = libtcod.black
-gray = libtcod.gray
-red = libtcod.red
-
-ground_bg = libtcod.darkest_gray
-wall_bg = gray
+wall_bg = colors.gray
+wall_fg = colors.white
 
 Tile = namedtuple('Tile', 
     ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes', 'name']
 )
 Tile.__new__.__defaults__ = \
-    (' ',    False,    libtcod.black, None, False,          False,     False,        None,         None)
+    (' ',    False,    colors.black, None, False,          False,     False,        None,         None)
 
 class Id(object):
     """Defines all the tile ids -- block.tiles vlaues"""
@@ -33,11 +31,11 @@ class Tiles:
     #TODO: offload to configuration files
 
     # Permutation of characters
-    ground  = Tile('-', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
-    ground2 = Tile('.', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
-    ground3 = Tile('`', is_obstacle=False, fg=gray, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground  = Tile('-', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground2 = Tile('.', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground3 = Tile('`', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
 
-    wall = Tile('x', is_obstacle=True, fg=white, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
+    wall = Tile('x', is_obstacle=True, fg=wall_fg, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
 
     build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
     build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
@@ -47,7 +45,7 @@ class Tiles:
     dig2 = Tile(char=177, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': [Id.dig3], 'build': [Id.dig1]})
     dig3 = Tile(char=176, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': Id.any_ground, 'build': [Id.dig2]})
 
-    null = Tile(is_obstacle=True, fg=red, bg=red)
+    null = Tile(is_obstacle=True, fg=colors.red, bg=colors.red)
 
     # Map stores array of tiles -- map tile id to nameduple
     tile_lookup = {
