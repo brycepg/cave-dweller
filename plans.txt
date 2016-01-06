@@ -15,6 +15,9 @@
 |better AI for monster movement(hand in hand with enitity component system)
 |Centipides - Fish/rivers - Salamanders - Bats - Tree-like objects
 
+|Make update flood hidden more efficient
+    - hide enclosed areas at draw time
+
 |move determining hidden blocks out of draw into initial generation to allow
 |   reposition_objects or monster generation to avoid these hidden locations.
 |Two-step process. 1. For generating hidden tiles(simple), 2. Updating edges relying on
