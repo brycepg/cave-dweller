@@ -17,12 +17,20 @@ def generate_map(map_size):
     # TODO generate, ignore boundry tiles. Update boundry tiles when block available
     return [[None for _ in range(map_size)] for _ in range(map_size)]
 
-def init_hidden(calling_block, x, y):
+def init_hidden(calling_block, x, y, cur_tile):
     """For drawing. Just determines if the local tile needs to be hidden if it's adjacent to all adjacent hidden blocks"""
-    neighbor_tiles = [calling_block.get_tile(*coord) for coord in [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]]
+    # Get tiles adjacent to current tile and get their adjacent hiddent status
+    neighbor_coords = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
+    neighbor_tiles = [calling_block.get_tile(*coord) for coord in  neighbor_coords]
     adjacent_hidden_result = [neighbor_tile.adjacent_hidden for neighbor_tile in neighbor_tiles]
+
+    # If the current tile is surrounded by adjacent_hidden tiles, make it hidden
     if all(adjacent_hidden_result):
         calling_block.hidden_map[x][y] = True
+        # If the tile itself is not an adjacent hidden tile, then hide the surrounding tiles
+        if not cur_tile.adjacent_hidden:
+            for neighbor_coord in neighbor_coords:
+                update_hidden(calling_block, *neighbor_coord, iteration=1)
     else:
         calling_block.hidden_map[x][y] = False
 
@@ -35,7 +43,7 @@ def update_hidden(calling_block, x, y, iteration=3):
     # Assumes called from coorect view?
     # TODO player detection(do not make hidden if player is in them)
 
-    # Inside map bounds
+    # Get correct block if outside map bounds
     if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
         blk = calling_block 
     else:
@@ -48,7 +56,7 @@ def update_hidden(calling_block, x, y, iteration=3):
                                       calling_block.idy + idy_mod)
     # Get surrounding tiles
     neighbor_coords = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
-    neighbor_tiles = [calling_block.get_tile(*coord) for coord in neighbor_coords]
+    neighbor_tiles = [blk.get_tile(*coord) for coord in neighbor_coords]
 
     # Get surrounding tiles adjacent hidden attribute and map hidden
     adjacent_hidden_result = [neighbor_tile.adjacent_hidden for neighbor_tile in neighbor_tiles]
@@ -177,6 +185,7 @@ def flood_find_hidden(calling_block, x, y, ign_x, ign_y, timeout_radius=Game.map
 def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size):
     """Try to find unhidden non-adjacent hidden tiles surrounding location"""
     # SUB function
+    log.info("flood_find_unhidden called")
     to_search = deque()
     found_list = set([(x, y)])
     searched_list = set((x, y))

@@ -374,7 +374,7 @@ class Block:
                     #if not self.get_tile(x_row, y_column).adjacent_hidden:
                     #    update_hidden_flood(self, x_row, y_column, cur_adj_hidden=True, timeout_radius=10)
                     #else:
-                    init_hidden(self, x_row, y_column)
+                    init_hidden(self, x_row, y_column, cur_tile)
 
                 if cur_tile.attributes:
                     chars = cur_tile.attributes.get('alternative_characters')
