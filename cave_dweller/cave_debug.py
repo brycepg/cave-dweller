@@ -57,7 +57,6 @@ def debug_menu(key, debug_info, world):
     # Doesn't work with entities update -- too slow
     return
     """Show some stats for entity overseeing"""
-    import cave_debug
     if key.lctrl and key.pressed and key.c == ord('q') and Game.debug:
         if not debug_info:
             debug_info = ContextMenu(Game.game_width, 0, height=Game.screen_height, width=Game.screen_width-Game.game_width)
