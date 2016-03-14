@@ -9,3 +9,4 @@ dist
 gamelog.txt
 data/
 .idea
+.ropeproject/
