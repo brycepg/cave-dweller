@@ -7,6 +7,7 @@ import itertools
 from collections import deque
 
 import libtcodpy as libtcod
+from libtcodpy import _lib
 
 import hidden_map_handler
 import entities
@@ -35,7 +36,7 @@ class Block:
         # Could be used in the future to determine update need of block
         self.turn_delta = None
 
-        # Not used yet. Maybe for block specific features? 
+        # Not used yet. Maybe for block specific features?
         # Probably better to seed a generator for the block using this seed
         self.block_seed = self.world.seed_int + (self.idx * 1073741823 + self.idy)
 
@@ -106,7 +107,7 @@ class Block:
     def set_entity(self, a_class, x, y, kw_dict=None):
         """create an object from a_class at relative block location x,y.
            give keyword args to entity.
-            
+
            Does not do obstacle checking for tiles
            """
         if kw_dict is None:
@@ -153,10 +154,10 @@ class Block:
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
         return blk.entities[x][y]
-    
+
     def move_entity(self, entity, new_x, new_y):
         """Move entity to correct position
-        
+
         Does not check obstacle map
         """
 
@@ -199,7 +200,7 @@ class Block:
     def reposition_entity(self, a_entity, avoid_hidden=False):
         """Breadth first search for nearest non-obstacle to reposition object
         if's its stuck in an obstacle during generation
-        
+
         TODO FIX (move determine what's hidden out of draw)
         avoid hidden
             also do not reposition entity into hidden tiles"""
@@ -394,10 +395,10 @@ class Block:
                         bg = obj.bg
 
                 if hidden_slice[y_column]:
-                    draw_char = ' '
+                    draw_char = 32
                     bg = Tiles.wall.bg
 
-                libtcod.console_put_char_ex(game_con,
+                _lib.TCOD_console_put_char_ex(game_con,
                         abs_x - view_x,
                         abs_y - view_y,
                         draw_char, fg, bg)

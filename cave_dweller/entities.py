@@ -17,7 +17,10 @@ class Entity(object):
     def __init__(self, x=None, y=None, char=None):
         self.x = x
         self.y = y
-        self.char = char
+        if type(char) == str or type(char) == bytes:
+            self.char = ord(char)
+        else:
+            self.char = char
         self.is_dead = False
         self.is_obstacle = True
         self.edible = False

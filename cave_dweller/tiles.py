@@ -10,7 +10,7 @@ ground_fg = colors.gray
 wall_bg = colors.gray
 wall_fg = colors.white
 
-Tile = namedtuple('Tile', 
+Tile = namedtuple('Tile',
     ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes', 'name']
 )
 Tile.__new__.__defaults__ = \
@@ -31,11 +31,11 @@ class Tiles:
     #TODO: offload to configuration files
 
     # Permutation of characters
-    ground  = Tile('-', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
-    ground2 = Tile('.', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
-    ground3 = Tile('`', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground  = Tile(ord('-'), is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground2 = Tile(ord('.'), is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground3 = Tile(ord('`'), is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
 
-    wall = Tile('x', is_obstacle=True, fg=wall_fg, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
+    wall = Tile(ord('x'), is_obstacle=True, fg=wall_fg, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
 
     build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
     build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
