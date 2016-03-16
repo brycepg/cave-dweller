@@ -21,7 +21,7 @@ from util import get_neighbors
 
 log = logging.getLogger(__name__)
 
-class Block:
+class Block(object):
     """Segment of world populated by object and terrain"""
     def __init__(self, idx, idy, world, tiles=None, entities=None,
                  obstacle_map=None, hidden_map=None, load_turn=0):

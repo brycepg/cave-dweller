@@ -403,7 +403,7 @@ class Key(Structure):
               ('shift', c_bool),
               ]
 
-class ConsoleBuffer:
+class ConsoleBuffer(object):
     # simple console that allows direct (fast) access to cells. simplifies
     # use of the "fill" functions.
     def __init__(self, width, height, back_r=0, back_g=0, back_b=0, fore_r=0, fore_g=0, fore_b=0, char=' '):
@@ -425,7 +425,7 @@ class ConsoleBuffer:
         self.fore_g = [fore_g] * n
         self.fore_b = [fore_b] * n
         self.char = [ord(char)] * n
-    
+
     def copy(self):
         # returns a copy of this ConsoleBuffer.
         other = ConsoleBuffer(0, 0)

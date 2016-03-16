@@ -2,7 +2,7 @@ import libtcodpy as libtcod
 
 from game import Game
 
-class Mouse:
+class Mouse(object):
     def __init__(self, mouse):
         self.mouse = mouse
 

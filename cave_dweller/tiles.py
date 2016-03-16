@@ -26,7 +26,7 @@ class Id(object):
 
     any_ground = [ground, ground2, ground3]
 
-class Tiles:
+class Tiles(object):
     """Defines all the tiles."""
     #TODO: offload to configuration files
 

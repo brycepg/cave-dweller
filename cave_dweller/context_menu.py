@@ -2,7 +2,7 @@ import libtcodpy as libtcod
 
 from game import Game
 
-class ContextMenu:
+class ContextMenu(object):
     def __init__(self, x=0, y=0, width=20, height=20):
         self.x = x
         self.y = y
