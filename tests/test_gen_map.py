@@ -1,8 +1,11 @@
+import os
 import unittest
 import random
 
-from game import Game
 from gen_map import generate_block
+
+cur_dir = os.path.dirname(__file__)
+import pdb; pdb.set_trace()
 
 class TestDraw(unittest.TestCase):
     def setUp(self):
@@ -12,19 +15,19 @@ class TestDraw(unittest.TestCase):
     def test_draw(self):
         pass
 
-zero_map = eval(open('zero_map.txt', 'r').read())
+zero_map = eval(open(os.path.join(cur_dir, 'zero_map.txt'), 'r').read())
 class TestGenerateMap(unittest.TestCase):
     def setUp(self):
         set_up_map()
     def tearDown(self):
         pass
     def test_gen_map(self):
-        self.assertTrue(zero_map, generate_block(0, 0, 0, 96))
+        self.assertEqual(zero_map, generate_block(0, 0, 0, 96))
+        # Uses random number generator for picking ground tile chars
+        self.assertNotEqual(zero_map, generate_block(0, 0, 0, 96))
 
 def set_up_map():
     random.seed(0)
 
-def test_benchmark_map(benchmark):
-    benchmark(generate_block, 0, 0, 0, 96)
 if __name__ == "__main__":
     unittest.main()
