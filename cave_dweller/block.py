@@ -8,6 +8,8 @@ from collections import deque
 
 import libtcodpy as libtcod
 from libtcodpy import _lib
+put_char_ex = _lib.TCOD_console_put_char_ex
+
 
 import hidden_map_handler
 import entities
@@ -398,7 +400,7 @@ class Block:
                     draw_char = 32
                     bg = Tiles.wall.bg
 
-                _lib.TCOD_console_put_char_ex(game_con,
+                put_char_ex(game_con,
                         abs_x - view_x,
                         abs_y - view_y,
                         draw_char, fg, bg)
