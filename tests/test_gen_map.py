@@ -5,7 +5,6 @@ import random
 from gen_map import generate_block
 
 cur_dir = os.path.dirname(__file__)
-import pdb; pdb.set_trace()
 
 class TestDraw(unittest.TestCase):
     def setUp(self):
