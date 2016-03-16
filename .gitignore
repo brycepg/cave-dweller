@@ -10,3 +10,4 @@ gamelog.txt
 data/
 .idea
 .ropeproject/
+.benchmarks/
