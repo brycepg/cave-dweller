@@ -12,10 +12,10 @@ from tiles import Tiles
 
 def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
     """Block generation algorithm using simplex noise
-    
+
     seed
         Seed the block by using an offset factor
-    
+
     idx, idy
         blocks unique id. contiguous. idy positive is down
 
@@ -28,8 +28,8 @@ def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
     block = []
     size = range(map_size)
     append_blk = block.append
-    any_ground = Id.any_ground 
-    chose = random.choice 
+    any_ground = Id.any_ground
+    chose = random.choice
     wall = Id.wall
     for x in size:
         y_line = []
@@ -46,7 +46,7 @@ def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
                           repeaty=65536)
             # Can be tweaked for more / less floor/ground
             if -.2 < val < 0:
-                # Floor tiles 
+                # Floor tiles
                 append(chose(any_ground))
             else:
                 # Wall tile
@@ -103,7 +103,7 @@ def write_map(block, idx=0, idy=0, path=None):
 
 def block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8):
     """use snoise3 for block generation
-    
+
     seed
         needs to be float. Use z axis of snoise3 as the seed. a whole number
         difference is big enough to not have much in common with the previous
@@ -114,8 +114,8 @@ def block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8):
     size = range(map_size)
     block = []
     append_blk = block.append
-    any_ground = Id.any_ground 
-    chose = random.choice 
+    any_ground = Id.any_ground
+    chose = random.choice
     wall = Id.wall
     for x in size:
         y_line = []
@@ -126,7 +126,7 @@ def block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8):
                           z=seed, octaves=octaves)
             # Can be tweaked for more / less floor/ground
             if -0.2 < val < 0.0:
-                # Floor tiles 
+                # Floor tiles
                 append(chose(any_ground))
             else:
                 # Wall tile
@@ -149,8 +149,8 @@ class BlockGenerator(object):
         block = []
         size = range(map_size)
         append_blk = block.append
-        any_ground = Id.any_ground 
-        chose = random.choice 
+        any_ground = Id.any_ground
+        chose = random.choice
         wall = Id.wall
         noise2d = self.noise2d
         for x in size:
@@ -162,7 +162,7 @@ class BlockGenerator(object):
                               octaves)
                 # Can be tweaked for more / less floor/ground
                 if -.2 < val < 0:
-                    # Floor tiles 
+                    # Floor tiles
                     append(chose(any_ground))
                 else:
                     # Wall tile
@@ -182,8 +182,8 @@ def gen_tuneable(seed=0., idx=0, idy=0, map_size=96, octaves=8):
     size = range(map_size)
     block = []
     append_blk = block.append
-    any_ground = Id.any_ground 
-    chose = random.choice 
+    any_ground = Id.any_ground
+    chose = random.choice
     wall = Id.wall
     for x in size:
         y_line = []
@@ -194,7 +194,7 @@ def gen_tuneable(seed=0., idx=0, idy=0, map_size=96, octaves=8):
                           octaves, base=seed)
             # Can be tweaked for more / less floor/ground
             if -.2 < val < 0:
-                # Floor tiles 
+                # Floor tiles
                 append(chose(any_ground))
             else:
                 # Wall tile
@@ -209,8 +209,8 @@ def tune_block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8, lacunarit
     size = range(map_size)
     block = []
     append_blk = block.append
-    any_ground = Id.any_ground 
-    chose = random.choice 
+    any_ground = Id.any_ground
+    chose = random.choice
     wall = Id.wall
     for x in size:
         y_line = []
@@ -221,7 +221,7 @@ def tune_block_snoise3(seed=0.0, idx=0, idy=0, map_size=96, octaves=8, lacunarit
                           z=seed, octaves=octaves, persistence=persistence, lacunarity=lacunarity)
             # Can be tweaked for more / less floor/ground
             if min_val < val < -0.2 < max_val:
-                # Floor tiles 
+                # Floor tiles
                 append(chose(any_ground))
             else:
                 # Wall tile
