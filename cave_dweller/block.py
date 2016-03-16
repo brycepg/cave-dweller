@@ -387,7 +387,7 @@ class Block(object):
                             draw_char = chars[char_choice]
                         else:
                             draw_char = cur_tile.char
-                entity_cell = self.entities[x_row][y_column]
+                entity_cell = entities[x_row][y_column]
                 if entity_cell:
                     obj = entity_cell[-1]
                     draw_char = obj.char
