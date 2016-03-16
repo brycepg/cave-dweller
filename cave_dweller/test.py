@@ -25,6 +25,6 @@ def set_up_map():
     random.seed(0)
 
 def test_benchmark_map(benchmark):
-    benchmark.pedantic(generate_block, args=(0, 0, 0, 96), setup=set_up_map, rounds=100)
+    benchmark(generate_block, 0, 0, 0, 96)
 if __name__ == "__main__":
     unittest.main()
