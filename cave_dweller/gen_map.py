@@ -13,23 +13,27 @@ from tiles import Tiles
 def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
     """Block generation algorithm using simplex noise
 
-    seed
-        Seed the block by using an offset factor
+    arguments
+        seed
+            Seed the block by using an offset factor
 
-    idx, idy
-        blocks unique id. contiguous. idy positive is down
+        idx, idy
+            blocks unique id. contiguous. idy positive is down
 
-    map_size
-        size of block
+        map_size
+            size of block.
 
-    octaves
-        # of simplex fxn passes for factal brownian motion
+        octaves
+            Number of simplex function passes for factal brownian motion.
+
+    returns
+        A 2d list of ints corresponsing to tile ID's. Column-major.
     """
     block = []
     size = range(map_size)
     append_blk = block.append
     any_ground = Id.any_ground
-    chose = random.choice
+    choose = random.choice
     wall = Id.wall
     for x in size:
         y_line = []
@@ -47,7 +51,7 @@ def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
             # Can be tweaked for more / less floor/ground
             if -.2 < val < 0:
                 # Floor tiles
-                append(chose(any_ground))
+                append(choose(any_ground))
             else:
                 # Wall tile
                 append(wall)
