@@ -20,6 +20,7 @@ from gen_map import generate_obstacle_map
 from util import get_neighbors
 
 log = logging.getLogger(__name__)
+wall_bg = Tiles.wall.bg
 
 class Block(object):
     """Segment of world populated by object and terrain"""
@@ -363,8 +364,10 @@ class Block(object):
         # +1 makes bound inclusive
         for x_row in range(loc_x_min, loc_x_max+1):
             abs_x = map_size * idx + x_row
+            x_loc = abs_x - view_x
             x_tiles = tiles[x_row]
             hidden_slice = hidden_map[x_row]
+            entity_slice = entities[x_row]
             for y_column in range(loc_y_min, loc_y_max+1):
                 abs_y = map_size * idy + y_column
                 cur_tile = tile_lookup[x_tiles[y_column]]
@@ -373,21 +376,24 @@ class Block(object):
                 bg = cur_tile.bg
                 fg = cur_tile.fg
                 # TODO move in block gen
+                # Update hidden map on the fly
                 if hidden_slice[y_column] is None:
                     #if not self.get_tile(x_row, y_column).adjacent_hidden:
                     #    update_hidden_flood(self, x_row, y_column, cur_adj_hidden=True, timeout_radius=10)
                     #else:
                     init_hidden(self, x_row, y_column, cur_tile)
 
-                if cur_tile.attributes:
-                    chars = cur_tile.attributes.get('alternative_characters')
-                    if chars:
-                        char_choice = 2
-                        if char_choice != len(chars):
-                            draw_char = chars[char_choice]
-                        else:
-                            draw_char = cur_tile.char
-                entity_cell = entities[x_row][y_column]
+                #if cur_tile.attributes:
+                #    chars = cur_tile.attributes.get('alternative_characters')
+                #    if chars:
+                #        char_choice = 2
+                #        if char_choice != len(chars):
+                #            draw_char = chars[char_choice]
+                #        else:
+                #            draw_char = cur_tile.char
+
+                # Draw top entity
+                entity_cell = entity_slice[y_column]
                 if entity_cell:
                     obj = entity_cell[-1]
                     draw_char = obj.char
@@ -398,10 +404,10 @@ class Block(object):
 
                 if hidden_slice[y_column]:
                     draw_char = 32
-                    bg = Tiles.wall.bg
+                    bg = wall_bg
 
                 put_char_ex(game_con,
-                        abs_x - view_x,
+                        x_loc,
                         abs_y - view_y,
                         draw_char, fg, bg)
 
