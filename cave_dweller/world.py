@@ -31,7 +31,7 @@ class World(object):
 
     def generate_seeds(self, seed_str=None, seed_int=None):
         """Hash seed str to generate seed int for noise function
-        
+
         If neither provided, use random int
 
         If seed int is provided from command-line, use that(no seed str)
@@ -68,7 +68,7 @@ class World(object):
             return tile.name
         else:
             return None
-    
+
     def cull_old_blocks(self, force_cull=False):
         """Serialize blocks that are outside of loaded radius,
            and have been alive for more than some number of turns
@@ -112,7 +112,7 @@ class World(object):
     def load_surrounding_blocks(self, idx_cur, idy_cur,
                                 loaded_block_radius=Game.loaded_block_radius,
                                 ignore_time=True):
-        """Loads blocks around the point (idx_cur, idy_cur) 
+        """Loads blocks around the point (idx_cur, idy_cur)
         in a square grid whose width/height
         is specified by loaded_block_radius
 
@@ -157,7 +157,7 @@ class World(object):
             # Generate block
             block = Block(idx, idy, self, load_turn=self.turn)
 
-        # Side-effect to promote ease of use and to 
+        # Side-effect to promote ease of use and to
         #   stop bugs from duplicate blocks
         self.blocks[(idx, idy)] = block
 
@@ -230,4 +230,3 @@ def get_id_from_abs(abs_x, abs_y):
     idx = abs_x // Game.map_size
     idy = abs_y // Game.map_size
     return idx, idy
-
