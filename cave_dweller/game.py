@@ -181,7 +181,7 @@ class Game(object):
                     print('set font')
                     libtcod.console_delete(0)
                     self.bring_up_root()
- 
+
                 if key.shift and mod and key.c == ord('d'):
                     import pdb; pdb.set_trace()
 

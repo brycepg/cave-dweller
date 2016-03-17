@@ -37,6 +37,7 @@ class Entity(object):
         self.last_move_turn = None
         self.death_count = 0
         self.food = 1000
+        self.cur_block = None
 
 
     def decompose(self, cur_block):
@@ -46,7 +47,7 @@ class Entity(object):
         self.death_count += 1
         if self.death_count > 1000:
             # Spawn decomposer in place of body
-            cur_block.entities[self.x][self.y].remove(self)
+            cur_block.remove_entity(self, self.x, self.y)
             cur_block.set_entity(Fungus, self.x, self.y)
 
     def process(self, cur_block):
@@ -255,10 +256,11 @@ class Player(Entity):
         self.last_action_time = time.time()
 
     def process(self, cur_block):
-        self.update_view_location(cur_block)
+        return
 
-    def update_view_location(self, cur_block):
+    def update_view_location(self):
         """NOTE: modifies view of game """
+        cur_block = self.cur_block
         Game.view_x = int(self.x + Game.map_size * cur_block.idx - Game.game_width//2)
         Game.view_y = int(self.y + Game.map_size * cur_block.idy - Game.game_height//2)
         Game.update_view()

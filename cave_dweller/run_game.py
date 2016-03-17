@@ -43,18 +43,22 @@ def run(args, game):
         player_x = settings_obj['player_x']
         player_y = settings_obj['player_y']
         player_index = settings_obj['player_index']
-        player = world.blocks[(Game.idx_cur, Game.idy_cur)].entities[player_x][player_y][player_index]
+        cur_block = world.blocks[(Game.idx_cur, Game.idy_cur)]
+        player = cur_block.entities[player_x][player_y][player_index]
+        player.cur_block  = cur_block
         log.info("Player loaded %r block", player)
         player.register_actions()
     else:
         player = Player()
         start_block = world.get(Game.idx_cur, Game.idy_cur)
         start_block.entities[player.x][player.y].append(player)
+        start_block.entity_list.append(player)
         start_block.reposition_entity(player, avoid_hidden=True)
-        player.update_view_location(start_block)
+        player.cur_block = start_block
+        player.update_view_location()
         Game.update_view()
         # Process to initalize object behavior
-        # object process only works once per turn to stop multiple actions 
+        # object process only works once per turn to stop multiple actions
         world.turn = -1
         world.process()
         world.turn += 1
@@ -104,6 +108,7 @@ def run(args, game):
         if player.moved:
             log.info("------------- turn %d -----------", world.turn)
             world.process()
+            player.update_view_location()
             world.turn += 1
             libtcod.console_clear(Game.game_con)
             world.draw()

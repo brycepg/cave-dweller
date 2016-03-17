@@ -10,13 +10,13 @@ from game import Game
 
 # Check entity types
 def display_cur_entities(world):
-    count = collections.Counter([type(entity).__name__ for block in world.blocks.values() for a_slice in block.entities for cell in a_slice for entity in a_slice])
+    count = collections.Counter([type(entity).__name__ for block in world.blocks.values() for entity in block.entity_list])
     return count
 
 def obj_type_per_block(world):
     count = {}
     for key in world.blocks:
-        count[key] = collections.Counter([type(entity).__name__ for a_slice in world.blocks[key].entities for cell in a_slice for entity in cell])
+        count[key] = collections.Counter([type(entity).__name__ for entity in world.blocks[key].entity_list])
 
     return count
 

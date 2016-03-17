@@ -56,11 +56,13 @@ class Block(object):
             self.obstacle_map = obstacle_map
 
         if not entities:
+            self.entity_list = []
             self.entities = [[[] for _ in range(Game.map_size)]
                              for _ in range(Game.map_size)]
-            self.generate_entities(self.entities)
+            self.generate_entities()
         else:
             self.entities = entities
+            self.entity_list = self.list_entities(entities)
 
         if not hidden_map:
             self.hidden_map = hidden_map_handler.generate_map(Game.map_size)
@@ -79,7 +81,15 @@ class Block(object):
 
         return blk.obstacle_map[x][y]
 
-    def generate_entities(self, entity_array):
+    def list_entities(self, entities):
+        entity_list = []
+        for a_slice in entities:
+            for a_tile in a_slice:
+                for a_entity in a_tile:
+                    entity_list.append(a_entity)
+        return entity_list
+
+    def generate_entities(self):
         """Generate object from generation table"""
         for monster, spawn_chance, amt in entities.generation_table:
             for _ in range(amt):
@@ -106,6 +116,7 @@ class Block(object):
         if a_entity.is_obstacle:
             blk.obstacle_map[x][y] = False
         blk.entities[x][y].remove(a_entity)
+        blk.entity_list.remove(a_entity)
 
     def set_entity(self, a_class, x, y, kw_dict=None):
         """create an object from a_class at relative block location x,y.
@@ -128,6 +139,8 @@ class Block(object):
         if a_entity.is_obstacle:
             blk.obstacle_map[x][y] = True
         blk.entities[x][y].append(a_entity)
+        blk.entity_list.append(a_entity)
+        a_entity.cur_block = blk
         return a_entity
 
     def get_entity(self, x, y):
@@ -182,6 +195,10 @@ class Block(object):
         entity.x = new_x
         entity.y = new_y
         blk.entities[entity.x][entity.y].append(entity)
+        if self is not blk:
+            entity.cur_block = blk
+            self.entity_list.remove(entity)
+            blk.entity_list.append(entity)
         if entity.is_obstacle:
             blk.obstacle_map[entity.x][entity.y] = True
         # Use return block to know where the object is
@@ -310,16 +327,14 @@ class Block(object):
         turn = self.world.turn
 
         #log.info("Process block %dx%d", self.idx, self.idy)
-        for line in self.entities:
-            for cell in line:
-                for a_entity in cell:
-                    if a_entity.last_move_turn >= turn:
-                        continue
-                    a_entity.last_move_turn = turn
-                    if not a_entity.is_dead:
-                        a_entity.process(self)
-                    else:
-                        a_entity.decompose(self)
+        for a_entity in list(self.entity_list):
+            if a_entity.last_move_turn >= turn:
+                continue
+            a_entity.last_move_turn = turn
+            if not a_entity.is_dead:
+                a_entity.process(self)
+            else:
+                a_entity.decompose(self)
 
     def draw_block(self):
         """ Draw block terrain.
