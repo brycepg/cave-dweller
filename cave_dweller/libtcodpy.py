@@ -439,7 +439,7 @@ class ConsoleBuffer(object):
         other.fore_b = list(self.fore_b)
         other.char = list(self.char)
         return other
-    
+
     def set_fore(self, x, y, r, g, b, char):
         # set the character and foreground color of one cell.
         i = self.width * y + x
@@ -447,14 +447,14 @@ class ConsoleBuffer(object):
         self.fore_g[i] = g
         self.fore_b[i] = b
         self.char[i] = ord(char)
-    
+
     def set_back(self, x, y, r, g, b):
         # set the background color of one cell.
         i = self.width * y + x
         self.back_r[i] = r
         self.back_g[i] = g
         self.back_b[i] = b
-    
+
     def set(self, x, y, back_r, back_g, back_b, fore_r, fore_g, fore_b, char):
         # set the background color, foreground color and character of one cell.
         i = self.width * y + x
@@ -465,7 +465,7 @@ class ConsoleBuffer(object):
         self.fore_g[i] = fore_g
         self.fore_b[i] = fore_b
         self.char[i] = ord(char)
-    
+
     def blit(self, dest, fill_fore=True, fill_back=True):
         # use libtcod's "fill" functions to write the buffer to a console.
         if (console_get_width(dest) != self.width or
@@ -975,7 +975,7 @@ def console_fill_char(con,arr) :
         carr = struct.pack('%di' % len(arr), *arr)
 
     _lib.TCOD_console_fill_char(con, carr)
-        
+
 def console_load_asc(con, filename) :
     _lib.TCOD_console_load_asc(con,filename)
 def console_save_asc(con, filename) :
@@ -1600,7 +1600,7 @@ def path_size(p):
     return _lib.TCOD_path_size(p[0])
 
 def path_reverse(p):
-    _lib.TCOD_path_reverse(p[0])  
+    _lib.TCOD_path_reverse(p[0])
 
 def path_get(p, idx):
     x = c_int()
