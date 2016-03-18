@@ -26,7 +26,6 @@ To run the game, you'll need to install:
 
 * python 2.7
 * noise (python package for simplex noise)
-* SDL 1.2 for libtcod on linux?
 
 Windows and linux dll/so s are included
 
