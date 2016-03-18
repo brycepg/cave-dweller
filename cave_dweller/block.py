@@ -372,19 +372,28 @@ class Block(object):
         entities = self.entities
         init_hidden = hidden_map_handler.init_hidden
 
+        y_range = range(loc_y_min, loc_y_max+1)
         hidden_map = self.hidden_map
-        update_hidden_flood = hidden_map_handler.update_hidden_flood
+
+        #update_hidden_flood = hidden_map_handler.update_hidden_flood
         # Figure out start, end location of tiles which need to be drawn
         # for this block
         # +1 makes bound inclusive
-        for x_row in range(loc_x_min, loc_x_max+1):
-            abs_x = map_size * idx + x_row
-            x_loc = abs_x - view_x
+
+        idy_abs_base = map_size * idy
+        idx_abs_base = map_size * idx
+        for x_row in xrange(loc_x_min, loc_x_max+1):
+            # x grid location for the current draw
+            x_loc = idx_abs_base + x_row - view_x
+
+            # get y <var> for current x row -- moving these extra calls outside
+            # of the inner loop
             x_tiles = tiles[x_row]
             hidden_slice = hidden_map[x_row]
             entity_slice = entities[x_row]
-            for y_column in range(loc_y_min, loc_y_max+1):
-                abs_y = map_size * idy + y_column
+
+            for y_column in y_range:
+                abs_y = idy_abs_base + y_column
                 cur_tile = tile_lookup[x_tiles[y_column]]
 
                 draw_char = cur_tile.char
