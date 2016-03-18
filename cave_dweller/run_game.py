@@ -3,6 +3,18 @@ import time
 
 import libtcodpy as libtcod
 
+# Optimizations through ctypes / bypassing libtcodpy
+from libtcodpy import _lib
+from ctypes import c_float, c_int, byref
+console_flush = _lib.TCOD_console_flush
+console_clear = _lib.TCOD_console_clear
+console_blit = _lib.TCOD_console_blit
+sys_check_for_event = _lib.TCOD_sys_check_for_event
+ffade = c_float(1.0)
+bfade = c_float(1.0)
+transparent_fade = c_float(0.0)
+mouse_ffade = c_float(0.75)
+
 import mouse_handler
 import status_handler
 import actions
@@ -110,12 +122,12 @@ def run(args, game):
             world.process()
             player.update_view_location()
             world.turn += 1
-            libtcod.console_clear(Game.game_con)
+            console_clear(Game.game_con)
             world.draw()
         # Load blocks during draw even if player is not doing anything
-        libtcod.console_clear(Game.sidebar_con)
-        libtcod.console_clear(Game.mouse_con)
-        libtcod.console_clear(status_bar.con)
+        console_clear(Game.sidebar_con)
+        console_clear(Game.mouse_con)
+        console_clear(status_bar.con)
         if not Game.past_loop_time() or skipped_culls > 93:
             world.cull_old_blocks()
             skipped_culls = 0
@@ -136,24 +148,24 @@ def run(args, game):
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             cave_debug.debug_print(locals())
         mouse.conditional_print()
-        libtcod.console_blit(Game.game_con, x=0, y=0,
-                             w=Game.game_width, h=Game.game_height,
-                             dst=0, xdst=0, ydst=0)
+        console_blit(Game.game_con, 0, 0,
+                             Game.game_width, Game.game_height,
+                             0, 0, 0, ffade, bfade)
         status_bar.draw()
         if not debug_info and Game.sidebar_enabled:
-            libtcod.console_blit(Game.sidebar_con, x=0, y=0, w=0, h=0,
-                                 dst=0, xdst=Game.game_width, ydst=0)
-        libtcod.console_blit(Game.debug_con, x=0, y=0, w=0, h=0,
-                             dst=0, xdst=0, ydst=0, ffade=1, bfade=0)
-        libtcod.console_blit(Game.mouse_con, x=0, y=0, w=0, h=0,
-                             dst=0, xdst=0, ydst=0, ffade=.75, bfade=.0)
-        libtcod.console_flush()
+            console_blit(Game.sidebar_con, 0, 0, 0, 0,
+                                 0, Game.game_width, 0, ffade, bfade)
+        console_blit(Game.debug_con, 0, 0, 0, 0,
+                             0, 0, 0, ffade, transparent_fade)
+        console_blit(game.mouse_con, 0, 0, 0, 0,
+                             0, 0, 0, mouse_ffade, transparent_fade)
+        console_flush()
         fps_base = (time.time() - Game.loop_start) * .1 + fps_base * .9
-        libtcod.console_clear(Game.debug_con)
+        console_clear(Game.debug_con)
         # ----- keyboard input -----
         status_bar.is_mode_set = False
         while True:
-            libtcod.sys_check_for_event(libtcod.EVENT_ANY, key, mouse.mouse)
+            sys_check_for_event(c_int(libtcod.EVENT_ANY), byref(key), byref(mouse.mouse))
             status_bar.get_input(key, mouse)
             if key.vk == libtcod.KEY_NONE:
                 break
