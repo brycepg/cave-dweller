@@ -12,3 +12,4 @@ data/
 .ropeproject/
 .benchmarks/
 .cache/
+*.out
