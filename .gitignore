@@ -13,3 +13,6 @@ data/
 .benchmarks/
 .cache/
 *.out
+.coverage
+.eggs
+htmlcov
