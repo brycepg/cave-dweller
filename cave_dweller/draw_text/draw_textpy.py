@@ -5,6 +5,12 @@ requires compilation of main.c via makefile(which requires sdl and sdl_ttf)
 
 use draw_text(text) to draw text
 When done call clean_up() to free C allocations
+
+16px == 12pt
+10px == 7.5pt (TTF_OpenFont requires an Int point size unfortunately)
+12px == 9pt
+8px == 6pt
+
 """
 import os
 from ctypes import *
@@ -27,7 +33,7 @@ _lib.clean_up.restype = c_int
 default_font = os.path.join(os.path.join(cur_dir, os.path.join("ttf-bitstream-vera-1.10", "Vera.ttf")))
 ttf_initialized = False
 
-def init_ttf(font_path=None, use_font=True, pt_size=12):
+def init_ttf(font_path=default_font, use_font=True, pt_size=12):
     """
     Initalize the SDL TTF API
 
@@ -43,13 +49,11 @@ def init_ttf(font_path=None, use_font=True, pt_size=12):
 
     # By default set font
     if use_font:
-        if not font_path:
-            font_path = default_font
         set_font(font_path, pt_size)
 
     ttf_initialized = True
 
-def set_font(font_path, pt_size=12):
+def set_font(font_path=default_font, pt_size=12):
     """
     Set the ttf font at font_path and set its size to to be of size pt_size
     """
