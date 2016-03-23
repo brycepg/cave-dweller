@@ -24,7 +24,7 @@ _lib.init_ttf.restype = c_int
 _lib.set_font.argtypes = [c_char_p, c_int]
 _lib.set_font.restype = c_int
 
-_lib.draw_text.argtypes = [c_char_p, c_int, c_int, c_void_p]
+_lib.draw_text.argtypes = [c_char_p, c_int, c_int, c_void_p, c_int, c_int, c_int]
 _lib.draw_text.restype = c_int
 
 _lib.clean_up.argtypes = []
