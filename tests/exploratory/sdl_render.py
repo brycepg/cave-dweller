@@ -10,7 +10,7 @@ from ctypes import *
 import draw_text
 
 def render(surface):
-    draw_text.draw_text("pls work", surface, 25, 25)
+    draw_text.draw_text("it works!", surface, 25, 25)
     #sdl.fill_circle(surface, 1, 1, 5, 5)
 
 
