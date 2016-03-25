@@ -83,6 +83,9 @@ def string_seed(my_str):
     # Seeds don't work above this number
     return my_hash % 65536
 
+def gen_empty_entities(map_size):
+    return [[[] for _ in range(map_size)] for _ in range(map_size)]
+
 ## ----------------------Code below is not in use in game----------------------
 
 def write_map(block, idx=0, idy=0, path=None):
