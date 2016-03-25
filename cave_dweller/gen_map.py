@@ -29,20 +29,18 @@ def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
     returns
         A 2d list of ints corresponsing to tile ID's. Column-major.
     """
-    block = []
+    # Seed random with block seed for consistent results
+    random.seed(seed)
     size = range(map_size)
-    append_blk = block.append
+    block = [[None]*map_size for _ in size]
     any_ground = Id.any_ground
     choose = random.choice
     wall = Id.wall
     for x in size:
-        y_line = []
-        append = y_line.append
         for y in size:
             # Divide by scaling factor
             # For some reason using tiling makes it look better?
             # Making the seed a float changes behavior?
-            # WTF
             val = snoise2((idx * map_size + x) / 128.,
                           (idy * map_size + y) / 128.,
                           octaves, base=seed,
@@ -51,11 +49,10 @@ def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
             # Can be tweaked for more / less floor/ground
             if -.2 < val < 0:
                 # Floor tiles
-                append(choose(any_ground))
+                block[x][y] = choose(any_ground)
             else:
                 # Wall tile
-                append(wall)
-        append_blk(y_line)
+                block[x][y] = wall
     return block
 
 
