@@ -10,11 +10,11 @@ import libtcodpy as libtcod
 from libtcodpy import _lib
 put_char_ex = _lib.TCOD_console_put_char_ex
 
-
 import hidden_map_handler
 import entities
 from game import Game
 from tiles import Tiles
+import gen_map
 from gen_map import generate_block
 from gen_map import generate_obstacle_map
 from util import get_neighbors
@@ -28,7 +28,7 @@ class Block(object):
                  obstacle_map=None, hidden_map=None, load_turn=0):
         #print("init new block: {}x{}".format(idx, idy))
         if (idx, idy) in world.blocks:
-            raise RuntimeError("Block already created")
+            raise DuplicateBlockError("Block already created", idx, idy)
 
         self.world = world
         self.idx = idx
@@ -57,8 +57,7 @@ class Block(object):
 
         if not entities:
             self.entity_list = []
-            self.entities = [[[] for _ in range(Game.map_size)]
-                             for _ in range(Game.map_size)]
+            self.entities = gen_map.gen_empty_entities(Game.map_size)
             self.generate_entities()
         else:
             self.entities = entities
@@ -103,7 +102,16 @@ class Block(object):
                         m.initial = True
 
     def remove_entity(self, a_entity, x, y):
-        """Remove object at location relative to block coordinates"""
+        """
+        Remove object at location relative to block coordinates
+
+        arguments
+            a_entity - entity to remove
+            x - block relative x coordinate
+            y - block relative y coordinate
+
+        raises ValueError if no entity at location
+        """
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
@@ -144,6 +152,11 @@ class Block(object):
         return a_entity
 
     def get_entity(self, x, y):
+        """
+        return top entity at x, y
+
+        Raises IndexError if no entities at location(use get_entities instead)
+        """
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
         else:
@@ -188,6 +201,10 @@ class Block(object):
             new_y = new_y % Game.map_size
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
 
+            entity.cur_block = blk
+            self.entity_list.remove(entity)
+            blk.entity_list.append(entity)
+
         # Entities can start on obstacle(i.e. repostion entities)
         if not self.get_tile(entity.x,entity.y).is_obstacle:
             self.obstacle_map[entity.x][entity.y] = False
@@ -195,10 +212,6 @@ class Block(object):
         entity.x = new_x
         entity.y = new_y
         blk.entities[entity.x][entity.y].append(entity)
-        if self is not blk:
-            entity.cur_block = blk
-            self.entity_list.remove(entity)
-            blk.entity_list.append(entity)
         if entity.is_obstacle:
             blk.obstacle_map[entity.x][entity.y] = True
         # Use return block to know where the object is
@@ -336,17 +349,23 @@ class Block(object):
             else:
                 a_entity.decompose(self)
 
-    def draw_block(self):
+    def draw_block(self,
+            # Arguments for perforance
+            map_size=Game.map_size, tile_lookup=Tiles.tile_lookup,
+            put_char_ex=put_char_ex, min=min, max=max, wall_bg=wall_bg,
+            Game=Game, range=range, xrange=xrange, hidden_map_handler=hidden_map_handler,
+            gmap_min1=Game.map_size-1):
         """ Draw block terrain.
         Call assumption: The block needs to be in the drawable area
         """
-        map_size = Game.map_size
+        idx = self.idx
+        idy = self.idy
 
-        block_abs_x_min = map_size * self.idx
-        block_abs_y_min = map_size * self.idy
+        block_abs_x_min = map_size * idx
+        block_abs_y_min = map_size * idy
 
-        block_abs_x_max = map_size * (self.idx+1) - 1
-        block_abs_y_max = map_size * (self.idy+1) - 1
+        block_abs_x_max = map_size * idx + gmap_min1
+        block_abs_y_max = map_size * idy + gmap_min1
 
         draw_x_min_abs = max(block_abs_x_min, Game.min_x)
         draw_y_min_abs = max(block_abs_y_min, Game.min_y)
@@ -359,20 +378,15 @@ class Block(object):
         loc_x_max = draw_x_max_abs % map_size
         loc_y_max = draw_y_max_abs % map_size
 
-        idx = self.idx
-        idy = self.idy
-
         view_x = Game.view_x
         view_y = Game.view_y
         game_con = Game.game_con
 
         #get_tile = self.get_tile
-        tile_lookup = Tiles.tile_lookup
         tiles = self.tiles
         entities = self.entities
         init_hidden = hidden_map_handler.init_hidden
 
-        y_range = range(loc_y_min, loc_y_max+1)
         hidden_map = self.hidden_map
 
         #update_hidden_flood = hidden_map_handler.update_hidden_flood
@@ -380,11 +394,12 @@ class Block(object):
         # for this block
         # +1 makes bound inclusive
 
-        idy_abs_base = map_size * idy
-        idx_abs_base = map_size * idx
+        view_y_base = map_size * idy - view_y
+        view_x_base = map_size * idx - view_x
+        y_range = range(loc_y_min, loc_y_max+1)
         for x_row in xrange(loc_x_min, loc_x_max+1):
             # x grid location for the current draw
-            x_loc = idx_abs_base + x_row - view_x
+            x_loc = view_x_base + x_row
 
             # get y <var> for current x row -- moving these extra calls outside
             # of the inner loop
@@ -393,7 +408,6 @@ class Block(object):
             entity_slice = entities[x_row]
 
             for y_column in y_range:
-                abs_y = idy_abs_base + y_column
                 cur_tile = tile_lookup[x_tiles[y_column]]
 
                 draw_char = cur_tile.char
@@ -407,15 +421,6 @@ class Block(object):
                     #else:
                     init_hidden(self, x_row, y_column, cur_tile)
 
-                #if cur_tile.attributes:
-                #    chars = cur_tile.attributes.get('alternative_characters')
-                #    if chars:
-                #        char_choice = 2
-                #        if char_choice != len(chars):
-                #            draw_char = chars[char_choice]
-                #        else:
-                #            draw_char = cur_tile.char
-
                 # Draw top entity
                 entity_cell = entity_slice[y_column]
                 if entity_cell:
@@ -427,12 +432,12 @@ class Block(object):
                         bg = obj.bg
 
                 if hidden_slice[y_column]:
-                    draw_char = 32
+                    draw_char = 32 # SPACE char
                     bg = wall_bg
 
-                put_char_ex(game_con,
-                        x_loc,
-                        abs_y - view_y,
+                put_char_ex(game_con, x_loc,
+                        #y_loc
+                        view_y_base + y_column,
                         draw_char, fg, bg)
 
     def locate(self, a_entity):
@@ -442,3 +447,9 @@ class Block(object):
                     if entity == a_entity:
                         return (entity.x, entity.y)
         return None
+
+class DuplicateBlockError(Exception):
+    def __init__(self, message, idx, idy):
+        super(DuplicateBlockError, self).__init__(message)
+        self.idx = idx
+        self.idy = idy
