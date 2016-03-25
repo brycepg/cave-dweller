@@ -16,3 +16,4 @@ data/
 .coverage
 .eggs
 htmlcov
+*.lprof
