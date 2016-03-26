@@ -5,55 +5,34 @@ import math
 
 import libtcodpy as libtcod
 
-from noise import snoise2
-from noise import snoise3
+import mynoise
+#import noise
+from mynoise import snoise2
+from mynoise import snoise3
 from tiles import Id
 from tiles import Tiles
 
-def generate_block(seed, idx=0, idy=0, map_size=256, octaves=8):
-    """Block generation algorithm using simplex noise
+from game import Game
 
-    arguments
-        seed
-            Seed the block by using an offset factor
 
-        idx, idy
-            blocks unique id. contiguous. idy positive is down
+def gen_map(seed, idx, idy, map_size=96,
+    # Redefine globals as locals at definition time for optimization
+    len=len, int=int, rnd_float=random.random, any_ground=Id.any_ground, gnd_len=len(Id.any_ground), range=range, gen_block=mynoise.gen_block, wall=Id.wall, rnd_seed=random.seed):
+    """Generate map of size map_size for seed at (idx,idy)
 
-        map_size
-            size of block.
-
-        octaves
-            Number of simplex function passes for factal brownian motion.
-
-    returns
-        A 2d list of ints corresponsing to tile ID's. Column-major.
+    returns a 2d list of Tile ids
     """
-    # Seed random with block seed for consistent results
-    random.seed(seed)
-    size = range(map_size)
-    block = [[None]*map_size for _ in size]
-    any_ground = Id.any_ground
-    choose = random.choice
-    wall = Id.wall
-    for x in size:
-        for y in size:
-            # Divide by scaling factor
-            # For some reason using tiling makes it look better?
-            # Making the seed a float changes behavior?
-            val = snoise2((idx * map_size + x) / 128.,
-                          (idy * map_size + y) / 128.,
-                          octaves, base=seed,
-                          repeatx=65536,
-                          repeaty=65536)
-            # Can be tweaked for more / less floor/ground
-            if -.2 < val < 0:
-                # Floor tiles
-                block[x][y] = choose(any_ground)
+    rnd_seed(seed)
+    simplex_map = gen_block(seed, idx, idy, map_size)
+    y_range = range(map_size)
+    for x in xrange(map_size):
+        simplex_slice = simplex_map[x]
+        for y in y_range:
+            if -.2 < simplex_slice[y] < 0:
+                simplex_slice[y] = any_ground[int(rnd_float() * gnd_len)]
             else:
-                # Wall tile
-                block[x][y] = wall
-    return block
+                simplex_slice[y] = wall
+    return simplex_map
 
 
 def generate_obstacle_map(tiles, map_size):
@@ -83,8 +62,57 @@ def string_seed(my_str):
     # Seeds don't work above this number
     return my_hash % 65536
 
+
 def gen_empty_entities(map_size):
     return [[[] for _ in range(map_size)] for _ in range(map_size)]
+
+
+#def generate_block(seed, idx=0, idy=0, octaves=8,
+#        # Function definition optimization arguments
+#        map_size=Game.map_size,
+#        rnd_seed=random.seed, range_size=range(Game.map_size), list_base=[None], div_range=map(lambda elem: elem/128., range(Game.map_size)),
+#        any_ground=Id.any_ground, gnd_len=len(Id.any_ground),
+#        wall=Id.wall, snoise2=snoise2, int=int,
+#        random_float=random.random):
+#    """Block generation algorithm using simplex noise
+#
+#    arguments
+#        seed
+#            Seed the block by using an offset factor
+#
+#        idx, idy
+#            blocks unique id. contiguous. idy positive is down
+#
+#        map_size
+#            size of block.
+#
+#        octaves
+#            Number of simplex function passes for factal brownian motion.
+#
+#    returns
+#        A 2d list of ints corresponsing to tile ID's. Column-major.
+#    """
+#    # Seed random with block seed for consistent results
+#    rnd_seed(seed)
+#    block = [list_base * map_size for _ in range_size]
+#    idx_abs_base_scaled = (idx * map_size) / 128.
+#    idy_abs_base_scaled = (idy * map_size) / 128.
+#    for x in range_size:
+#        x_scaled = x/128.
+#        for y in range_size:
+#            # Divide by scaling factor
+#            # For some reason using tiling makes it look better?
+#            # Making the seed a float changes behavior?
+#            val = snoise2(x_scaled + idx_abs_base_scaled, idy_abs_base_scaled + div_range[y], octaves, base=seed, repeatx=65536, repeaty=65536)
+#            # Can be tweaked for more / less floor/ground
+#            if -.2 < val < 0:
+#                # Floor tiles
+#                block[x][y] = any_ground[int(random_float() * gnd_len)]
+#            else:
+#                # Wall tile
+#                block[x][y] = wall
+#    return block
+
 
 ## ----------------------Code below is not in use in game----------------------
 
