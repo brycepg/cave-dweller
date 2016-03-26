@@ -2,31 +2,29 @@ import os
 import unittest
 import random
 
-from gen_map import generate_block
+from gen_map import generate_obstacle_map
+from gen_map import gen_map as generate_block
+from tiles import Tiles
 
 cur_dir = os.path.dirname(__file__)
-
-class TestDraw(unittest.TestCase):
-    def setUp(self):
-        pass
-    def tearDown(self):
-        pass
-    def test_draw(self):
-        pass
+map_size = 96
 
 zero_map = eval(open(os.path.join(cur_dir, 'zero_map.txt'), 'r').read())
+obs_map = eval(open(os.path.join(cur_dir, "zero_map_obs.txt"), 'r').read())
 class TestGenerateMap(unittest.TestCase):
-    def setUp(self):
-        set_up_map()
-    def tearDown(self):
-        pass
     def test_gen_map(self):
-        self.assertEqual(zero_map, generate_block(0, 0, 0, 96))
-        # Uses random number generator for picking ground tile chars
-        self.assertNotEqual(zero_map, generate_block(0, 0, 0, 96))
-
-def set_up_map():
-    random.seed(0)
+        self.assertEqual(zero_map, generate_block(0, 0, 0))
+        # Uses random number generator -- seed inside
+        self.assertEqual(zero_map, generate_block(0, 0, 0))
+        self.assertNotEqual(zero_map, generate_block(1, 0, 0))
+        self.assertNotEqual(zero_map, generate_block(0, 1, 0))
+        self.assertNotEqual(zero_map, generate_block(0, 0, 1))
+        #self.assertNotEqual(zero_map, generate_block(0, 0, 0, map_size=95, range_size=range(95)))
+    def test_generate_obs_map(self):
+        self.assertEqual(obs_map, generate_obstacle_map(zero_map, map_size))
+        for x in range(map_size):
+            for y in range(map_size):
+                self.assertEqual(obs_map[x][y], Tiles.tile_lookup[zero_map[x][y]].is_obstacle)
 
 if __name__ == "__main__":
     unittest.main()
