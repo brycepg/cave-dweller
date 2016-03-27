@@ -1,11 +1,10 @@
 all: _PHONY
-	python setup.py build
-	mv build/lib*2.7/mynoise/*.so .
+	python setup.py build_ext --inplace
 
 
 _PHONY:
 
 clean: 
-	rm -r build
-	rm *.egg-info
-	rm -r dist
+	rm -rf build
+	rm -rf *.egg-info
+	rm -rf dist
