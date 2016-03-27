@@ -1,6 +1,9 @@
+# Overview
 This is a mini-module for making True-type fonts available in libtcod+python via the `sys_register_SDL_renderer` and SDL_ttf
 
 It requires you to install SDL1.2, SDL_ttf, gcc
+
+# Compile/use
 
 to compile for use with Python:
 
@@ -30,12 +33,12 @@ after console_flush for the location at which you render the text
 
 If you want to set a custom font/size:
 
-### Custom font + size
+### Custom font with different size
 
-draw_text.set_font("foo.ttf", pt_size=12)
+`draw_text.set_font("foo.ttf", pt_size=12)`
 
-### Default font + different size
-draw_text.set_font(None, pt_size=10)
+### Default font with different size
+`draw_text.set_font(None, pt_size=10)`
 
 Note that this is in pt instead of pixel since that's how ttfs are specified, 
 and sdl_ttf doesn't allow for floating point values(i.e 11.5pt)
