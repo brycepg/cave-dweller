@@ -1,0 +1,6 @@
+CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
+PROJECT( draw_text )
+SET(    SOURCE_FILES
+        main.c
+)
+ADD_LIBRARY( draw_text SHARED ${SOURCE_FILES} 
