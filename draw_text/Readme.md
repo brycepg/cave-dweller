@@ -11,8 +11,6 @@ then
 
     import draw_text
     ...
-    tile_size=16
-    font_size=16 # Default
 
     # draw text via the render callback
     def render(surface):
@@ -32,10 +30,11 @@ after console_flush for the location at which you render the text
 
 If you want to set a custom font/size:
 
-# Custom font + size
+### Custom font + size
+
 draw_text.set_font("foo.ttf", pt_size=12)
 
-# Default font + different size
+### Default font + different size
 draw_text.set_font(None, pt_size=10)
 
 Note that this is in pt instead of pixel since that's how ttfs are specified, 
