@@ -1,3 +1,10 @@
+This is a modified version of the python noise library
+
+I've added a function to generate a 'block' of noise to mitigate the function call 
+overhead of calling the noise function in Python
+
+-----
+
 Native-code and shader implementations of Perlin noise for Python
 
 By Casey Duncan <casey dot duncan at gmail dot com>
