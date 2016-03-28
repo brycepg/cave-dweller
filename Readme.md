@@ -69,8 +69,3 @@ This should build all the shared objects that the game depends on(draw_text, myn
 from the root directory run
 
     ./cave-dweller.py
-
-
-
-At some point i'll do releases with pyinstaller
-
