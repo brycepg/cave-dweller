@@ -13,3 +13,6 @@ standalone: main.c a.out
 	$(CC) -o $(STANDALONE_OUT) $(SOURCE) -I$(INCLUDES) $(LIB) 
 
 all: draw_text.so standalone lib
+
+clean:
+	rm -f *.pyc
