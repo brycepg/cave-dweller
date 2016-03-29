@@ -80,6 +80,17 @@ class Block(object):
 
         return blk.obstacle_map[x][y]
 
+    def __eq__(self, block):
+        """
+        Convenient equality for blocks
+
+        Might not be a good idea for all the object references
+
+        `=` now tests for contents
+        `is` tests for id
+        """
+        return self.__dict__ == block.__dict__
+
     def list_entities(self, entities):
         entity_list = []
         for a_slice in entities:
