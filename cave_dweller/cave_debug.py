@@ -55,9 +55,9 @@ def debug_print(**kwargs):
     libtcod.console_print(Game.debug_con, 1, 5, "view: (%dx%d)" % (game.view_x, game.view_y))
     libtcod.console_print(Game.debug_con, 1, 6, "player: (%dx%d)" % (player.x, player.y))
     libtcod.console_print(Game.debug_con, 1, 7, "process/draw time: ({0:.4f})".format(spent_time))
-    #num_entities = sum([len(block.entities) for block in world.blocks.values()])
-    num_entities = sum([len(a_cell) for block in world.blocks.values() for a_slice in block.entities for a_cell in a_slice])
-    libtcod.console_print(Game.debug_con, 1, 7, "entities: {}".format(num_entities))
+    #num_entities = sum([len(a_cell) for block in world.blocks.values() for a_slice in block.entities for a_cell in a_slice])
+    num_entities = sum([len(block.entity_list) for block in world.blocks.values()])
+    libtcod.console_print(Game.debug_con, 1, 8, "entities: {}".format(num_entities))
 
 def debug_menu(key, debug_info, world):
     # Doesn't work with entities update -- too slow
