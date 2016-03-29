@@ -8,6 +8,12 @@ import operator
 import copy
 import itertools
 
+import sys
+if __name__ == "__main__":
+    sys.path.append("cave_dweller/")
+    # mynoise
+    sys.path.append(".")
+import mynoise
 import libtcodpy as libtcod
 
 from world import World
