@@ -10,13 +10,13 @@ import libtcodpy as libtcod
 from libtcodpy import _lib
 put_char_ex = _lib.TCOD_console_put_char_ex
 
-import hidden_map_handler
 import entities
+import hidden_map_handler
+import gen_map
+from gen_map import gen_map as generate_map
+from gen_map import generate_obstacle_map
 from game import Game
 from tiles import Tiles
-import gen_map
-from gen_map import generate_block
-from gen_map import generate_obstacle_map
 from util import get_neighbors
 
 log = logging.getLogger(__name__)
