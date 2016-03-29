@@ -38,10 +38,16 @@ def get_locs(block, class_type=None):
     #for key in key_sort:
     #    print("{}: {}".format(key, coords[key]))
 
-def debug_print(args):
+def debug_print(**kwargs):
     """Pass locals of main loop to print debug information"""
-    exec("") # Avoid locals optimization to allow locals update hack
-    locals().update(args)
+    #exec("") # Avoid locals optimization to allow locals update hack
+    #locals().update(args)
+    fps_base = kwargs['fps_base']
+    world = kwargs['world']
+    game = kwargs['game']
+    player = kwargs['player']
+    spent_time = kwargs['spent_time']
+
     libtcod.console_print(Game.debug_con, 1, 1, "FPS: %s" % (str(int(1/fps_base))))
     libtcod.console_print(Game.debug_con, 1, 2, "active blocks: %d" % len(world.blocks))
     libtcod.console_print(Game.debug_con, 1, 3, "inactive blocks: %d" % len(world.inactive_blocks))

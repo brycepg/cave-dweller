@@ -146,7 +146,7 @@ def run(args, game):
         status_bar.run(player, world, mouse)
         if Game.debug:
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
-            cave_debug.debug_print(locals())
+            cave_debug.debug_print(fps_base=fps_base, world=world, game=game, player=player, spent_time=spent_time)
         mouse.conditional_print()
         console_blit(Game.game_con, 0, 0,
                              Game.game_width, Game.game_height,
