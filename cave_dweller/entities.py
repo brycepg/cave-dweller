@@ -200,10 +200,8 @@ class Fungus(Entity):
 class Player(Entity):
     """Player-object
        Acts as an object but also manages the viewable center"""
-    def __init__(self):
-        super(Player, self).__init__(Game.map_size//2,
-                                     Game.map_size//2,
-                                     '@')
+    def __init__(self, x, y):
+        super(Player, self).__init__(x, y, '@')
         self.fg = colors.lightest_gray
         self.bg = None
 
