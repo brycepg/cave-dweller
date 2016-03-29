@@ -19,7 +19,7 @@ class TestGenerateMap(unittest.TestCase):
         self.assertNotEqual(zero_map, generate_block(1, 0, 0))
         self.assertNotEqual(zero_map, generate_block(0, 1, 0))
         self.assertNotEqual(zero_map, generate_block(0, 0, 1))
-        #self.assertNotEqual(zero_map, generate_block(0, 0, 0, map_size=95, range_size=range(95)))
+
     def test_generate_obs_map(self):
         self.assertEqual(obs_map, generate_obstacle_map(zero_map, map_size))
         for x in range(map_size):
