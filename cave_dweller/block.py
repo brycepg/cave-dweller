@@ -229,7 +229,11 @@ class Block(object):
         return blk
 
     def get_abs(self, local_x, local_y):
-        """Get absolute coordinate from local block coordiante"""
+        """
+        Get absolute coordinate from local block coordiante
+
+        returns a two-tuple
+        """
         abs_x = Game.map_size * self.idx + local_x
         abs_y = Game.map_size * self.idy + local_y
         return abs_x, abs_y
@@ -315,7 +319,7 @@ class Block(object):
         blk.hidden_map[x][y] = value
 
     def set_tile(self, x, y, new_tile):
-        """Set new_tile at location"""
+        """Set new_tile tile id at location x,y"""
         #print("new_tile :{}".format(new_tile))
         if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
             blk = self
