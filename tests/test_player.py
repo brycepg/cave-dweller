@@ -12,7 +12,7 @@ class TestPlayer(unittest.TestCase):
         s = SerializerMock()
         g = HeadlessGame()
         w = World(s, block_seed=0)
-        start_block = w.get(Game.idx_cur, Game.idy_cur)
+        start_block = w.get(0, 0)
         start_loc_x = Game.map_size//2
         start_loc_y = Game.map_size//2
         player = start_block.set_entity(Player, start_loc_x, start_loc_y)
