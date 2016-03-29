@@ -110,6 +110,13 @@ def gen_flat_map(map_size):
     return [[Id.ground] * map_size for _ in range(map_size)]
 
 class TestFlatMaps(unittest.TestCase):
+
+    g = None
+    @classmethod
+    def set_game(cls):
+        if not cls.g:
+            cls.g = Game()
+
     def setUp(self):
         s_mock = SerializerMock()
         self.w = World(s_mock, block_seed=0)
