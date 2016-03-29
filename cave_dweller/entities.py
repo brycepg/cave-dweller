@@ -238,7 +238,7 @@ class Player(Entity):
         for action in actions.PlayerAction.current_actions:
             action.get_input(key)
 
-    def move(self, world):
+    def player_move(self, world):
         """Run player actions if within ime interval"""
         block = world.get_block(Game.view_x + Game.game_width//2, Game.view_y + Game.game_height//2)
         self.moved = False
