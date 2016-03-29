@@ -7,25 +7,29 @@ import math
 import operator
 import copy
 import itertools
-
 import sys
+
+# Add some paths for opening the file directly when profiling
 if __name__ == "__main__":
     sys.path.append("cave_dweller/")
     # mynoise
     sys.path.append(".")
-import mynoise
 import libtcodpy as libtcod
+import mynoise
 
 from world import World
 from block import Block, DuplicateBlockError
 from game import Game
-from entities import Player
+from entities import Player, Entity
 from mocks import SerializerMock, StatusBarMock
 import entities
 import actions
 import gen_map
+import tiles
 from tiles import Id
-
+import hidden_map_handler
+from gen_map import generate_obstacle_map
+from gen_map import gen_map as generate_map
 
 from test_gen_map import zero_map, obs_map
 
@@ -138,10 +142,207 @@ class TestFlatMaps(unittest.TestCase):
             x, y = placement
             f_blk = w.get(x// Game.map_size, y// Game.map_size)
             self.assertTrue(fungus in f_blk.entities[x%Game.map_size][y%Game.map_size])
+            a_slice = blk.get_entities(*placement)
+            self.assertTrue(fungus in a_slice)
+            self.assertTrue(fungus is blk.get_entity(*placement))
+            blk.remove_entity(fungus, *placement)
+            self.assertFalse(fungus in f_blk.entities[x%Game.map_size][y%Game.map_size])
+    def testBoundsMove(self):
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        l = [Game.map_size, Game.map_size-1, 0, -1]
+        bound_possibilities = itertools.product(l,l)
+        prev_placement = (0,0)
+        for placement in bound_possibilities:
+            fungus = blk.set_entity(entities.Fungus, 0,0)
+            blk.reposition_entity(fungus)
+            self.assertTrue(fungus in blk.entities[0][0])
+
+            blk.move_entity(fungus, *placement)
+            x, y = placement
+            f_blk = w.get(x// Game.map_size, y// Game.map_size)
+            self.assertTrue(fungus in f_blk.entities[x%Game.map_size][y%Game.map_size])
             blk.remove_entity(fungus, *placement)
             self.assertFalse(fungus in f_blk.entities[x%Game.map_size][y%Game.map_size])
 
+    def test_abs(self):
+        w = self.w
+        idx, idy = (0,0)
+        blk = w.blocks[(idx, idy)]
+        self.assertEqual(blk.get_abs(0,0), (0,0))
+        self.assertEqual(blk.get_abs(90,94), (90,94))
+        idx, idy = (2,3)
+        blk = Block(idx, idy, w)
+        self.assertEqual(blk.get_abs(0,0), (Game.map_size*idx, Game.map_size*idy))
+        self.assertEqual(blk.get_abs(90,94), (Game.map_size*idx + 90,Game.map_size*idy + 94))
+
+    def test_locate(self):
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        loc = (4,4)
+        fungus = blk.set_entity(entities.Fungus, *loc)
+        self.assertEqual(loc, blk.locate(fungus))
+
+    def test_hidden(self):
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        loc = (0,0)
+        self.assertFalse(blk.get_hidden(*loc))
+        self.assertFalse(blk.hidden_map[loc[0]][loc[1]])
+        blk.set_hidden(*loc, value=True)
+        self.assertTrue(blk.get_hidden(*loc))
+        self.assertTrue(blk.hidden_map[loc[0]][loc[1]])
+        blk.set_hidden(*loc, value=False)
+        self.assertFalse(blk.get_hidden(*loc))
+
+        loc_mod = (Game.map_size, Game.map_size)
+        blk_mod = w[(1,1)]
+        self.assertFalse(blk.get_hidden(*loc_mod))
+        self.assertFalse(blk_mod.hidden_map[0][0] )
+        blk.set_hidden(*loc_mod, value=True)
+        self.assertTrue(blk.get_hidden(*loc_mod))
+        self.assertTrue(blk_mod.hidden_map[0][0] )
+        blk.set_hidden(*loc_mod, value=False)
+        self.assertFalse(blk.get_hidden(*loc_mod))
+        self.assertFalse(blk_mod.hidden_map[0][0] )
+
+    def test_process(self):
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        loc = (0,0)
+        mole = blk.set_entity(entities.Mole, *loc)
+        w.process()
+        self.assertFalse(mole.is_dead)
+        mole_loc = (mole.x, mole.y)
+        self.assertTrue(blk.locate(mole) == mole_loc)
+        mole.kill()
+        self.assertTrue(mole.is_dead)
+        self.assertFalse(type(blk.get_entity(*mole_loc)) is entities.Fungus)
+        for _ in range(Entity.DECOMPOSE_TIME):
+            w.process()
+        self.assertTrue(blk.locate(mole) is None)
+        new_entity = blk.get_entity(*mole_loc)
+        self.assertTrue(type(new_entity) is entities.Fungus)
+
+    def test_obstacle(self):
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        loc = (Game.map_size, Game.map_size)
+        idx_div = lambda val: val // Game.map_size
+        blk_outside = w[tuple(map(idx_div, loc))]
+        self.assertFalse(blk_outside.obstacle_map[0][0])
+        self.assertFalse(blk.is_obstacle(*loc))
+        blk_outside.obstacle_map[0][0] = True
+        self.assertTrue(blk.is_obstacle(*loc))
+
+    def test_tile(self):
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        loc = (0,0)
+        self.assertNotEqual(tiles.Tiles.tile_lookup[Id.wall], blk.get_tile(*loc))
+        blk.set_tile(*loc, new_tile=Id.wall)
+        self.assertEqual(tiles.Tiles.tile_lookup[Id.wall], blk.get_tile(*loc))
+
+        loc = (Game.map_size,Game.map_size)
+        self.assertNotEqual(tiles.Tiles.tile_lookup[Id.wall], blk.get_tile(*loc))
+        blk.set_tile(*loc, new_tile=Id.wall)
+        self.assertEqual(tiles.Tiles.tile_lookup[Id.wall], blk.get_tile(*loc))
+
+    def test_hidden_update(self):
+        self.__class__.set_game()
+        g = self.__class__.g
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        locs = [(1,0), (1,2), (2,1), (0,1)]
+        center_loc = (1,1)
+        self.assertFalse(blk.get_hidden(*center_loc))
+        for loc in locs:
+            blk.set_tile(*loc, new_tile=Id.wall)
+        self.assertTrue(blk.get_hidden(*center_loc))
+
+class TestFlatMapsDraw(TestFlatMaps):
+
+    def setUp(self):
+        super(TestFlatMapsDraw, self).setUp()
+        self.__class__.set_game()
+
+    def test_hidden_multi_block(self):
+        # Merge tests together because this test suite is getting too slow
+        w = self.w
+        blk = w.blocks[(0, 0)]
+        locs = [(0,0), (0,2), (1,1), (-1,1)]
+        Game.view_x = -1
+        Game.view_y = -1
+        center_loc = (0,1)
+        self.assertFalse(blk.get_hidden(*center_loc))
+        for loc in locs:
+            blk.set_tile(*loc, new_tile=Id.wall)
+        self.assertTrue(blk.get_hidden(*center_loc))
+
+        # test hidden large area 2x2 inside
+        modifier_x = 3
+        inside = [(1,1), (1,2), (2,1), (2,2)]
+        inside = [(x+modifier_x, y) for x,y in inside]
+        locs = [(1,0), (2,0),
+              (0,1), (3,1),
+              (0,2), (3,2),
+              (1,3), (2,3)]
+        locs = [(x+modifier_x, y) for x,y in locs]
+
+        for loc in inside:
+            self.assertFalse(blk.get_hidden(*loc))
+        for loc in locs:
+            blk.set_tile(*loc, new_tile=Id.wall)
+        for loc in inside:
+            self.assertTrue(blk.get_hidden(*loc))
+
+        # Remove one tile to reveal hidden
+        blk.set_tile(*locs[0], new_tile=Id.ground)
+        for loc in inside:
+            self.assertFalse(blk.get_hidden(*loc))
+
+        # test_hidden_skinny
+        modifier_x = 8
+        inside = [(1,1), (1,2)]
+        inside = [(x+modifier_x, y) for x,y in inside]
+        locs = [(1,0),
+                (0,1), (2,1),
+                (0,2), (2,2),
+                (1,3)]
+        locs = [(x+modifier_x, y) for x,y in locs]
+        for loc in inside:
+            self.assertFalse(blk.get_hidden(*loc))
+        for loc in locs:
+            blk.set_tile(*loc, new_tile=Id.wall)
+        for loc in inside:
+            self.assertTrue(blk.get_hidden(*loc))
+
+class TestWorldEmpty(unittest.TestCase):
+    def test_block_args(self):
+        s_mock = SerializerMock()
+        w = World(s_mock, block_seed=0)
+        blk = Block(0, 0, w)
+        tiles = generate_map(w.seed_float, 0, 0)
+        hidden_map = hidden_map_handler.generate_map(Game.map_size)
+        obstacle_map = generate_obstacle_map(tiles, Game.map_size)
+        blk2 = Block(0, 0, w, hidden_map=hidden_map,
+                     obstacle_map=obstacle_map, tiles=tiles)
+        self.assertEqual(blk, blk2)
+
+def draw_here(w, g=None):
+    if not g:
+        g = Game()
+    w.draw()
+    g.blit_consoles(None)
+    libtcod.console_flush()
 
 
+import cProfile
 if __name__ == "__main__":
-    uittest.main()
+    suite = unittest.TestLoader().discover('.')
+    def runtests():
+        unittest.TextTestRunner().run(suite)
+    if len(sys.argv) > 1 and sys.argv[1] == "-p":
+        s = cProfile.run('runtests()', sort='cumtime')
+    else:
+        runtests()
