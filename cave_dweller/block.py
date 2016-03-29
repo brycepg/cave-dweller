@@ -278,30 +278,36 @@ class Block(object):
             # Use list like queue to to bfs search
             neighbors = get_neighbors(*to_search.popleft())
 
-    def get_tile(self, x, y):
-        """Get namedtuple of tile location, even if out of bounds."""
-        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
+    def get_tile(self, x, y,
+            # Optimizations
+        Tiles_tile_lookup=Tiles.tile_lookup, map_size=Game.map_size):
+        """
+        get tile nametuple reference at x,y
+        """
+        if 0 <= x < map_size and 0 <= y < map_size:
             tile_id = self.tiles[x][y]
         else:
-            idx_mod = x // Game.map_size
-            idy_mod = y // Game.map_size
-            new_x = x % Game.map_size
-            new_y = y % Game.map_size
+            idx_mod = x // map_size
+            idy_mod = y // map_size
+            new_x = x % map_size
+            new_y = y % map_size
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
             tile_id = blk.tiles[new_x][new_y]
         #print "tile: {}".format(tile)
         #print "tile lookup: {}".format(self.tile_lookup[tile])
-        return Tiles.tile_lookup[tile_id]
+        return Tiles_tile_lookup[tile_id]
 
-    def get_hidden(self, x, y):
+    def get_hidden(self, x, y,
+            # Optimizations
+            map_size=Game.map_size):
         """Get hidden value on map safely with bounds checking"""
-        if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
+        if 0 <= x < map_size and 0 <= y < map_size:
             blk = self
         else:
-            idx_mod = x // Game.map_size
-            idy_mod = y // Game.map_size
-            x = x % Game.map_size
-            y = y % Game.map_size
+            idx_mod = x // map_size
+            idy_mod = y // map_size
+            x = x % map_size
+            y = y % map_size
             blk = self.world.get(self.idx + idx_mod, self.idy + idy_mod)
         return blk.hidden_map[x][y]
 
@@ -368,7 +374,7 @@ class Block(object):
             # Arguments for perforance
             map_size=Game.map_size, tile_lookup=Tiles.tile_lookup,
             put_char_ex=put_char_ex, min=min, max=max, wall_bg=wall_bg,
-            Game=Game, range=range, xrange=xrange, hidden_map_handler=hidden_map_handler,
+            Game=Game, range=range, xrange=xrange,
             gmap_min1=Game.map_size-1):
         """ Draw block terrain.
         Call assumption: The block needs to be in the drawable area
