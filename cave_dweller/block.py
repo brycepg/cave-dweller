@@ -341,9 +341,9 @@ class Block(object):
         tile_obj = Tiles.tile_lookup[new_tile]
         if prev_tile_adj_hidden != tile_obj.adjacent_hidden:
             # Adjacent hidden changed -> maybe there's a change in what's hidden
-            hidden_map_handler.update_hidden_flood(self, x, y, tile_obj.adjacent_hidden)
+            hidden_map_handler.update_hidden_flood(blk, x, y, tile_obj.adjacent_hidden)
         else:
-            hidden_map_handler.update_hidden(self, x, y)
+            hidden_map_handler.update_hidden(blk, x, y)
 
         if tile_obj.is_obstacle:
             blk.obstacle_map[x][y] = True
