@@ -1,0 +1,12 @@
+language: python
+python:
+    - "2.7"
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install sdl1.2debian -y
+    - sudo apt-get install sdl2.0-ttf -y
+install: 
+    - make build
+    - pip install -r requirements/travis-requirements.txt
+
+script: make test
