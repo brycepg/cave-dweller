@@ -17,6 +17,8 @@ from game import Game
 from entities import Player
 from mocks import SerializerMock, StatusBarMock
 import actions
+import block
+import tiles
 
 cur_dir = os.path.dirname(__file__)
 SCREENSHOT_TEST_PATH = os.path.join(cur_dir, "screenshot3.bmp")
@@ -103,3 +105,35 @@ class TestDraw(unittest.TestCase):
             self.assertEqual(rms, 0)
             self.assertNotEqual(dynamic_img.tobytes(), old_img.tobytes())
 
+    def test_draw_bg(self):
+        w = self.w
+        start_block = self.start_block
+        dc1 = DrawCapture()
+
+        block_abs_x_min = Game.map_size * start_block.idx
+        block_abs_y_min = Game.map_size * start_block.idy
+        # Comparison between view edge and edge of block
+        draw_x_min_abs = max(block_abs_x_min, Game.min_x)
+        draw_y_min_abs = max(block_abs_y_min, Game.min_y)
+        # Put pack into block coordinates
+        loc_x_min = draw_x_min_abs % Game.map_size
+        loc_y_min = draw_y_min_abs % Game.map_size
+
+        start_block.hidden_map[loc_x_min][loc_y_min] = False
+        self.assertEqual((0,0), start_block.get_drawable_coordinate(loc_x_min, loc_y_min))
+        wtf_color = libtcod.Color(133,71,33)
+        start_block.draw_block(put_char_ex=dc1.draw_capture)
+        self.assertNotEqual(wtf_color, dc1.capture_array[0][5])
+
+        dc2 = DrawCapture()
+        player = start_block.set_entity(Player, loc_x_min, loc_y_min)
+        player.bg = wtf_color
+        start_block.draw_block(put_char_ex=dc2.draw_capture)
+        self.assertEqual(wtf_color, dc2.capture_array[0][5])
+
+class DrawCapture(object):
+    def __init__(self):
+        self.capture_array = []
+
+    def draw_capture(self, *args):
+        self.capture_array.append(args)
