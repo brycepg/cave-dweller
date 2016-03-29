@@ -440,6 +440,7 @@ class Block(object):
                     #if not self.get_tile(x_row, y_column).adjacent_hidden:
                     #    update_hidden_flood(self, x_row, y_column, cur_adj_hidden=True, timeout_radius=10)
                     #else:
+                    # XXX doesn't work when hidden map is updated, but already drawn for turn 0
                     init_hidden(self, x_row, y_column, cur_tile)
 
                 # Draw top entity
