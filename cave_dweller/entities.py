@@ -43,12 +43,13 @@ class Entity(object):
         return (isinstance(entity, type(self)) and
                 util.equal_dicts(self.__dict__, entity.__dict__, ['cur_block']))
 
+    DECOMPOSE_TIME = 1000
     def decompose(self, cur_block):
         """After death(called in world) if a body isn't consumed
            An entity will decompose and
            be replaced with fungus after a set time"""
         self.death_count += 1
-        if self.death_count > 1000:
+        if self.death_count >= Entity.DECOMPOSE_TIME:
             # Spawn decomposer in place of body
             cur_block.remove_entity(self, self.x, self.y)
             cur_block.set_entity(Fungus, self.x, self.y)
