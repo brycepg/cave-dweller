@@ -1,10 +1,9 @@
 -r requirements.txt
+-r travis-requirements.txt
 
 # Building the executable
 pyinstaller
 
 # Unit testing and benchmarking
-pytest
 pytest-benchmark
-Pillow
 line_profile
