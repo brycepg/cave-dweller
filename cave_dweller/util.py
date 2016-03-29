@@ -13,3 +13,8 @@ def game_path(rel_path):
     final_path = os.path.join(base_path, rel_path)
     return final_path
 
+def equal_dicts(d1, d2, ignore_keys):
+    """Compare dicts ignoring ignore_keys"""
+    d1_filtered = dict((k, v) for k,v in d1.iteritems() if k not in ignore_keys)
+    d2_filtered = dict((k, v) for k,v in d2.iteritems() if k not in ignore_keys)
+    return d1_filtered == d2_filtered

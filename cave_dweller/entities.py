@@ -39,6 +39,9 @@ class Entity(object):
         self.food = 1000
         self.cur_block = None
 
+    def __eq__(self, entity):
+        return (isinstance(entity, type(self)) and
+                util.equal_dicts(self.__dict__, entity.__dict__, ['cur_block']))
 
     def decompose(self, cur_block):
         """After death(called in world) if a body isn't consumed
