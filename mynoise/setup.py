@@ -8,9 +8,7 @@ if sys.platform != 'win32':
     compile_args = ['-funroll-loops']
 else:
     # XXX insert win32 flag to unroll loops here
-    compile_args = []
-
-compile_args.append('-std=c99')
+    compile_args = ['-std=c99']
 
 setup(
     name='mynoise',
