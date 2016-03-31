@@ -58,17 +58,6 @@ class Entity(object):
         """Configuration that changes object state"""
         raise NotImplementedError
 
-    def out_of_bounds(self):
-        """Check if object is out of bounds of local
-        block-coordinate system"""
-        if (self.x < 0 or
-                self.x >= Game.map_size or
-                self.y < 0 or
-                self.y >= Game.map_size):
-            return True
-        else:
-            return False
-
     def move(self, coordinates, cur_block):
         """Move entity if location doesn't have an obstacle tile/entity"""
         if not cur_block.is_obstacle(*coordinates):
