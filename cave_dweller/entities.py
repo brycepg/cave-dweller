@@ -3,10 +3,13 @@
 import random
 import time
 import logging
-import colors
+import collections
+import enum
 
 from game import Game
 import actions
+import util
+import colors
 
 log = logging.getLogger(__name__)
 
@@ -298,9 +301,55 @@ class CaveGrass(Entity):
 
 
 
-class Empty(Entity):
+@enum.unique
+class Direction(enum.Enum):
+    up=0
+    down=1
+    left=2
+    right=3
+
+    dir_lookup = {}
+    dir_lookup[up] = (0,-1)
+    dir_lookup[down] = (0, 1)
+    dir_lookup[left] = (-1, 0)
+    dir_lookup[right] = (1, 0)
+
+    @classmethod
+    def get_adjustment(cls, direction):
+        # XXX might want to put this somewhere else...?
+        return cls.dir_lookup.value[direction.value]
+
+@enum.unique
+class Purpose(enum.Enum):
+    move = 0
+    kill = 1
+
+class Dummy(Entity):
+    """Dummy entity to queue up movement actions"""
+    def __init__(self, *args):
+        super(Dummy, self).__init__(*args, char='D')
+        self.queue = collections.deque()
+
     def process(self, cur_block):
+        try:
+            purpose, direction = self.queue.popleft()
+        except IndexError:
+            return
+        new_loc = [pos + adjustment for pos, adjustment in zip((self.x, self.y), Direction.get_adjustment(direction))]
+        if purpose == Purpose.kill:
+            adj_entity = cur_block.get_entity(*new_loc)
+            adj_entity.kill()
+        elif purpose == Purpose.move:
+            # No obstacle checking
+            if not cur_block.is_obstacle(*new_loc):
+                cur_block.move_entity(self, *new_loc)
+
+
         pass
+    def queue_move(self, direction):
+        self.queue.append((Purpose.move, direction))
+    def queue_kill(self, direction):
+        self.queue.append((Purpose.kill, direction))
 
 # Quick monster generation. Used in block
 # Class | chance of generation for each entity | max number of entitites
