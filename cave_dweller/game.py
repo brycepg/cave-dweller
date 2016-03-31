@@ -245,5 +245,6 @@ class Game(object):
                     self.bring_up_root()
 
                 if key.shift and mod and key.c == ord('d'):
-                    import pdb; pdb.set_trace()
+                    import pdb
+                    pdb.set_trace()
 
