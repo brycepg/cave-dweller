@@ -1,4 +1,5 @@
 import os
+import collections
 
 def get_neighbors(x, y):
     """Get taxicab neighbors(4-way) from coordinates"""
@@ -18,3 +19,13 @@ def equal_dicts(d1, d2, ignore_keys):
     d1_filtered = dict((k, v) for k,v in d1.iteritems() if k not in ignore_keys)
     d2_filtered = dict((k, v) for k,v in d2.iteritems() if k not in ignore_keys)
     return d1_filtered == d2_filtered
+
+def count_entities(blk):
+    """
+    Utility function generate a dict counting the class of entities in a block
+    arguments:
+        blk - the block in question
+    returns:
+        a dict indexed by the class itself giving the number of that class
+    """
+    return collections.Counter([type(entity) for entity in blk.entity_list])
