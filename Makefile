@@ -10,7 +10,8 @@ build_draw:
 	$(drawmake)
 
 build_noise:
-	$(noisemake)
+	# Almost upgrade to this century with c99
+	CFLAGS="-std=c99" $(noisemake)
 
 run:
 	./cave-dweller.py

@@ -8,6 +8,8 @@
 #include <float.h>
 #include "_noise.h"
 
+// Dropped PI in c99
+#define M_1_PI 0.31830988618379067154
 // 2D simplex skew factors
 #define F2 0.3660254037844386f  // 0.5 * (sqrt(3.0) - 1.0)
 #define G2 0.21132486540518713f // (3.0 - sqrt(3.0)) / 6.0

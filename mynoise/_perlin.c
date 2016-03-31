@@ -10,7 +10,8 @@
 #ifdef _MSC_VER
 #define inline __inline
 #endif
-
+// c99 dropped pi
+#define M_1_PI 0.31830988618379067154
 #define lerp(t, a, b) ((a) + (t) * ((b) - (a)))
 
 float inline
