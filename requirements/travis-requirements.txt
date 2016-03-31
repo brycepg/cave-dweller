@@ -2,3 +2,4 @@
 pytest
 Pillow
 coverage
+pytest-benchmark
