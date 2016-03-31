@@ -14,26 +14,33 @@ class Serializer(object):
     """Serialize objects into save
        TODO: make folder name separate from seed"""
 
-    def __init__(self, folder=None):
-        if not os.path.exists(game_path('data')):
-            os.mkdir(game_path('data'))
+    def __init__(self, folder=None, basedir=game_path('data')):
+        if not os.path.exists(basedir):
+            os.mkdir(basedir)
 
 
         # Find general name for folder
+        self.serial_path = None
+        self.folder_name = None
+        self.basedir = basedir
+        self.settings = None
+
         if not folder:
             num = 1
             dir_prefix = "world"
             while True:
                 folder_name = '_'.join([dir_prefix, str(num)])
-                self.serial_path = os.path.join(game_path('data'), folder_name)
+                self.serial_path = os.path.join(basedir, folder_name)
                 if not os.path.exists(self.serial_path):
                     os.mkdir(self.serial_path)
                     break
                 num += 1
+            self.folder_name = folder_name
             self.init_lock()
             self.set_lock()
         else:
-            self.serial_path = os.path.join(game_path('data'), folder)
+            self.folder_name = folder
+            self.serial_path = os.path.join(basedir, folder)
             if not os.path.exists(self.serial_path):
                 raise RuntimeError("Given folder %s does not exist" %
                                    self.serial_path)
