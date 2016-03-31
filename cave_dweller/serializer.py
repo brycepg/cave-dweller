@@ -51,12 +51,22 @@ class Serializer(object):
         block_name = "block%d,%d" % (block.idx, block.idy)
         block_path = os.path.join(self.serial_path, block_name)
         with closing(shelve.open(block_path)) as block_sh:
+            save_turn = block.world.turn if block.save_turn is None else block.save_turn
+            self.remove_references(block)
             block_sh['tiles'] = block.tiles
             block_sh['entities'] = block.entities
             block_sh['hidden_map'] = block.hidden_map
             block_sh['obstacle_map'] = block.obstacle_map
-            save_turn = block.world.turn if block.save_turn is None else block.save_turn
             block_sh['save_turn'] = save_turn
+
+    def remove_references(self, blk):
+        for entity in blk.entity_list:
+            entity.cur_block = None
+        blk.world = None
+
+    def add_references(self, blk):
+        for entity in blk.entity_list:
+            entity.cur_block = blk
 
     def is_block(self, idx, idy):
         block_name = "block%d,%d" % (idx, idy)
@@ -73,7 +83,7 @@ class Serializer(object):
                           hidden_map=block_sh['hidden_map'],
                           obstacle_map=block_sh['obstacle_map'],
                           load_turn=world.turn)
-
+            self.add_references(block)
             save_turn = block_sh['save_turn']
             # TODO use turndelta maybe
             turn_delta = world.turn - save_turn
