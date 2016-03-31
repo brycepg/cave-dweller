@@ -20,11 +20,13 @@ from serializer import Serializer
 from world import World
 from entities import Player
 from actions import PlayerAction
+import draw_text
 
 log = logging.getLogger(__name__)
 
 def run(args, game):
     """Main game loop"""
+    global cur_turn
     # Setup variables used in player/world
     Game.record_loop_time()
 
@@ -36,22 +38,20 @@ def run(args, game):
         world.current_block_init()
         player = a_serializer.init_player(world)
     else:
-        player = Player()
+        # First time start
+        world = World(a_serializer, seed_str=args.seed, block_seed=args.block_seed)
         start_block = world.get(Game.idx_cur, Game.idy_cur)
-        start_block.entities[player.x][player.y].append(player)
-        start_block.entity_list.append(player)
+        player = start_block.set_entity(Player, Game.map_size//2, Game.map_size//2)
         start_block.reposition_entity(player, avoid_hidden=True)
-        player.cur_block = start_block
         player.update_view_location()
-        Game.update_view()
         # Process to initalize object behavior
         # object process only works once per turn to stop multiple actions
-        world.turn = -1
-        world.process()
-        world.turn += 1
+        #world.process()
         # Remove cascade of loaded blocks due to
         # object generation moving over borders
         world.cull_old_blocks(force_cull=True)
+    # Get save information / Generate initial objects
+
     # Draw first frame before player moves
     world.draw()
 
@@ -86,7 +86,7 @@ def run(args, game):
             break
         # Order is important since world modifies current view
         # And game updates the relevant view variables
-        player.move(world)
+        player.player_move(world)
         if player.is_dead:
             return_message['dead'] = True
             return_message['save'] = False
@@ -96,9 +96,18 @@ def run(args, game):
             log.info("------------- turn %d -----------", world.turn)
             world.process()
             player.update_view_location()
-            world.turn += 1
             console_clear(Game.game_con)
             world.draw()
+        if Game.redraw_consoles:
+            libtcod.console_clear(0)
+            player.update_view_location()
+            world.draw()
+            t = time.time()
+            tt = True
+            Game.redraw_consoles = False
+            if Game.sidebar_enabled:
+                Game.redraw_sidebar = True
+
         # Load blocks during draw even if player is not doing anything
         console_clear(Game.sidebar_con)
         console_clear(Game.mouse_con)
@@ -123,18 +132,11 @@ def run(args, game):
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             cave_debug.debug_print(fps_base=fps_base, world=world, game=game, player=player, spent_time=spent_time)
         mouse.conditional_print()
-        console_blit(Game.game_con, 0, 0,
-                             Game.game_width, Game.game_height,
-                             0, 0, 0, ffade, bfade)
-        status_bar.draw()
-        if not debug_info and Game.sidebar_enabled:
-            console_blit(Game.sidebar_con, 0, 0, 0, 0,
-                                 0, Game.game_width, 0, ffade, bfade)
-        console_blit(Game.debug_con, 0, 0, 0, 0,
-                             0, 0, 0, ffade, transparent_fade)
-        console_blit(game.mouse_con, 0, 0, 0, 0,
-                             0, 0, 0, mouse_ffade, transparent_fade)
+        game.blit_consoles(status_bar, debug_info)
         console_flush()
+        if player.moved or Game.redraw_consoles:
+            libtcod.console_set_dirty(Game.game_width, 0, (Game.screen_width - Game.game_width), Game.screen_height)
+        cur_turn = world.turn
         fps_base = (time.time() - Game.loop_start) * .1 + fps_base * .9
         console_clear(Game.debug_con)
         # ----- keyboard input -----
@@ -166,14 +168,44 @@ def run(args, game):
         mouse.update_coords()
 
     if return_message['save']:
-        world.save_memory_blocks()
-        logging.debug("saving seed {} at world turn {}".format(world.seed_int, world.turn))
-        world.a_serializer.save_settings(player, world)
+        a_serializer.save_game(world, player)
     elif return_message['dead']:
-        world.a_serializer.delete_save()
+        a_serializer.delete_save()
         # Reset movement keys -- bad idea to use static list
         # Register into list instance
         # TODO fix
         actions.PlayerAction.current_actions = []
 
     return return_message
+
+import textwrap
+import random
+import os
+last_game_turn = 0
+cur_turn = 0
+from util import game_path
+draw_text.init_ttf(game_path(os.path.join("fonts", os.path.join("pt", "PTF75F.ttf"))))
+def custom_text(surface):
+    global last_game_turn
+    if last_game_turn > cur_turn and not Game.redraw_sidebar:
+        return
+    if not Game.sidebar_enabled:
+        return
+    s="Now that's what i call text." * 100
+    s += "Turn {cur_turn}".format(cur_turn=cur_turn)
+    wrapped_text = textwrap.wrap(s, 80)
+
+    color = (255,255,255)
+    tile_size = 16
+    sidebar_start_loc = (Game.game_width) * tile_size + 3
+    y_px_loc = 0
+    for line in wrapped_text:
+        draw_text.draw_text(line, surface, sidebar_start_loc, y_px_loc, color=color)
+        y_px_loc += 16
+    #libtcod.console_set_dirty(Game.game_width, 0, Game.game_width - Game.screen_width, Game.game_height)
+    #libtcod.console_set_dirty(sidebar_start_loc, y_px_loc + tile_size, 30 * 16, len(line) * 16)
+    if Game.redraw_sidebar:
+        Game.redraw_sidebar = False
+    else:
+        last_game_turn += 1
+libtcod.sys_register_SDL_renderer(custom_text)
