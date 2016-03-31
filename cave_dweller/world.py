@@ -17,36 +17,40 @@ class GetOutOfLoop(Exception):
     pass
 
 class World(object):
-    """Holds all blocks. Updates and draws world"""
+    """
+    Block manager.
+    Holds all blocks. Updates and draws world
+    """
     def __init__(self, a_serializer, seed_str=None, block_seed=None):
         """TODO, make seed separate from timestamp"""
-        self.seed_str, self.seed_int = self.generate_seeds(seed_str, block_seed)
+        self.seed_str, self.seed_float = self.generate_seeds(seed_str, block_seed)
         #self.block_generator = gen_map.BlockGenerator(self.perlin_seed)
         log.info("Seed string: %s", self.seed_str)
-        log.info("Block seed: %d", self.seed_int)
+        log.info("Block seed: %d", self.seed_float)
         self.a_serializer = a_serializer
         self.blocks = {}
         self.inactive_blocks = {}
         self.turn = 0
 
-    def generate_seeds(self, seed_str=None, seed_int=None):
     def __getitem__(self, key):
         return self.blocks[(key)]
 
+    def generate_seeds(self, seed_str=None, seed_float=None):
         """Hash seed str to generate seed int for noise function
 
         If neither provided, use random int
 
         If seed int is provided from command-line, use that(no seed str)
         """
-        if seed_str is None and seed_int is None:
+        if seed_str is None and seed_float is None:
             # snoise starts acting weird at at higher values...
-            seed_int = random.randrange(-65536, 65536)
-        elif seed_str is not None and seed_int is None:
-            seed_int = gen_map.string_seed(seed_str)
-        elif seed_int is not None:
-            seed_int = seed_int
-        return seed_str, seed_int
+            seed_float = random.randrange(-65536, 65536)
+        elif seed_str is not None and seed_float is None:
+            seed_float = gen_map.string_seed(seed_str)
+        elif seed_float is not None:
+            seed_float = seed_float
+        random.seed(float(seed_float))
+        return seed_str, float(seed_float)
 
     def inspect(self, abs_x, abs_y):
         """Inspect tile for a description of current tiles/entity"""
