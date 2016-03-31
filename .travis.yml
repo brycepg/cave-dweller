@@ -15,3 +15,10 @@ script:
 
 after_success:
      coveralls
+
+notifications:
+    email:
+        reipients:
+            - azrathud@gmail.com
+        on_success: change
+        on_failure: always
