@@ -194,6 +194,7 @@ class World(object):
 
         # A little hack to randomize digging tile
         Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)
+        self.turn += 1
 
     def draw(self):
         """Call viewable block's draw function"""
