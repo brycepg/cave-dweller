@@ -10,10 +10,6 @@ console_flush = _lib.TCOD_console_flush
 console_clear = _lib.TCOD_console_clear
 console_blit = _lib.TCOD_console_blit
 sys_check_for_event = _lib.TCOD_sys_check_for_event
-ffade = c_float(1.0)
-bfade = c_float(1.0)
-transparent_fade = c_float(0.0)
-mouse_ffade = c_float(0.75)
 
 import mouse_handler
 import status_handler
