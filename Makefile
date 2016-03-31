@@ -42,7 +42,7 @@ coverage: _PHONY
 	coverage html --omit cave_dweller/libtcodpy.py
 
 coverage_travis: _PHONY
-	coverage run --source cave_dweller/ `which $(UNITTEST)` --omit cave_dweller/libtcodpy.py
+	coverage run  --omit cave_dweller/libtcodpy.py --source cave_dweller/ `which $(UNITTEST)`
 
 lint:
 	pylint cave_dweller --ignore=libtcodpy.py

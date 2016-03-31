@@ -42,6 +42,7 @@ The current state of this game is very toy-like though.
 
 # Compilation
 [![Build Status](https://travis-ci.org/brycepg/cave-dweller.svg?branch=master)](https://travis-ci.org/brycepg/cave-dweller)
+[![Coverage Status](https://coveralls.io/repos/github/brycepg/cave-dweller/badge.svg?branch=master)](https://coveralls.io/github/brycepg/cave-dweller?branch=master)
 
 You need to install 
 
