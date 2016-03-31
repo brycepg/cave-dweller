@@ -14,4 +14,4 @@ script:
      make coverage_travis
 
 after_success:
-     coveralls --omit cave_dweller/libtcodpy.py
+     coveralls
