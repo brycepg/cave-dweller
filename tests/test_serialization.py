@@ -11,20 +11,20 @@ if __name__ == "__main__":
     sys.path.append(".")
 import libtcodpy as libtcod
 
-import entities
-import actions
-import gen_map
-import tiles
-from world import World
-from block import Block, DuplicateBlockError
-from game import Game
-from entities import Player, Entity
-from tiles import Id
-import hidden_map_handler
-from gen_map import generate_obstacle_map
-from gen_map import gen_map as generate_map
-import serializer
-import util
+from cave_dweller import entities
+from cave_dweller import actions
+from cave_dweller import gen_map
+from cave_dweller import tiles
+from cave_dweller import hidden_map_handler
+from cave_dweller import serializer
+from cave_dweller import util
+from cave_dweller.world import World
+from cave_dweller.block import Block, DuplicateBlockError
+from cave_dweller.game import Game
+from cave_dweller.entities import Player, Entity
+from cave_dweller.tiles import Id
+from cave_dweller.gen_map import generate_obstacle_map
+from cave_dweller.gen_map import gen_map as generate_map
 
 class TestSerialization(unittest.TestCase):
     def test_serialization(self):

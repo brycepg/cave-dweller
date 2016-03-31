@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
+"""Map generation functions"""
 
 import random
-import math
 
-import libtcodpy as libtcod
+from . import libtcodpy as libtcod
 
 import mynoise
 #import noise
 from mynoise import snoise2
 from mynoise import snoise3
-from tiles import Id
-from tiles import Tiles
-
-from game import Game
+from .tiles import Id
+from .tiles import Tiles
 
 
 def gen_map(seed, idx, idy, map_size=96,

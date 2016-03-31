@@ -1,0 +1,667 @@
+************* Module cave_dweller.cave_dweller
+W: 34, 0: TODO state machine class (fixme)
+************* Module cave_dweller.entities
+W:318, 0: XXX might want to put this somewhere else...? (fixme)
+C:296, 0: Line too long (130/120) (line-too-long)
+C:305, 0: Exactly one space required around assignment
+    up=0
+      ^ (bad-whitespace)
+C:306, 0: Exactly one space required around assignment
+    down=1
+        ^ (bad-whitespace)
+C:307, 0: Exactly one space required around assignment
+    left=2
+        ^ (bad-whitespace)
+C:308, 0: Exactly one space required around assignment
+    right=3
+         ^ (bad-whitespace)
+C:311, 0: Exactly one space required after comma
+    dir_lookup[up] = (0,-1)
+                       ^ (bad-whitespace)
+R: 16, 0: Too many instance attributes (17/7) (too-many-instance-attributes)
+W:174,29: Unused argument 'growth' (unused-argument)
+R:192, 0: Too many instance attributes (8/7) (too-many-instance-attributes)
+R:215, 4: Method could be a function (no-self-use)
+R:225, 4: Method could be a function (no-self-use)
+E:266, 8: Bad first argument 'type' given to super() (bad-super-call)
+C:304, 0: Missing class docstring (missing-docstring)
+C:317, 4: Missing method docstring (missing-docstring)
+R:304, 0: Too few public methods (1/2) (too-few-public-methods)
+C:321, 0: Missing class docstring (missing-docstring)
+R:321, 0: Too few public methods (0/2) (too-few-public-methods)
+C:345, 4: Missing method docstring (missing-docstring)
+C:347, 4: Missing method docstring (missing-docstring)
+************* Module cave_dweller.hidden_map_handler
+W: 26, 0: TODO generate, ignore boundry tiles. Update boundry tiles when block available (fixme)
+C: 30, 0: Line too long (122/120) (line-too-long)
+C: 54, 0: Trailing whitespace (trailing-whitespace)
+C: 91, 0: Trailing whitespace (trailing-whitespace)
+C:119, 0: Exactly one space required after comma
+        neighbor_coords = get_neighbors(x,y)
+                                         ^ (bad-whitespace)
+C:145, 0: Exactly one space required after comma
+        update_hidden(blk, x,y)
+                            ^ (bad-whitespace)
+C:148, 0: Exactly one space required after comma
+        neighbor_coords = get_neighbors(x,y)
+                                         ^ (bad-whitespace)
+C:172, 0: Exactly one space required after comma
+        update_hidden(blk, x,y)
+                            ^ (bad-whitespace)
+C:202, 0: No space allowed before bracket
+            neighbors = [(search_coord[0]+1, search_coord[1]  ),
+                                                              ^ (bad-whitespace)
+C:203, 0: Exactly one space required after comma
+                         (search_coord[0],   search_coord[1]-1),
+                                         ^ (bad-whitespace)
+C:204, 0: No space allowed before bracket
+                         (search_coord[0]-1, search_coord[1]  ),
+                                                              ^ (bad-whitespace)
+C:205, 0: Exactly one space required after comma
+                         (search_coord[0],   search_coord[1]+1)]
+                                         ^ (bad-whitespace)
+C:211, 0: Wrong continued indentation.
+        # Optimizations
+        ^               | (bad-continuation)
+C:212, 0: Wrong continued indentation.
+        max=max, abs=abs, set=set, deque=deque, IndexError=IndexError, HitSearchLimit=HitSearchLimit):
+        ^               | (bad-continuation)
+C:239, 0: No space allowed before bracket
+            neighbors = [(search_coord[0]+1, search_coord[1]  ),
+                                                              ^ (bad-whitespace)
+C:240, 0: Exactly one space required after comma
+                         (search_coord[0],   search_coord[1]-1),
+                                         ^ (bad-whitespace)
+C:241, 0: No space allowed before bracket
+                         (search_coord[0]-1, search_coord[1]  ),
+                                                              ^ (bad-whitespace)
+C:242, 0: Exactly one space required after comma
+                         (search_coord[0],   search_coord[1]+1)]
+                                         ^ (bad-whitespace)
+E: 21, 8: Bad first argument 'Exception' given to super() (bad-super-call)
+R: 90, 0: Too many local variables (17/15) (too-many-locals)
+R: 90, 0: Too many branches (19/12) (too-many-branches)
+R:174, 0: Too many arguments (6/5) (too-many-arguments)
+R:210, 0: Too many arguments (10/5) (too-many-arguments)
+R:210, 0: Too many local variables (16/15) (too-many-locals)
+************* Module cave_dweller.tiles
+W: 35, 0: TODO: offload to configuration files (fixme)
+C: 18, 0: Wrong continued indentation.
+    ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes', 'name']
+    ^             | (bad-continuation)
+C: 19, 0: Wrong continued indentation.
+)
+^                | (bad-continuation)
+C: 21, 0: Exactly one space required after comma
+    (' ',    False,    colors.black, None, False,          False,     False,        None,         None)
+        ^ (bad-whitespace)
+C: 21, 0: Exactly one space required after comma
+    (' ',    False,    colors.black, None, False,          False,     False,        None,         None)
+                  ^ (bad-whitespace)
+C: 21, 0: Exactly one space required after comma
+    (' ',    False,    colors.black, None, False,          False,     False,        None,         None)
+                                                ^ (bad-whitespace)
+C: 21, 0: Exactly one space required after comma
+    (' ',    False,    colors.black, None, False,          False,     False,        None,         None)
+                                                                ^ (bad-whitespace)
+C: 21, 0: Exactly one space required after comma
+    (' ',    False,    colors.black, None, False,          False,     False,        None,         None)
+                                                                           ^ (bad-whitespace)
+C: 21, 0: Exactly one space required after comma
+    (' ',    False,    colors.black, None, False,          False,     False,        None,         None)
+                                                                                        ^ (bad-whitespace)
+C: 38, 0: Line too long (141/120) (line-too-long)
+C: 38, 0: Exactly one space required before assignment
+    ground  = Tile(ord('-'), is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+            ^ (bad-whitespace)
+C: 39, 0: Line too long (141/120) (line-too-long)
+C: 40, 0: Line too long (141/120) (line-too-long)
+C: 42, 0: Line too long (153/120) (line-too-long)
+C: 44, 0: Line too long (161/120) (line-too-long)
+C: 44, 0: Exactly one space required after comma
+    build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
+                                                                                       ^ (bad-whitespace)
+C: 45, 0: Line too long (159/120) (line-too-long)
+C: 45, 0: Exactly one space required after comma
+    build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
+                                                                                       ^ (bad-whitespace)
+C: 46, 0: Line too long (159/120) (line-too-long)
+C: 46, 0: Exactly one space required after comma
+    build3 = Tile(char=178, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.wall],   'dig': [Id.build2]})
+                                                                                       ^ (bad-whitespace)
+C: 46, 0: Exactly one space required after comma
+    build3 = Tile(char=178, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.wall],   'dig': [Id.build2]})
+                                                                                                                                       ^ (bad-whitespace)
+C: 48, 0: Line too long (173/120) (line-too-long)
+C: 49, 0: Line too long (173/120) (line-too-long)
+C: 50, 0: Line too long (177/120) (line-too-long)
+R: 23, 0: Too few public methods (0/2) (too-few-public-methods)
+R: 33, 0: Too few public methods (0/2) (too-few-public-methods)
+************* Module cave_dweller.cave_debug
+W:  9, 0: TODO fix with entities update (fixme)
+C: 13, 0: Line too long (123/120) (line-too-long)
+C: 58, 0: Line too long (125/120) (line-too-long)
+C: 69, 0: Line too long (125/120) (line-too-long)
+C: 12, 0: Missing function docstring (missing-docstring)
+C: 16, 0: Missing function docstring (missing-docstring)
+C: 24, 0: Missing function docstring (missing-docstring)
+C: 27, 0: Missing function docstring (missing-docstring)
+W: 62,32: Unused argument 'world' (unused-argument)
+W: 62,15: Unused argument 'key' (unused-argument)
+W: 62,20: Unused argument 'debug_info' (unused-argument)
+W:  6, 0: Unused import ContextMenu (unused-import)
+************* Module cave_dweller.font_handler
+W: 25, 0: TODO modify libtcod to fix cursor problem with resize (fixme)
+C: 29, 0: Wrong continued indentation.
+            .format(size=self.font_sizes[self.font_size_index]))
+            ^                 | (bad-continuation)
+C: 31, 0: Wrong continued indentation.
+            libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+            ^                           | (bad-continuation)
+C:  1, 0: Missing module docstring (missing-docstring)
+C: 12, 0: Missing class docstring (missing-docstring)
+C: 46, 4: Missing method docstring (missing-docstring)
+C: 55, 4: Missing method docstring (missing-docstring)
+************* Module cave_dweller.status_handler
+C: 11, 0: Missing class docstring (missing-docstring)
+C: 82, 4: Missing method docstring (missing-docstring)
+W: 82,29: Unused argument 'mouse' (unused-argument)
+************* Module cave_dweller.serializer
+W: 90, 0: TODO use turndelta maybe (fixme)
+C: 82, 0: Trailing whitespace (trailing-whitespace)
+C:140, 0: Trailing whitespace (trailing-whitespace)
+C:163, 0: Exactly one space required before assignment
+        player.cur_block  = cur_block
+                          ^ (bad-whitespace)
+C: 64, 4: Missing method docstring (missing-docstring)
+R: 64, 4: Method could be a function (no-self-use)
+C: 69, 4: Missing method docstring (missing-docstring)
+R: 69, 4: Method could be a function (no-self-use)
+C: 73, 4: Missing method docstring (missing-docstring)
+C:120, 4: Missing method docstring (missing-docstring)
+C:149, 4: Missing method docstring (missing-docstring)
+C:157, 4: Missing method docstring (missing-docstring)
+C:168, 4: Missing method docstring (missing-docstring)
+C:177, 4: Missing method docstring (missing-docstring)
+C:180, 4: Missing method docstring (missing-docstring)
+C:183, 4: Missing method docstring (missing-docstring)
+C:186, 4: Missing method docstring (missing-docstring)
+W:178, 8: Attribute 'lock' defined outside __init__ (attribute-defined-outside-init)
+************* Module cave_dweller.run_game
+W: 99, 0: TODO, allow FPS separate from movement(multi-turn movement) (fixme)
+W:181, 0: TODO fix (fixme)
+C:195, 0: Exactly one space required around assignment
+    s="Now that's what i call text." * 100
+     ^ (bad-whitespace)
+C:199, 0: Exactly one space required after comma
+    color = (255,255,255)
+                ^ (bad-whitespace)
+C:199, 0: Exactly one space required after comma
+    color = (255,255,255)
+                    ^ (bad-whitespace)
+R: 32, 0: Too many local variables (19/15) (too-many-locals)
+W: 34, 4: Using the global statement (global-statement)
+W:158,16: Assigning to function call which only returns None (assignment-from-none)
+W: 40, 4: Unused variable 'settings_obj' (unused-variable)
+W:111,12: Unused variable 'tt' (unused-variable)
+W:110,12: Unused variable 't' (unused-variable)
+R: 32, 0: Too many branches (22/12) (too-many-branches)
+R: 32, 0: Too many statements (109/50) (too-many-statements)
+C:189, 0: Missing function docstring (missing-docstring)
+W:190, 4: Using the global statement (global-statement)
+W:  5, 0: Unused import random (unused-import)
+W: 27, 0: Unused import PlayerAction (unused-import)
+************* Module cave_dweller.block
+W:434, 0: TODO move in block gen (fixme)
+W:440, 0: XXX doesn't work when hidden map is updated, but already drawn for turn 0 (fixme)
+C:201, 0: Line too long (132/120) (line-too-long)
+C:217, 0: Exactly one space required after comma
+        if not self.get_tile(entity.x,entity.y).is_obstacle:
+                                     ^ (bad-whitespace)
+C:279, 0: Wrong continued indentation.
+            # Optimizations
+            ^    | (bad-continuation)
+C:280, 0: Wrong continued indentation.
+        Tiles_tile_lookup=Tiles.tile_lookup, map_size=Game.map_size):
+        ^        | (bad-continuation)
+C:298, 0: Wrong continued indentation.
+            # Optimizations
+            ^      | (bad-continuation)
+C:299, 0: Wrong continued indentation.
+            map_size=Game.map_size):
+            ^      | (bad-continuation)
+C:354, 0: Wrong continued indentation.
+                             self.idx, self.idy,
+                            |^ (bad-continuation)
+C:355, 0: Wrong continued indentation.
+                             map_size=Game.map_size)
+                            |^ (bad-continuation)
+C:371, 0: Wrong continued indentation.
+            # Arguments for perforance
+            ^      | (bad-continuation)
+C:372, 0: Wrong continued indentation.
+            map_size=Game.map_size, tile_lookup=Tiles.tile_lookup,
+            ^      | (bad-continuation)
+C:373, 0: Wrong continued indentation.
+            put_char_ex=put_char_ex, min=min, max=max, wall_bg=wall_bg,
+            ^      | (bad-continuation)
+C:374, 0: Wrong continued indentation.
+            Game=Game, range=range, xrange=xrange,
+            ^      | (bad-continuation)
+C:375, 0: Wrong continued indentation.
+            gmap_min1=Game.map_size-1):
+            ^      | (bad-continuation)
+C:458, 0: Wrong continued indentation.
+                        #y_loc
+                        ^   | (bad-continuation)
+C:459, 0: Wrong continued indentation.
+                        view_y_base + y_column,
+                        ^   | (bad-continuation)
+C:460, 0: Wrong continued indentation.
+                        draw_char, fg, bg)
+                        ^   | (bad-continuation)
+R: 22, 0: Too many instance attributes (12/7) (too-many-instance-attributes)
+R: 24, 4: Too many arguments (9/5) (too-many-arguments)
+C: 68, 4: Missing method docstring (missing-docstring)
+C: 91, 4: Missing method docstring (missing-docstring)
+R: 91, 4: Method could be a function (no-self-use)
+C:183, 4: Missing method docstring (missing-docstring)
+W:245,42: Unused argument 'avoid_hidden' (unused-argument)
+W:278, 4: Dangerous default value Tiles.tile_lookup ({Id.ground: ground, Id.ground2: ground2, Id.ground3: ground3, Id.build1: build1, Id.build2: build2, Id.build3: build3, Id.dig1: dig1, Id.dig2: dig2, Id.dig3: dig3, Id.wall: wall, None: null}) as argument (dangerous-default-value)
+W:370, 4: Dangerous default value Tiles.tile_lookup ({Id.ground: ground, Id.ground2: ground2, Id.ground3: ground3, Id.build1: build1, Id.build2: build2, Id.build3: build3, Id.dig1: dig1, Id.dig2: dig2, Id.dig3: dig3, Id.wall: wall, None: null}) as argument (dangerous-default-value)
+R:370, 4: Too many arguments (11/5) (too-many-arguments)
+R:370, 4: Too many local variables (47/15) (too-many-locals)
+C:462, 4: Missing method docstring (missing-docstring)
+C:470, 0: Missing class docstring (missing-docstring)
+************* Module cave_dweller.context_menu
+C:  1, 0: Missing module docstring (missing-docstring)
+C:  5, 0: Missing class docstring (missing-docstring)
+W: 13, 8: Unused variable 'text' (unused-variable)
+C: 15, 4: Missing method docstring (missing-docstring)
+C: 20, 4: Missing method docstring (missing-docstring)
+C: 23, 4: Missing method docstring (missing-docstring)
+W:  3, 0: Unused import Game (unused-import)
+************* Module cave_dweller.world
+W: 56, 0: TODO should be offloaded somewhere else? (fixme)
+C:103, 0: Exactly one space required before comparison
+                if self.turn - block.save_turn  > 10000:
+                                                ^ (bad-whitespace)
+R: 37, 4: Method could be a function (no-self-use)
+E:220,12: Undefined variable 'world' (undefined-variable)
+C:229, 4: Missing method docstring (missing-docstring)
+************* Module cave_dweller.game
+W:156, 0: TODO modify libtcod to fix cursor problem with resize (fixme)
+W:208, 0: TODO get working again (fixme)
+C:113, 0: Wrong continued indentation.
+                             Game.game_width, Game.game_height,
+                     |       ^ (bad-continuation)
+C:114, 0: Wrong continued indentation.
+                             0, 0, 0, ffade, bfade)
+                     |       ^ (bad-continuation)
+C:119, 0: Wrong continued indentation.
+                                 0, Game.game_width, 0, ffade, bfade)
+                         |       ^ (bad-continuation)
+C:121, 0: Wrong continued indentation.
+                             0, 0, 0, ffade, transparent_fade)
+                     |       ^ (bad-continuation)
+C:123, 0: Wrong continued indentation.
+                             0, 0, 0, mouse_ffade, transparent_fade)
+                     |       ^ (bad-continuation)
+C:133, 0: Wrong continued indentation.
+                                                Game.screen_height)
+                                               |^ (bad-continuation)
+W:242, 0: Bad indentation. Found 24 spaces, expected 20 (bad-indentation)
+W:244, 0: Bad indentation. Found 24 spaces, expected 20 (bad-indentation)
+C: 39, 4: Missing method docstring (missing-docstring)
+C:111, 4: Missing method docstring (missing-docstring)
+C:126, 4: Missing method docstring (missing-docstring)
+C:145, 4: Missing method docstring (missing-docstring)
+C:190, 4: Missing method docstring (missing-docstring)
+C:193, 4: Missing method docstring (missing-docstring)
+R:193, 4: Too many branches (18/12) (too-many-branches)
+R:193, 4: Too many statements (55/50) (too-many-statements)
+W: 10, 0: Unused import tiles (unused-import)
+************* Module cave_dweller.mouse_handler
+C: 19, 0: Wrong continued indentation before block.
+            self.mouse.cx < Game.game_width and
+            ^   | (bad-continuation)
+C: 20, 0: Wrong continued indentation before block.
+            self.mouse.cy < Game.game_height):
+            ^   | (bad-continuation)
+C: 34, 0: Wrong continued indentation before block.
+            libtcod.console_has_mouse_focus() or
+            ^   | (bad-continuation)
+C: 35, 0: Wrong continued indentation before block.
+            ((self.mouse.cx != 0 and self.mouse.cy != 0) and
+            ^   | (bad-continuation)
+C:  6, 0: Missing class docstring (missing-docstring)
+C: 16, 4: Missing method docstring (missing-docstring)
+************* Module cave_dweller.menu
+W: 66, 0: Bad indentation. Found 28 spaces, expected 24 (bad-indentation)
+W: 67, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 68, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 70, 0: Bad indentation. Found 28 spaces, expected 24 (bad-indentation)
+W: 71, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 72, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 73, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 74, 0: Bad indentation. Found 36 spaces, expected 32 (bad-indentation)
+W: 75, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 77, 0: Bad indentation. Found 28 spaces, expected 24 (bad-indentation)
+W: 78, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 79, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 80, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+W: 81, 0: Bad indentation. Found 28 spaces, expected 24 (bad-indentation)
+W: 82, 0: Bad indentation. Found 32 spaces, expected 28 (bad-indentation)
+C: 99, 0: Exactly one space required around assignment
+                        cursor_pos-=1
+                                  ^^ (bad-whitespace)
+C:101, 0: Exactly one space required around assignment
+                        cursor_pos+=1
+                                  ^^ (bad-whitespace)
+C:106, 0: Line too long (143/120) (line-too-long)
+C:106, 0: Exactly one space required after comma
+            libtcod.console_print(menu_con, x_start, y_start, "%c%c%c%cCave Dweller%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,libtcod.COLCTRL_STOP))
+                                                                                                                ^ (bad-whitespace)
+C:106, 0: Exactly one space required after comma
+            libtcod.console_print(menu_con, x_start, y_start, "%c%c%c%cCave Dweller%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,libtcod.COLCTRL_STOP))
+                                                                                                                    ^ (bad-whitespace)
+C:106, 0: Exactly one space required after comma
+            libtcod.console_print(menu_con, x_start, y_start, "%c%c%c%cCave Dweller%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,libtcod.COLCTRL_STOP))
+                                                                                                                      ^ (bad-whitespace)
+C:106, 0: Exactly one space required after comma
+            libtcod.console_print(menu_con, x_start, y_start, "%c%c%c%cCave Dweller%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,libtcod.COLCTRL_STOP))
+                                                                                                                        ^ (bad-whitespace)
+C:115, 0: Exactly one space required after comma
+                    the_format = [255,255,255]
+                                     ^ (bad-whitespace)
+C:115, 0: Exactly one space required after comma
+                    the_format = [255,255,255]
+                                         ^ (bad-whitespace)
+C:120, 0: Line too long (192/120) (line-too-long)
+C:120, 0: Exactly one space required after comma
+                libtcod.console_print(menu_con, x_start, y_start + 1 + index, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,the_format[0], the_format[1], the_format[2], item, libtcod.COLCTRL_STOP))
+                                                                                                                      ^ (bad-whitespace)
+C:141, 0: Line too long (169/120) (line-too-long)
+C:141, 0: Exactly one space required after comma
+            libtcod.console_print(0, (Game.game_width-len(msg)) // 2, Game.game_height//2+1, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,msg, libtcod.COLCTRL_STOP))
+                                                                                                                                     ^ (bad-whitespace)
+C:141, 0: Exactly one space required after comma
+            libtcod.console_print(0, (Game.game_width-len(msg)) // 2, Game.game_height//2+1, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,msg, libtcod.COLCTRL_STOP))
+                                                                                                                                         ^ (bad-whitespace)
+C:141, 0: Exactly one space required after comma
+            libtcod.console_print(0, (Game.game_width-len(msg)) // 2, Game.game_height//2+1, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,msg, libtcod.COLCTRL_STOP))
+                                                                                                                                           ^ (bad-whitespace)
+C:141, 0: Exactly one space required after comma
+            libtcod.console_print(0, (Game.game_width-len(msg)) // 2, Game.game_height//2+1, "%c%c%c%c%s%c"%(libtcod.COLCTRL_FORE_RGB,255,1,1,msg, libtcod.COLCTRL_STOP))
+                                                                                                                                             ^ (bad-whitespace)
+C:164, 0: Line too long (126/120) (line-too-long)
+C:166, 0: Line too long (133/120) (line-too-long)
+C:167, 0: Line too long (126/120) (line-too-long)
+C:168, 0: Line too long (133/120) (line-too-long)
+C:169, 0: Line too long (142/120) (line-too-long)
+C:172, 0: Line too long (129/120) (line-too-long)
+C:173, 0: Line too long (136/120) (line-too-long)
+C:175, 0: Line too long (123/120) (line-too-long)
+C:176, 0: Line too long (134/120) (line-too-long)
+C:177, 0: Line too long (141/120) (line-too-long)
+C:178, 0: Line too long (130/120) (line-too-long)
+C: 23, 4: Missing method docstring (missing-docstring)
+R: 23, 4: Too many local variables (20/15) (too-many-locals)
+R: 23, 4: Too many branches (28/12) (too-many-branches)
+R: 23, 4: Too many statements (87/50) (too-many-statements)
+C:127, 4: Missing method docstring (missing-docstring)
+C:146, 4: Missing method docstring (missing-docstring)
+************* Module cave_dweller.gen_map
+C: 17, 0: Wrong continued indentation.
+    # Redefine globals as locals at definition time for optimization
+    ^       | (bad-continuation)
+C: 18, 0: Wrong continued indentation.
+    len=len, int=int, rnd_float=random.random, any_ground=Id.any_ground, gnd_len=len(Id.any_ground), range=range, gen_block=mynoise.gen_block, wall=Id.wall, rnd_seed=random.seed):
+    ^       | (bad-continuation)
+C: 18, 0: Line too long (179/120) (line-too-long)
+C: 72, 0: Line too long (142/120) (line-too-long)
+C:105, 0: Line too long (144/120) (line-too-long)
+C:192, 0: Wrong continued indentation.
+                              (idy * map_size + y) / scaling_factor],
+                              ^                       | (bad-continuation)
+C:193, 0: Wrong continued indentation.
+                              octaves)
+                              ^             | (bad-continuation)
+C:237, 0: Line too long (128/120) (line-too-long)
+W: 16, 0: Dangerous default value Id.any_ground ([ground, ground2, ground3]) as argument (dangerous-default-value)
+R: 16, 0: Too many arguments (13/5) (too-many-arguments)
+R: 16, 0: Too many local variables (18/15) (too-many-locals)
+W: 18, 4: Unused argument 'len' (unused-argument)
+C: 65, 0: Missing function docstring (missing-docstring)
+R:135, 0: Too many local variables (16/15) (too-many-locals)
+R:176, 4: Too many local variables (18/15) (too-many-locals)
+C:204, 4: Missing method docstring (missing-docstring)
+R:210, 0: Too many local variables (17/15) (too-many-locals)
+R:237, 0: Too many arguments (9/5) (too-many-arguments)
+R:237, 0: Too many local variables (21/15) (too-many-locals)
+************* Module cave_dweller.util
+C: 20, 0: Exactly one space required after comma
+    d1_filtered = dict((k, v) for k,v in d1.iteritems() if k not in ignore_keys)
+                                   ^ (bad-whitespace)
+C: 21, 0: Exactly one space required after comma
+    d2_filtered = dict((k, v) for k,v in d2.iteritems() if k not in ignore_keys)
+                                   ^ (bad-whitespace)
+C: 13, 0: Missing function docstring (missing-docstring)
+************* Module cave_dweller.actions
+R: 44, 4: Too many branches (13/12) (too-many-branches)
+C: 94, 4: Missing method docstring (missing-docstring)
+C: 97, 0: Missing class docstring (missing-docstring)
+E: 99, 8: Bad first argument 'type' given to super() (bad-super-call)
+C:112, 0: Missing class docstring (missing-docstring)
+E:114, 8: Bad first argument 'type' given to super() (bad-super-call)
+C:127, 0: Missing class docstring (missing-docstring)
+E:129, 8: Bad first argument 'type' given to super() (bad-super-call)
+E:138, 8: Bad first argument 'type' given to super() (bad-super-call)
+C:149, 0: Missing class docstring (missing-docstring)
+E:151, 8: Bad first argument 'type' given to super() (bad-super-call)
+E:168, 8: Bad first argument 'type' given to super() (bad-super-call)
+R:  1, 0: Cyclic import (cave_dweller.font_handler -> cave_dweller.game) (cyclic-import)
+
+
+Report
+======
+2182 statements analysed.
+
+Messages by category
+--------------------
+
++-----------+-------+---------+-----------+
+|type       |number |previous |difference |
++===========+=======+=========+===========+
+|convention |178    |178      |=          |
++-----------+-------+---------+-----------+
+|refactor   |38     |38       |=          |
++-----------+-------+---------+-----------+
+|warning    |54     |57       |-3.00      |
++-----------+-------+---------+-----------+
+|error      |9      |9        |=          |
++-----------+-------+---------+-----------+
+
+
+
+% errors / warnings by module
+-----------------------------
+
++--------------------------------+------+--------+---------+-----------+
+|module                          |error |warning |refactor |convention |
++================================+======+========+=========+===========+
+|cave_dweller.actions            |66.67 |0.00    |5.26     |2.81       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.entities           |11.11 |3.70    |15.79    |6.18       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.hidden_map_handler |11.11 |1.85    |13.16    |9.55       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.world              |11.11 |1.85    |2.63     |1.12       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.menu               |0.00  |27.78   |7.89     |16.85      |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.run_game           |0.00  |18.52   |7.89     |2.25       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.block              |0.00  |9.26    |13.16    |11.80      |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.game               |0.00  |9.26    |5.26     |6.74       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.cave_debug         |0.00  |9.26    |0.00     |3.93       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.gen_map            |0.00  |3.70    |18.42    |5.62       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.serializer         |0.00  |3.70    |5.26     |7.87       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.context_menu       |0.00  |3.70    |0.00     |2.81       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.tiles              |0.00  |1.85    |5.26     |12.92      |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.font_handler       |0.00  |1.85    |0.00     |3.37       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.status_handler     |0.00  |1.85    |0.00     |1.12       |
++--------------------------------+------+--------+---------+-----------+
+|cave_dweller.cave_dweller       |0.00  |1.85    |0.00     |0.00       |
++--------------------------------+------+--------+---------+-----------+
+
+
+
+Messages
+--------
+
++-------------------------------+------------+
+|message id                     |occurrences |
++===============================+============+
+|missing-docstring              |57          |
++-------------------------------+------------+
+|bad-whitespace                 |49          |
++-------------------------------+------------+
+|line-too-long                  |34          |
++-------------------------------+------------+
+|bad-continuation               |34          |
++-------------------------------+------------+
+|bad-indentation                |17          |
++-------------------------------+------------+
+|fixme                          |14          |
++-------------------------------+------------+
+|too-many-locals                |10          |
++-------------------------------+------------+
+|bad-super-call                 |8           |
++-------------------------------+------------+
+|unused-argument                |7           |
++-------------------------------+------------+
+|too-many-arguments             |6           |
++-------------------------------+------------+
+|no-self-use                    |6           |
++-------------------------------+------------+
+|unused-import                  |5           |
++-------------------------------+------------+
+|too-many-branches              |5           |
++-------------------------------+------------+
+|unused-variable                |4           |
++-------------------------------+------------+
+|trailing-whitespace            |4           |
++-------------------------------+------------+
+|too-few-public-methods         |4           |
++-------------------------------+------------+
+|too-many-statements            |3           |
++-------------------------------+------------+
+|too-many-instance-attributes   |3           |
++-------------------------------+------------+
+|dangerous-default-value        |3           |
++-------------------------------+------------+
+|global-statement               |2           |
++-------------------------------+------------+
+|undefined-variable             |1           |
++-------------------------------+------------+
+|cyclic-import                  |1           |
++-------------------------------+------------+
+|attribute-defined-outside-init |1           |
++-------------------------------+------------+
+|assignment-from-none           |1           |
++-------------------------------+------------+
+
+
+
+Global evaluation
+-----------------
+Your code has been rated at 8.56/10 (previous run: 8.54/10, +0.01)
+
+External dependencies
+---------------------
+::
+
+    cave_dweller 
+      \-args (cave_dweller.cave_dweller)
+      \-block (cave_dweller.serializer,cave_dweller.world)
+      \-cave_debug (cave_dweller.run_game)
+      \-cave_dweller (cave_dweller)
+      \-colors (cave_dweller.status_handler,cave_dweller.tiles,cave_dweller.entities)
+      \-context_menu (cave_dweller.cave_debug)
+      \-entities (cave_dweller.block,cave_dweller.run_game)
+      \-font_handler (cave_dweller.game)
+      \-game (cave_dweller.block,cave_dweller.menu,cave_dweller.actions,cave_dweller.context_menu,cave_dweller.cave_debug,cave_dweller.cave_dweller,cave_dweller.entities,cave_dweller.status_handler,cave_dweller.run_game,cave_dweller.serializer,cave_dweller.mouse_handler,cave_dweller.font_handler,cave_dweller.hidden_map_handler,cave_dweller.world)
+      \-gen_map (cave_dweller.block,cave_dweller.world)
+      \-hidden_map_handler (cave_dweller.block)
+      \-libtcodpy (cave_dweller.block,cave_dweller.menu,cave_dweller.actions,cave_dweller.context_menu,cave_dweller.cave_debug,cave_dweller.gen_map,cave_dweller.status_handler,cave_dweller.colors,cave_dweller.game,cave_dweller.mouse_handler,cave_dweller.font_handler,cave_dweller.run_game)
+      \-log_setup (cave_dweller.cave_dweller)
+      \-menu (cave_dweller.cave_dweller)
+      \-mouse_handler (cave_dweller.run_game)
+      \-run_game (cave_dweller.cave_dweller)
+      \-serializer (cave_dweller.run_game)
+      \-status_handler (cave_dweller.run_game)
+      \-tiles (cave_dweller.block,cave_dweller.menu,cave_dweller.gen_map,cave_dweller.status_handler,cave_dweller.game,cave_dweller.world)
+      \-util (cave_dweller.block,cave_dweller.log_setup,cave_dweller.entities,cave_dweller.menu,cave_dweller.hidden_map_handler,cave_dweller.serializer,cave_dweller.font_handler,cave_dweller.run_game)
+      \-world (cave_dweller.serializer,cave_dweller.run_game)
+    draw_text (cave_dweller.run_game)
+    enum (cave_dweller.entities)
+    mynoise (cave_dweller.gen_map)
+
+
+
+Statistics by type
+------------------
+
++---------+-------+-----------+-----------+------------+---------+
+|type     |number |old number |difference |%documented |%badname |
++=========+=======+===========+===========+============+=========+
+|module   |22     |22         |=          |90.91       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|class    |32     |32         |=          |65.62       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|method   |140    |140        |=          |73.57       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|function |32     |32         |=          |78.12       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+
+
+
+Duplication
+-----------
+
++-------------------------+------+---------+-----------+
+|                         |now   |previous |difference |
++=========================+======+=========+===========+
+|nb duplicated lines      |0     |0        |=          |
++-------------------------+------+---------+-----------+
+|percent duplicated lines |0.000 |0.000    |=          |
++-------------------------+------+---------+-----------+
+
+
+
+Raw metrics
+-----------
+
++----------+-------+------+---------+-----------+
+|type      |number |%     |previous |difference |
++==========+=======+======+=========+===========+
+|code      |2369   |77.04 |2369     |=          |
++----------+-------+------+---------+-----------+
+|docstring |278    |9.04  |278      |=          |
++----------+-------+------+---------+-----------+
+|comment   |206    |6.70  |206      |=          |
++----------+-------+------+---------+-----------+
+|empty     |222    |7.22  |222      |=          |
++----------+-------+------+---------+-----------+
+
+
+

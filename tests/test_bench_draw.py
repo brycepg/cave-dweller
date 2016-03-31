@@ -8,15 +8,16 @@ import math
 from ctypes import c_float
 
 from PIL import Image
-import libtcodpy as libtcod
 from libtcodpy import _lib
 console_flush = _lib.TCOD_console_flush
 
-from world import World
-from game import Game
-from entities import Player
-from mocks import SerializerMock, StatusBarMock
-import actions
+from cave_dweller.world import World
+from cave_dweller.game import Game
+from cave_dweller.entities import Player
+from cave_dweller import libtcodpy as libtcod
+from cave_dweller import actions
+
+from .mocks import SerializerMock, StatusBarMock
 
 cur_dir = os.path.dirname(__file__)
 SCREENSHOT_TEST_PATH = os.path.join(cur_dir, "screenshot3.bmp")

@@ -1,1 +1,2 @@
-from cave_dweller import main
+"""Game Module"""
+from .cave_dweller import main

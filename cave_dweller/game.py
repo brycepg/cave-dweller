@@ -2,13 +2,13 @@
 import time
 import os
 import logging
-
-import libtcodpy as libtcod
-
-import tiles
-
-from libtcodpy import _lib
 from ctypes import c_float
+
+from . import libtcodpy as libtcod
+from .libtcodpy import _lib
+
+from . import tiles
+
 console_blit = _lib.TCOD_console_blit
 sys_check_for_event = _lib.TCOD_sys_check_for_event
 ffade = c_float(1.0)
@@ -100,7 +100,7 @@ class Game(object):
         # Tries to center the cosnole during init
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         if font_handler is None:
-            import font_handler
+            from . import font_handler
             Game.font_handler = font_handler.FontHandler()
         else:
             Game.font_handler = font_handler

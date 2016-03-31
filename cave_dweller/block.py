@@ -2,22 +2,19 @@
 
 import random
 import logging
-import operator
-import itertools
 from collections import deque
 
-import libtcodpy as libtcod
-from libtcodpy import _lib
+from .libtcodpy import _lib
 put_char_ex = _lib.TCOD_console_put_char_ex
 
-import entities
-import hidden_map_handler
-import gen_map
-from gen_map import gen_map as generate_map
-from gen_map import generate_obstacle_map
-from game import Game
-from tiles import Tiles
-from util import get_neighbors
+from . import entities
+from . import hidden_map_handler
+from . import gen_map
+from .gen_map import gen_map as generate_map
+from .gen_map import generate_obstacle_map
+from .game import Game
+from .tiles import Tiles
+from .util import get_neighbors
 
 log = logging.getLogger(__name__)
 wall_bg = Tiles.wall.bg

@@ -15,25 +15,25 @@ if __name__ == "__main__":
     sys.path.append("cave_dweller/")
     # mynoise
     sys.path.append(".")
-import libtcodpy as libtcod
+from cave_dweller import libtcodpy as libtcod
 import mynoise
 
-import entities
-import actions
-import gen_map
-import tiles
-import util
-from world import World
-from block import Block, DuplicateBlockError
-from game import Game
-from entities import Player, Entity
-from mocks import SerializerMock, StatusBarMock
-from tiles import Id
-import hidden_map_handler
-from gen_map import generate_obstacle_map
-from gen_map import gen_map as generate_map
+from cave_dweller import entities
+from cave_dweller import actions
+from cave_dweller import gen_map
+from cave_dweller import tiles
+from cave_dweller import util
+from cave_dweller import hidden_map_handler
+from cave_dweller.world import World
+from cave_dweller.block import Block, DuplicateBlockError
+from cave_dweller.game import Game
+from cave_dweller.entities import Player, Entity
+from cave_dweller.tiles import Id
+from cave_dweller.gen_map import generate_obstacle_map
+from cave_dweller.gen_map import gen_map as generate_map
 
-from test_gen_map import zero_map, obs_map
+from .mocks import SerializerMock, StatusBarMock
+from .test_gen_map import zero_map, obs_map
 
 class TestBlock(unittest.TestCase):
     def setUp(self):

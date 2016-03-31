@@ -1,6 +1,7 @@
-import libtcodpy as libtcod
+"""Handles mouse tracking/drawing"""
+from . import libtcodpy as libtcod
 
-from game import Game
+from .game import Game
 
 class Mouse(object):
     def __init__(self, mouse):

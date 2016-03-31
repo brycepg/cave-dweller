@@ -1,6 +1,6 @@
-import libtcodpy as libtcod
+from . import libtcodpy as libtcod
 
-from game import Game
+from .game import Game
 
 class ContextMenu(object):
     def __init__(self, x=0, y=0, width=20, height=20):

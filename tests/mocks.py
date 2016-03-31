@@ -1,4 +1,4 @@
-from game import Game
+from cave_dweller.game import Game
 
 class SerializerMock(object):
     def __init__(self):

@@ -14,21 +14,19 @@ if __name__ == "__main__":
     # mynoise
     sys.path.append(".")
 import mynoise
-import libtcodpy as libtcod
+from cave_dweller import libtcodpy as libtcod
 
-from world import World
-from block import Block, DuplicateBlockError
-from game import Game
-from entities import Player, Entity
-from mocks import SerializerMock, StatusBarMock
-import entities
-import actions
-import gen_map
-import tiles
-from tiles import Id
+from cave_dweller import gen_map
+from cave_dweller import tiles
+from cave_dweller.world import World
+from cave_dweller.block import Block, DuplicateBlockError
+from cave_dweller.game import Game
+from cave_dweller.entities import Player, Entity
+from cave_dweller.tiles import Id
 
-from test_gen_map import zero_map, obs_map
-from test_block import gen_flat_map
+from .mocks import SerializerMock, StatusBarMock
+from .test_gen_map import zero_map, obs_map
+from .test_block import gen_flat_map
 
 def test_set_tile_open(benchmark):
     game = Game()

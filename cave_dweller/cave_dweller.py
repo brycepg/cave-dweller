@@ -10,11 +10,11 @@ __version__ = "0.0.5"
 import time
 import logging
 
-from run_game import run
-from game import Game
-from menu import Menu
-from args import parse_args
-from log_setup import setup_logger
+from .run_game import run
+from .game import Game
+from .menu import Menu
+from .args import parse_args
+from .log_setup import setup_logger
 
 log = logging.getLogger(__name__)
 

@@ -1,14 +1,15 @@
+"""Startup game menu"""
 import logging
 import time
 import os
 import operator
 import shutil
 
-import libtcodpy as libtcod
-import tiles
+from . import libtcodpy as libtcod
+from . import tiles
 
-from game import Game
-from util import game_path
+from .game import Game
+from .util import game_path
 
 class Menu(object):
     """Menus for death and intro

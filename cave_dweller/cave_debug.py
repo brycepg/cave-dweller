@@ -1,10 +1,10 @@
+"""Debug info functions"""
 import collections
-import operator
 
-import libtcodpy as libtcod
+from . import libtcodpy as libtcod
 
-from context_menu import ContextMenu
-from game import Game
+from .context_menu import ContextMenu
+from .game import Game
 
 # TODO fix with entities update
 

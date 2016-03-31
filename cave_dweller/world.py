@@ -1,16 +1,15 @@
-"""Container for World class"""
-import time
+"""BlockManager / Container for World class"""
 import random
 import logging
 
-from tiles import Tiles
-from tiles import Id
-from block import Block
-from game import Game
+from .tiles import Tiles
+from .tiles import Id
+from .block import Block
+from .game import Game
 
 log = logging.getLogger(__name__)
 
-import gen_map
+from . import gen_map
 
 class GetOutOfLoop(Exception):
     """Exception used to break out of multiple for-loops"""

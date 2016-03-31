@@ -6,10 +6,10 @@ import logging
 import collections
 import enum
 
-from game import Game
-import actions
-import util
-import colors
+from .game import Game
+from . import actions
+from . import util
+from . import colors
 
 log = logging.getLogger(__name__)
 

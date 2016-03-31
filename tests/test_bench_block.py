@@ -8,21 +8,20 @@ import operator
 import copy
 import itertools
 
-import libtcodpy as libtcod
+from cave_dweller import libtcodpy as libtcod
 
-from world import World
-from block import Block, DuplicateBlockError
-from game import Game
-from entities import Player
-from mocks import SerializerMock, StatusBarMock
-import entities
-import actions
-import gen_map
-from tiles import Id
+from cave_dweller.world import World
+from cave_dweller.block import Block, DuplicateBlockError
+from cave_dweller.game import Game
+from cave_dweller.entities import Player
+from cave_dweller.tiles import Id
+from cave_dweller import entities
+from cave_dweller import actions
+from cave_dweller import gen_map
 
-
-from test_gen_map import zero_map, obs_map
-import test_block
+from .mocks import SerializerMock, StatusBarMock
+from .test_gen_map import zero_map, obs_map
+from . import test_block
 def test_block_load_surround(benchmark):
     s_mock = SerializerMock()
     w = World(s_mock, block_seed=0)

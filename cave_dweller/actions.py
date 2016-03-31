@@ -1,11 +1,10 @@
 """Implement player actions"""
 import random
 import time
-import traceback
 
-import libtcodpy as libtcod
+from . import libtcodpy as libtcod
 
-from game import Game
+from .game import Game
 
 class PlayerAction(object):
     """Virtual class"""

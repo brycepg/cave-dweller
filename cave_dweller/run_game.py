@@ -1,26 +1,31 @@
-import logging
+"""Main game loop"""
 import time
+import logging
+import textwrap
+import random
+import os
 
-import libtcodpy as libtcod
+from . import libtcodpy as libtcod
+import draw_text
 
 # Optimizations through ctypes / bypassing libtcodpy
-from libtcodpy import _lib
-from ctypes import c_float, c_int, byref
+from .libtcodpy import _lib
+from ctypes import c_int, byref
 console_flush = _lib.TCOD_console_flush
 console_clear = _lib.TCOD_console_clear
 console_blit = _lib.TCOD_console_blit
 sys_check_for_event = _lib.TCOD_sys_check_for_event
 
-import mouse_handler
-import status_handler
-import actions
-import cave_debug
-from game import Game
-from serializer import Serializer
-from world import World
-from entities import Player
-from actions import PlayerAction
-import draw_text
+from . import mouse_handler
+from . import status_handler
+from . import actions
+from . import cave_debug
+from .game import Game
+from .serializer import Serializer
+from .world import World
+from .entities import Player
+from .actions import PlayerAction
+from .util import game_path
 
 log = logging.getLogger(__name__)
 
@@ -178,12 +183,8 @@ def run(args, game):
 
     return return_message
 
-import textwrap
-import random
-import os
 last_game_turn = 0
 cur_turn = 0
-from util import game_path
 draw_text.init_ttf(game_path(os.path.join("fonts", os.path.join("pt", "PTF75F.ttf"))))
 def custom_text(surface):
     global last_game_turn

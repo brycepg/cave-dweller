@@ -5,8 +5,8 @@ get/set functions are still in block
 import logging
 from collections import deque
 
-from game import Game
-from util import get_neighbors
+from .game import Game
+from .util import get_neighbors
 
 log = logging.getLogger(__name__)
 

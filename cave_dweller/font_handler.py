@@ -1,9 +1,9 @@
 import os
 
-import libtcodpy as libtcod
+from . import libtcodpy as libtcod
 
-import game
-from util import game_path
+from . import game
+from .util import game_path
 
 # the behavior of this funtion changed after libtcod.init_root()
 # Assess screen size statically

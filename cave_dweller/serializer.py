@@ -1,13 +1,14 @@
+"""Handles serialization / creating of objects from game saves"""
 import shelve
 import os
 import logging
 import shutil
 from contextlib import closing
 
-from util import game_path
-from block import Block
-from game import Game
-from world import World
+from .util import game_path
+from .block import Block
+from .game import Game
+from .world import World
 
 log = logging.getLogger(__name__)
 

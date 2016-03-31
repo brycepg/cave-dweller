@@ -1,12 +1,12 @@
+"""Single line at bottom of window"""
 import collections
 
-import libtcodpy as libtcod
+from . import libtcodpy as libtcod
 
-from game import Game
-import actions
-import colors
-import tiles
-import mouse_handler
+from .game import Game
+from . import actions
+from . import colors
+from . import tiles
 
 class StatusBar(object):
     def __init__(self):

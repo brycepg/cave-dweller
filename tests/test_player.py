@@ -1,11 +1,11 @@
 import unittest
 
-from world import World
-from game import Game
-from entities import Player
-import actions
+from cave_dweller.world import World
+from cave_dweller.game import Game
+from cave_dweller.entities import Player
+from cave_dweller import actions
 
-from mocks import SerializerMock, HeadlessGame
+from .mocks import SerializerMock, HeadlessGame
 
 class TestPlayer(unittest.TestCase):
     def setUp(self):

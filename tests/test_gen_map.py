@@ -2,9 +2,9 @@ import os
 import unittest
 import random
 
-from gen_map import generate_obstacle_map
-from gen_map import gen_map as generate_block
-from tiles import Tiles
+from cave_dweller.gen_map import generate_obstacle_map
+from cave_dweller.gen_map import gen_map as generate_block
+from cave_dweller.tiles import Tiles
 
 cur_dir = os.path.dirname(__file__)
 map_size = 96

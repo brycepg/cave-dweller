@@ -1,8 +1,9 @@
 """Collection of nametuples defining attributes for game tiles, and ids which
 reference those attributes in a lookup table
 """
-import colors
 from collections import namedtuple
+
+from . import colors
 
 ground_bg = colors.darkest_gray
 ground_fg = colors.gray
