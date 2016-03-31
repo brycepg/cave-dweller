@@ -41,6 +41,7 @@ If anyone is interested feel free to bug me
 The current state of this game is very toy-like though. 
 
 # Compilation
+[![Build Status](https://travis-ci.org/brycepg/cave-dweller.svg?branch=master)](https://travis-ci.org/brycepg/cave-dweller)
 
 You need to install 
 
@@ -58,6 +59,7 @@ Windows and linux dlls/SOs for libtcod are included
 
 After all the dependencies are installed, run
 
+    pip install -r requirements/requirements.txt
     make build
 
 In the root directory
