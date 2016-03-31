@@ -803,6 +803,10 @@ def console_set_char(con, x, y, c):
 def console_set_background_flag(con, flag):
     _lib.TCOD_console_set_background_flag(con, c_int(flag))
 
+def console_set_dirty(x, y, w, h):
+    _lib.TCOD_console_set_dirty(x, y, w, h)
+
+
 def console_get_background_flag(con):
     return _lib.TCOD_console_get_background_flag(con)
 
