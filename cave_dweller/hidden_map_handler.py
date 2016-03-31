@@ -117,8 +117,8 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
             tile_obj = blk.get_tile(*coord)
             if not tile_obj.adjacent_hidden and not blk.get_hidden(*coord):
                 valid_coords.append(coord)
-        if len(valid_coords) > 3:
-            valid_coords = []
+        #if len(valid_coords) > 3:
+        #    valid_coords = []
 
         searched_locations = []
         for coord in valid_coords:
@@ -148,8 +148,8 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
                 valid_coords.append(coord)
 
         # No need to update a tile placed in an open area
-        if len(valid_coords) > 3:
-            valid_coords = []
+        #if len(valid_coords) > 3:
+        #    valid_coords = []
         searched_locations = []
         for coord in valid_coords:
             # Don't search overlapping regions
