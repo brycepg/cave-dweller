@@ -10,6 +10,9 @@ ground_fg = colors.gray
 wall_bg = colors.gray
 wall_fg = colors.white
 
+# pylint: disable=dangerous-default-value
+# This pylint thinks color reference is 'dangerous' because it is an object.
+# It is not
 Tile = namedtuple('Tile',
     ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes', 'name']
 )
