@@ -93,9 +93,9 @@ class Serializer(object):
 
     def save_settings(self, player, world):
         """Save Game state, player info"""
-        if not self.lock_exists():
-            log.debug("Something when wrong. lock still present")
-        self.remove_lock()
+        #if not self.lock_exists():
+        #    log.debug("Something when wrong. lock still present")
+        #self.remove_lock()
 
         seed_str = world.seed_str
         seed_int = world.seed_int
@@ -126,9 +126,9 @@ class Serializer(object):
         if not os.path.exists(path):
             return ret_obj
 
-        if self.lock_exists():
-            raise RuntimeError("Save %s did not save correctly or is already open" % self.serial_path)
-        self.set_lock()
+        #if self.lock_exists():
+        #    raise RuntimeError("Save %s did not save correctly or is already open" % self.serial_path)
+        #self.set_lock()
 
         with closing(shelve.open(path)) as settings_sh:
             ret_obj['player_x'] = settings_sh['player_x']
