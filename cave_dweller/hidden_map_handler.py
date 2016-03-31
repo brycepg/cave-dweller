@@ -202,7 +202,9 @@ def flood_find_hidden(calling_block, x, y, ign_x, ign_y, timeout_radius=Game.map
         except IndexError:
             return found_list
 
-def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size):
+def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size,
+        # Optimizations
+        max=max, abs=abs, set=set, deque=deque, IndexError=IndexError, HitSearchLimit=HitSearchLimit):
     """Try to find unhidden non-adjacent hidden tiles surrounding location"""
     # SUB function
     log.info("flood_find_unhidden called")
@@ -216,7 +218,6 @@ def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size):
             # Do not search previously searched tiles
             if neighbor in searched_list or neighbor in to_search:
                 continue
-
             # Exit condition --- ground open tile
             if (not calling_block.get_tile(*neighbor).adjacent_hidden
                     and not calling_block.get_hidden(*neighbor)):
