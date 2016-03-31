@@ -15,7 +15,10 @@ class HitSearchLimit(Exception):
     Exception for flood fill to throw out a tuple of already searched locations for
     The next flood search
     """
+    # pylint: disable=super-init-not-called
+    # It is called right here. Thanks pylint
     def __init__(self, searched_locations):
+        super(self, Exception, "Hit Search Limit for finding hidden area")
         self.searched_locations = searched_locations
 
 def generate_map(map_size):
@@ -101,6 +104,8 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
     if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
         blk = calling_block
     else:
+        # pylint: disable=duplicate-code
+        # performance constrains disallow me from putting this in a function.
         idx_mod = x // Game.map_size
         idy_mod = y // Game.map_size
         x = x % Game.map_size
