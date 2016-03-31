@@ -301,7 +301,6 @@ class CaveGrass(Entity):
 
 
 
-@enum.unique
 class Direction(enum.Enum):
     up=0
     down=1
@@ -319,7 +318,6 @@ class Direction(enum.Enum):
         # XXX might want to put this somewhere else...?
         return cls.dir_lookup.value[direction.value]
 
-@enum.unique
 class Purpose(enum.Enum):
     move = 0
     kill = 1
