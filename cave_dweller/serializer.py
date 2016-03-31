@@ -7,6 +7,7 @@ from contextlib import closing
 from util import game_path
 from block import Block
 from game import Game
+from world import World
 
 log = logging.getLogger(__name__)
 
@@ -98,7 +99,7 @@ class Serializer(object):
         #self.remove_lock()
 
         seed_str = world.seed_str
-        seed_int = world.seed_int
+        seed_float = world.seed_float
         turn = world.turn
         logging.info("saving settings")
         path = os.path.join(self.serial_path, "settings")
@@ -106,13 +107,13 @@ class Serializer(object):
             #settings_sh['player'] = player
             settings_sh['player_x'] = player.x
             settings_sh['player_y'] = player.y
-            settings_sh['player_index'] = (world.blocks[(Game.idx_cur, Game.idy_cur)]
+            settings_sh['player_index'] = (world.blocks[(player.cur_block.idx, player.cur_block.idy)]
                                            .entities[player.x][player.y].index(player))
             settings_sh['view_x'] = Game.view_x
             settings_sh['view_y'] = Game.view_y
             settings_sh['turn'] = turn
             settings_sh['seed_str'] = seed_str
-            settings_sh['seed_int'] = seed_int
+            settings_sh['seed_float'] = seed_float
             logging.info('turn save %d', turn)
 
     def has_settings(self):
@@ -139,7 +140,7 @@ class Serializer(object):
             Game.update_view()
             ret_obj['turn'] = settings_sh.get('turn', 0)
             ret_obj['seed_str'] = settings_sh.get('seed_str', None)
-            ret_obj['seed_int'] = settings_sh['seed_int']
+            ret_obj['seed_float'] = settings_sh['seed_float']
             logging.info('turn load %d', settings_sh.get('turn'))
         self.settings = ret_obj
         return ret_obj
