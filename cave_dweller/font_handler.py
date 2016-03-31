@@ -5,6 +5,10 @@ import libtcodpy as libtcod
 import game
 from util import game_path
 
+# the behavior of this funtion changed after libtcod.init_root()
+# Assess screen size statically
+resolution = libtcod.sys_get_current_resolution()
+
 class FontHandler(object):
 
     def __init__(self):
@@ -29,7 +33,7 @@ class FontHandler(object):
     def determine_font_index(self):
         """Set font size based on resolution"""
         for index, size in enumerate(self.font_sizes):
-            res_x, res_y = libtcod.sys_get_current_resolution()
+            res_x, res_y = resolution
             if not (game.Game.screen_height * size + 50 > res_y or
                     game.Game.screen_width * size > res_x):
                 font_index = index
