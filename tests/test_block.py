@@ -8,6 +8,7 @@ import operator
 import copy
 import itertools
 import sys
+import collections
 
 # Add some paths for opening the file directly when profiling
 if __name__ == "__main__":
@@ -17,15 +18,16 @@ if __name__ == "__main__":
 import libtcodpy as libtcod
 import mynoise
 
+import entities
+import actions
+import gen_map
+import tiles
+import util
 from world import World
 from block import Block, DuplicateBlockError
 from game import Game
 from entities import Player, Entity
 from mocks import SerializerMock, StatusBarMock
-import entities
-import actions
-import gen_map
-import tiles
 from tiles import Id
 import hidden_map_handler
 from gen_map import generate_obstacle_map
@@ -260,11 +262,101 @@ class TestFlatMaps(unittest.TestCase):
             blk.set_tile(*loc, new_tile=Id.wall)
         self.assertTrue(blk.get_hidden(*center_loc))
 
-class TestFlatMapsDraw(TestFlatMaps):
+    def test_entity_order(self):
+        w = self.w
+        blk = w.blocks[(0,0)]
+
+        prev_turn = w.turn
+
+        d = blk.set_entity(entities.Dummy, 0, 0)
+        m = blk.set_entity(entities.Mole, 1, 0)
+
+        self.assertFalse(d.is_dead)
+        self.assertFalse(m.is_dead)
+        d.queue_kill(entities.Direction.right)
+        w.process()
+        self.assertTrue(m.is_dead)
+        self.assertEqual(m.last_move_turn, prev_turn)
+        self.assertEqual(d.last_move_turn, prev_turn)
+        d2 = blk.set_entity(entities.Dummy, -1, 0)
+        d.queue_kill(entities.Direction.left)
+        d2.queue_kill(entities.Direction.right)
+        w.process()
+        # Arbitrary order!
+        # Based on the hash
+        # XXX fix
+        self.assertFalse(d.is_dead)
+        self.assertTrue(d2.is_dead)
+
+        d3 = blk.set_entity(entities.Dummy, 0, 2)
+        d.queue_move(entities.Direction.down)
+        d3.queue_move(entities.Direction.up)
+        w.process()
+        self.assertEqual((0, 1), (d.x, d.y))
+        self.assertEqual((0, 2), (d3.x, d3.y))
+
+    def test_spider(self):
+        w = self.w
+        blk = w.blocks[(0,0)]
+        s = blk.set_entity(entities.Spider, 1, 0)
+        m = blk.set_entity(entities.Mole, 2, 0)
+        self.assertFalse(m.is_dead)
+        w.process()
+        self.assertTrue(m.is_dead)
+        self.assertFalse(m not in blk.entity_list)
+        while m.food > 0:
+            w.process()
+            self.assertTrue(m.is_dead)
+        self.assertTrue(m not in blk.entity_list)
+        s.hunger = s.MAX_HUNGER
+        m = blk.set_entity(entities.Mole, 2, 0)
+        c = collections.Counter([type(entity) for entity in blk.entity_list])
+        self.assertEqual(c[entities.Spider], 1)
+        self.assertEqual(c[entities.Mole], 1)
+        while m.food > 0:
+            w.process()
+            self.assertTrue(m.is_dead)
+        c = collections.Counter([type(entity) for entity in blk.entity_list])
+        self.assertEqual(c[entities.Spider], 2)
+
+        while s.hunger > 0:
+            w.process()
+        self.assertTrue(s.is_dead)
+
+    def test_mole(self):
+        w = self.w
+        blk = w.blocks[(0,0)]
+        m = blk.set_entity(entities.Mole, 0, 0)
+        c = util.count_entities(blk)
+        self.assertEqual(c[entities.Mole], 1)
+        self.assertEqual(c[entities.Fungus], 0)
+        for x in range(1, 92):
+            m = blk.set_entity(entities.Fungus, x, 0)
+            w.process()
+        c = util.count_entities(blk)
+        self.assertEqual(c[entities.Mole], 2)
+        self.assertEqual(c[entities.Fungus], 0)
+
+class TestFlatMapsDraw(unittest.TestCase):
+
+    g = None
+    @classmethod
+    def set_game(cls):
+        if not cls.g:
+            cls.g = Game()
 
     def setUp(self):
         super(TestFlatMapsDraw, self).setUp()
         self.__class__.set_game()
+        s_mock = SerializerMock()
+        self.w = World(s_mock, block_seed=0)
+        # Cartesian product
+        locs = itertools.product([1,0,-1], [1,0,-1])
+        flat_map = gen_flat_map(Game.map_size)
+        for loc in locs:
+            self.w.blocks[loc] = Block(*loc, world=self.w,
+                                      tiles=gen_flat_map(Game.map_size),
+                                      entities=gen_map.gen_empty_entities(Game.map_size))
 
     def test_hidden_multi_block(self):
         # Merge tests together because this test suite is getting too slow
