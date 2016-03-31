@@ -8,6 +8,15 @@ import libtcodpy as libtcod
 from font_handler import FontHandler
 import tiles
 
+from libtcodpy import _lib
+from ctypes import c_float
+console_blit = _lib.TCOD_console_blit
+sys_check_for_event = _lib.TCOD_sys_check_for_event
+ffade = c_float(1.0)
+bfade = c_float(1.0)
+transparent_fade = c_float(0.0)
+mouse_ffade = c_float(0.75)
+
 class Game(object):
     """Manages static constants,
     mutable viewing state,
@@ -24,6 +33,18 @@ class Game(object):
     sidebar_enabled = False
     game_width = screen_height - 1 if sidebar_enabled else screen_width
     game_height = screen_height - 1
+    redraw_consoles = False
+    redraw_sidebar = False
+
+    @classmethod
+    def set_sidebar(cls, bool_val):
+        cls.sidebar_enabled = bool_val
+        cls.game_width = cls.screen_height - 1 if cls.sidebar_enabled else cls.screen_width
+        # SIGSEV on console delete? (Only with multiple console deletes?)
+        # This function causes memory leaks! YAY
+        cls.init_consoles(init_root=False)
+        cls.redraw_consoles = True
+
 
     game_con = None
     mouse_con = None
@@ -70,6 +91,8 @@ class Game(object):
             return False
 
 
+    active_consoles = []
+    font_handler = None
     def __init__(self):
         if max(Game.game_width, Game.game_height) > Game.map_size:
             raise RuntimeError("Screen window is bigger than map size"
@@ -77,26 +100,59 @@ class Game(object):
         logging.info("game init")
         # Tries to center the cosnole during init
         os.environ['SDL_VIDEO_CENTERED'] = '1'
-        self.font_handler = FontHandler()
-        self.init_consoles()
+        Game.font_handler = FontHandler()
+        Game.init_consoles()
         self.update_view()
 
-    def init_consoles(self):
-        self.bring_up_root()
+    @classmethod
+    def blit_consoles(cls, status_bar, debug_info=None):
+        console_blit(Game.game_con, 0, 0,
+                             Game.game_width, Game.game_height,
+                             0, 0, 0, ffade, bfade)
+        if status_bar:
+            status_bar.draw()
+        if not debug_info and Game.sidebar_enabled:
+            console_blit(Game.sidebar_con, 0, 0, 0, 0,
+                                 0, Game.game_width, 0, ffade, bfade)
+        console_blit(Game.debug_con, 0, 0, 0, 0,
+                             0, 0, 0, ffade, transparent_fade)
+        console_blit(Game.mouse_con, 0, 0, 0, 0,
+                             0, 0, 0, mouse_ffade, transparent_fade)
+
+    @classmethod
+    def init_consoles(cls, init_root=True):
+        if init_root:
+            cls.bring_up_root()
         Game.game_con = libtcod.console_new(Game.game_width, Game.game_height)
+        Game.active_consoles.append(Game.game_con)
+
         Game.sidebar_con = libtcod.console_new(Game.screen_width - Game.game_width,
-                                               Game.screen_height)
+                                                Game.screen_height)
+        Game.active_consoles.append(Game.sidebar_con)
         libtcod.console_set_default_background(Game.sidebar_con, libtcod.dark_gray)
         Game.debug_con = libtcod.console_new(Game.game_width, Game.game_height)
+        Game.active_consoles.append(Game.debug_con)
 
         Game.mouse_con = libtcod.console_new(Game.screen_width, Game.screen_height)
+        Game.active_consoles.append(Game.mouse_con)
+        for console in Game.active_consoles:
+            libtcod.console_clear(console)
 
-    def bring_up_root(self):
+    @classmethod
+    def delete_consoles(cls):
+        libtcod.console_flush()
+        for console in Game.active_consoles:
+            libtcod.console_clear(console)
+            libtcod.console_delete(console)
+        Game.active_consoles = []
+
+    @classmethod
+    def bring_up_root(cls):
         """Call relevant settings and then bringing up the root console."""
-        self.font_handler.set_font()
+        cls.font_handler.set_font()
         # TODO modify libtcod to fix cursor problem with resize
         libtcod.console_disable_keyboard_repeat()
-        libtcod.sys_set_fps(type(self).fps)
+        libtcod.sys_set_fps(cls.fps)
         libtcod.mouse_show_cursor(False)
         libtcod.console_init_root(Game.screen_width, Game.screen_height,
                                   'Cave Dweller',
@@ -127,6 +183,10 @@ class Game(object):
         cls.idx_cur = (cls.view_x + Game.game_width//2) // cls.map_size
         cls.idy_cur = (cls.view_y + Game.game_height//2) // cls.map_size
 
+    @classmethod
+    def toggle_sidebar(cls):
+        cls.set_sidebar(False if cls.sidebar_enabled else True)
+
     def get_game_input(self, key):
         if key.pressed:
             if key.lctrl and key.rctrl and key.c == ord('d'):
@@ -134,6 +194,8 @@ class Game(object):
             if key.vk == libtcod.KEY_F11:
                 Game.fullscreen = False if Game.fullscreen else True
                 self.bring_up_root()
+            if key.vk == libtcod.KEY_F5:
+                Game.toggle_sidebar()
         if Game.debug:
             if key.pressed:
                 mod = key.lctrl
