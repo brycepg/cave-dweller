@@ -1,0 +1,65 @@
+Timer unit: 1e-06 s
+
+Total time: 1.63523 s
+File: cave_dweller/serializer.py
+Function: save_block at line 48
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    48                                               @profile
+    49                                               def save_block(self, block):
+    50                                                   """Save tiles/objects for block"""
+    51         9          120     13.3      0.0          block_name = "block%d,%d" % (block.idx, block.idy)
+    52         9          112     12.4      0.0          block_path = os.path.join(self.serial_path, block_name)
+    53         9       479582  53286.9     29.3          with closing(shelve.open(block_path)) as block_sh:
+    54         9           41      4.6      0.0              save_turn = block.world.turn if block.save_turn is None else block.save_turn
+    55         9          172     19.1      0.0              self.remove_references(block)
+    56         9        14704   1633.8      0.9              block_sh['tiles'] = block.tiles
+    57         9        57620   6402.2      3.5              block_sh['entities'] = block.entities
+    58         9         3638    404.2      0.2              block_sh['hidden_map'] = block.hidden_map
+    59         9         3790    421.1      0.2              block_sh['obstacle_map'] = block.obstacle_map
+    60         9      1075448 119494.2     65.8              block_sh['save_turn'] = save_turn
+
+Total time: 0.266032 s
+File: cave_dweller/serializer.py
+Function: save_settings at line 94
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    94                                               @profile
+    95                                               def save_settings(self, player, world):
+    96                                                   """Save Game state, player info"""
+    97                                                   #if not self.lock_exists():
+    98                                                   #    log.debug("Something when wrong. lock still present")
+    99                                                   #self.remove_lock()
+   100                                           
+   101         1            1      1.0      0.0          seed_str = world.seed_str
+   102         1            1      1.0      0.0          seed_float = world.seed_float
+   103         1            1      1.0      0.0          turn = world.turn
+   104         1          333    333.0      0.1          logging.info("saving settings")
+   105         1            9      9.0      0.0          path = os.path.join(self.serial_path, "settings")
+   106         1       181349 181349.0     68.2          with closing(shelve.open(path)) as settings_sh:
+   107                                                       #settings_sh['player'] = player
+   108         1          747    747.0      0.3              settings_sh['player_x'] = player.x
+   109         1           40     40.0      0.0              settings_sh['player_y'] = player.y
+   110         1            5      5.0      0.0              settings_sh['player_index'] = (world.blocks[(player.cur_block.idx, player.cur_block.idy)]
+   111         1           25     25.0      0.0                                             .entities[player.x][player.y].index(player))
+   112         1           21     21.0      0.0              settings_sh['view_x'] = Game.view_x
+   113         1           21     21.0      0.0              settings_sh['view_y'] = Game.view_y
+   114         1           29     29.0      0.0              settings_sh['turn'] = turn
+   115         1           19     19.0      0.0              settings_sh['seed_str'] = seed_str
+   116         1           23     23.0      0.0              settings_sh['seed_float'] = seed_float
+   117         1        83408  83408.0     31.4              logging.info('turn save %d', turn)
+
+Total time: 1.90263 s
+File: cave_dweller/serializer.py
+Function: save_game at line 167
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   167                                               @profile
+   168                                               def save_game(self, world, player):
+   169         1       266114 266114.0     14.0          self.save_settings(player, world)
+   170         1      1636210 1636210.0     86.0          world.save_memory_blocks()
+   171         1          307    307.0      0.0          logging.debug("saving seed {} at world turn {}".format(world.seed_float, world.turn))
+
