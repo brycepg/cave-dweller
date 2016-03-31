@@ -1,5 +1,5 @@
 all: _PHONY
-	python setup.py build_ext --inplace
+	CFLAGS="-std=c99" python setup.py build_ext --inplace
 
 
 _PHONY:
