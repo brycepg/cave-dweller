@@ -124,7 +124,7 @@ def write_map(block, idx=0, idy=0, path=None):
     else:
         pgm_out_path = path
 
-    with open(pgm_out_path, 'wt') as pgm_out:
+    with open(pgm_out_path, 'w+') as pgm_out:
         pgm_out.write('P2\n')
         pgm_out.write('{blksz} {blksz}\n'.format(blksz=len(block)))
         pgm_out.write('255\n')
