@@ -60,31 +60,32 @@ def debug_print(**kwargs):
     libtcod.console_print(Game.debug_con, 1, 8, "entities: {}".format(num_entities))
 
 def debug_menu(key, debug_info, world):
-    # Doesn't work with entities update -- too slow
-    return
     """Show some stats for entity overseeing"""
-    if key.lctrl and key.pressed and key.c == ord('q') and Game.debug:
-        if not debug_info:
-            debug_info = ContextMenu(Game.game_width, 0, height=Game.screen_height, width=Game.screen_width-Game.game_width)
-        elif debug_info:
-            debug_info.clear()
-            libtcod.console_delete(debug_info.con)
-            debug_info = None
-    if debug_info:
-        debug_info.clear()
-        debug_info.write("Number of entities per block")
-        for key, value in cave_debug.num_obj_per_block(world).items():
-            text = "%s: %s" % (key, value)
-            debug_info.write(text)
-        debug_info.write("")
-        debug_info.write("Current entity type count")
-        for key, value in cave_debug.display_cur_entities(world).items():
-            text = "%s: %s" % (key, value)
-            debug_info.write(text)
-        debug_info.write("")
-        debug_info.write("Num of entity per block")
-        for key, value in cave_debug.num_obj_per_block(world).items():
-            text = "%s: %s" % (key, value)
-            debug_info.write(text)
-        debug_info.draw()
-    return debug_info
+    # Doesn't work with entities update -- too slow
+    # pylint: disable=unreachable
+    return
+#    if key.lctrl and key.pressed and key.c == ord('q') and Game.debug:
+#        if not debug_info:
+#            debug_info = ContextMenu(Game.game_width, 0, height=Game.screen_height, width=Game.screen_width-Game.game_width)
+#        elif debug_info:
+#            debug_info.clear()
+#            libtcod.console_delete(debug_info.con)
+#            debug_info = None
+#    if debug_info:
+#        debug_info.clear()
+#        debug_info.write("Number of entities per block")
+#        for key, value in cave_debug.num_obj_per_block(world).items():
+#            text = "%s: %s" % (key, value)
+#            debug_info.write(text)
+#        debug_info.write("")
+#        debug_info.write("Current entity type count")
+#        for key, value in cave_debug.display_cur_entities(world).items():
+#            text = "%s: %s" % (key, value)
+#            debug_info.write(text)
+#        debug_info.write("")
+#        debug_info.write("Num of entity per block")
+#        for key, value in cave_debug.num_obj_per_block(world).items():
+#            text = "%s: %s" % (key, value)
+#            debug_info.write(text)
+#        debug_info.draw()
+#    return debug_info
