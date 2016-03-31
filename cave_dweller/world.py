@@ -30,6 +30,9 @@ class World(object):
         self.turn = 0
 
     def generate_seeds(self, seed_str=None, seed_int=None):
+    def __getitem__(self, key):
+        return self.blocks[(key)]
+
         """Hash seed str to generate seed int for noise function
 
         If neither provided, use random int
