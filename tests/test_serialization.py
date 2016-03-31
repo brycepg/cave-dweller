@@ -39,9 +39,9 @@ class TestSerialization(unittest.TestCase):
             w.process()
         self.assertEqual(w.turn, 2)
         turn = w.turn
-        self.assertFalse(s.has_settings)
+        self.assertFalse(s.has_settings())
         s.save_game(w, p)
-        self.assertTrue(s.has_settings)
+        self.assertTrue(s.has_settings())
         del w
         del b
         del p
