@@ -200,7 +200,7 @@ class World(object):
         Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)
         self.turn += 1
 
-    def draw(self):
+    def draw(self, init_draw=False):
         """Call viewable block's draw function"""
         # Draw at max 4 blocks
         # (Assumption that the viewing size is smaller than the map_size
@@ -217,6 +217,8 @@ class World(object):
             #log.info("Draw %dx%d", block.idx, block.idy)
             block = self.get(*loc)
             block.draw_block()
+        if init_draw:
+            world.draw() # Get rid of artifacts from determining hidden map
 
     def get_block(self, abs_x, abs_y):
         """Get block at the absolute coordinate"""
