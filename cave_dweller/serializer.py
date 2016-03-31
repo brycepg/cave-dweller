@@ -115,6 +115,9 @@ class Serializer(object):
             settings_sh['seed_int'] = seed_int
             logging.info('turn save %d', turn)
 
+    def has_settings(self):
+        path = os.path.join(self.serial_path, "settings")
+        return os.path.exists(path)
     def load_settings(self):
         """load Game state, player info into dict"""
 
@@ -138,7 +141,32 @@ class Serializer(object):
             ret_obj['seed_str'] = settings_sh.get('seed_str', None)
             ret_obj['seed_int'] = settings_sh['seed_int']
             logging.info('turn load %d', settings_sh.get('turn'))
+        self.settings = ret_obj
         return ret_obj
+
+    def init_world(self):
+        seed = self.settings['seed_str']
+        block_seed = self.settings['seed_float']
+        world = World(self, seed_str=seed, block_seed=block_seed)
+        if self.settings.get('turn'):
+            world.turn = self.settings['turn']
+        return world
+
+    def init_player(self, world):
+        player_x = self.settings['player_x']
+        player_y = self.settings['player_y']
+        player_index = self.settings['player_index']
+        cur_block = world.get(Game.idx_cur, Game.idy_cur)
+        player = cur_block.entities[player_x][player_y][player_index]
+        player.cur_block  = cur_block
+        log.info("Player loaded %r block", player)
+        player.register_actions()
+        return player
+
+    def save_game(self, world, player):
+        self.save_settings(player, world)
+        world.save_memory_blocks()
+        logging.debug("saving seed {} at world turn {}".format(world.seed_float, world.turn))
 
     def delete_save(self):
         """Permadeath"""
