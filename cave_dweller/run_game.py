@@ -31,31 +31,10 @@ def run(args, game):
     # Try to load save if available
     a_serializer = Serializer(args.selected_path)
     settings_obj = a_serializer.load_settings()
-    if settings_obj.get('seed_str') is not None:
-        seed = settings_obj['seed_str']
-    else:
-        seed = args.seed
-
-    if settings_obj.get('seed_float') is not None:
-        block_seed = settings_obj['seed_float']
-    else:
-        block_seed = args.block_seed
-
-    world = World(a_serializer, seed_str=seed, block_seed=block_seed)
-    if settings_obj.get('turn'):
-        world.turn = settings_obj['turn']
-    # Get save information / Generate initial objects
-
-    if settings_obj.get('player_index') is not None:
+    if a_serializer.has_settings():
+        world = a_serializer.init_world()
         world.current_block_init()
-        player_x = settings_obj['player_x']
-        player_y = settings_obj['player_y']
-        player_index = settings_obj['player_index']
-        cur_block = world.blocks[(Game.idx_cur, Game.idy_cur)]
-        player = cur_block.entities[player_x][player_y][player_index]
-        player.cur_block  = cur_block
-        log.info("Player loaded %r block", player)
-        player.register_actions()
+        player = a_serializer.init_player(world)
     else:
         player = Player()
         start_block = world.get(Game.idx_cur, Game.idy_cur)

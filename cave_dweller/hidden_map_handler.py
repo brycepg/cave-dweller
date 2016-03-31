@@ -18,7 +18,7 @@ class HitSearchLimit(Exception):
     # pylint: disable=super-init-not-called
     # It is called right here. Thanks pylint
     def __init__(self, searched_locations):
-        super(self, Exception, "Hit Search Limit for finding hidden area")
+        super(Exception, self).__init__("Hit Search Limit for finding hidden area")
         self.searched_locations = searched_locations
 
 def generate_map(map_size):
