@@ -84,7 +84,7 @@ def update_hidden(calling_block, x, y, iteration=3):
             update_hidden(blk, *neighbor_coord, iteration=iteration)
 
 
-def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game.map_size):
+def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game.map_size//2):
     """ Detects hidden are or the destruction of a hidden area due to change of 
     tile state from calling_block at x, y
 
