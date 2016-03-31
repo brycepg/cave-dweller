@@ -5,7 +5,6 @@ import logging
 
 import libtcodpy as libtcod
 
-from font_handler import FontHandler
 import tiles
 
 from libtcodpy import _lib
@@ -93,14 +92,18 @@ class Game(object):
 
     active_consoles = []
     font_handler = None
-    def __init__(self):
+    def __init__(self, font_handler=None):
         if max(Game.game_width, Game.game_height) > Game.map_size:
             raise RuntimeError("Screen window is bigger than map size"
                                "(need to change draw algorithm)")
         logging.info("game init")
         # Tries to center the cosnole during init
         os.environ['SDL_VIDEO_CENTERED'] = '1'
-        Game.font_handler = FontHandler()
+        if font_handler is None:
+            import font_handler
+            Game.font_handler = font_handler.FontHandler()
+        else:
+            Game.font_handler = font_handler
         Game.init_consoles()
         self.update_view()
 

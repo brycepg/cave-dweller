@@ -19,6 +19,7 @@ from mocks import SerializerMock, StatusBarMock
 import actions
 import block
 import tiles
+from font_handler import FontHandler
 
 cur_dir = os.path.dirname(__file__)
 SCREENSHOT_TEST_PATH = os.path.join(cur_dir, "screenshot3.bmp")
@@ -43,7 +44,8 @@ class TestDraw(unittest.TestCase):
     @classmethod
     def set_game(cls):
         if not cls.g:
-            cls.g = Game()
+            fh = FontHandler(font_index=0)
+            cls.g = Game(fh)
 
 
     def setUp(self):

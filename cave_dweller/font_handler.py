@@ -11,13 +11,13 @@ resolution = libtcod.sys_get_current_resolution()
 
 class FontHandler(object):
 
-    def __init__(self):
+    def __init__(self, font_index=None):
         self.font_sizes = [16, 12, 10]
         self.font_size_index = None
-        self.auto_set()
-
-    def auto_set(self):
-        self.font_size_index = self.determine_font_index()
+        if font_index is None:
+            self.font_size_index = self.determine_font_index()
+        else:
+            self.font_size_index = font_index
         self.set_font(self.font_size_index)
 
     def set_font(self, font_index=None):
