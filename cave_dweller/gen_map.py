@@ -29,6 +29,7 @@ def gen_map(seed, idx, idy, map_size=96,
         simplex_slice = simplex_map[x]
         for y in y_range:
             if -.2 < simplex_slice[y] < 0:
+                # Randomly choose ground tile
                 simplex_slice[y] = any_ground[int(rnd_float() * gnd_len)]
             else:
                 simplex_slice[y] = wall
