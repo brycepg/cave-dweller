@@ -42,3 +42,6 @@ coverage: _PHONY
 
 coverage_travis: _PHONY
 	coverage run --source cave_dweller/ `which $(UNITTEST)`
+
+lint:
+	pylint cave_dweller --ignore=libtcodpy.py
