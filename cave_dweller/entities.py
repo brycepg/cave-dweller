@@ -344,8 +344,6 @@ class Dummy(Entity):
             if not cur_block.is_obstacle(*new_loc):
                 cur_block.move_entity(self, *new_loc)
 
-
-        pass
     def queue_move(self, direction):
         self.queue.append((Purpose.move, direction))
     def queue_kill(self, direction):
