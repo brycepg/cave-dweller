@@ -228,9 +228,3 @@ class World(object):
 
         for block in self.inactive_blocks.values():
             self.a_serializer.save_block(block)
-
-def get_id_from_abs(abs_x, abs_y):
-    """Get idx/idy from abs coord"""
-    idx = abs_x // Game.map_size
-    idy = abs_y // Game.map_size
-    return idx, idy
