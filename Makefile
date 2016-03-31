@@ -37,5 +37,8 @@ testbench: _PHONY
 	$(UNITTEST) tests $(ARGS)
 
 coverage: _PHONY
-	coverage run --source cave_dweller/ `which $(UNITTEST)` --benchmark-disable tests
+	coverage run --source cave_dweller/ `which $(UNITTEST)` --benchmark-disable
 	coverage html --omit cave_dweller/libtcodpy.py
+
+coverage_travis: _PHONY
+	coverage run --source cave_dweller/ `which $(UNITTEST)`

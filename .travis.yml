@@ -5,8 +5,13 @@ before_install:
     - sudo apt-get -qq update
     - sudo apt-get install sdl1.2debian -y
     - sudo apt-get install sdl2.0-ttf -y
-install: 
+install:
     - make build
     - pip install -r requirements/travis-requirements.txt
+    - pip install coveralls
 
-script: make test
+script:
+     make coverage_travis
+
+after_success:
+     coveralls --omit cave_dweller/libtcodpy.py
