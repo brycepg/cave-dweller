@@ -10,6 +10,8 @@ else:
     # XXX insert win32 flag to unroll loops here
     compile_args = []
 
+compile_args.append('-std=c99')
+
 setup(
     name='mynoise',
     version='1.2.2',
