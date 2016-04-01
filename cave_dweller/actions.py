@@ -96,7 +96,7 @@ class PlayerMoveAction(PlayerAction):
 
 class Build(PlayerMoveAction):
     def __init__(self):
-        super(type(self), self).__init__(state_key=ord('b'))
+        super(Build, self).__init__(state_key=ord('b'))
 
     def dir(self, direction, coordinates, cur_block, player=None):
         """If tile is buildable, then get it's 'build' tile"""
@@ -111,7 +111,7 @@ class Build(PlayerMoveAction):
 
 class Dig(PlayerMoveAction):
     def __init__(self):
-        super(type(self), self).__init__(state_key=ord('d'))
+        super(Dig, self).__init__(state_key=ord('d'))
 
     def dir(self, direction, coordinates, cur_block, player=None):
         """If tile is diggable, then get it's 'dig' tile"""
@@ -126,7 +126,7 @@ class Dig(PlayerMoveAction):
 
 class Move(PlayerMoveAction):
     def __init__(self):
-        super(type(self), self).__init__(state_key=None)
+        super(Move, self).__init__(state_key=None)
         self.last_move_time = 0
 
     def process(self, player, cur_block):
@@ -135,7 +135,7 @@ class Move(PlayerMoveAction):
             return
         self.last_move_time = time.time()
 
-        super(type(self), self).process(player, cur_block)
+        super(Move, self).process(player, cur_block)
 
     def dir(self, direction, coordinates, cur_block, player):
         """Move player if tile desired is not collidable or if collision is turned off"""
@@ -148,7 +148,7 @@ class Move(PlayerMoveAction):
 
 class Attack(PlayerMoveAction):
     def __init__(self):
-        super(type(self), self).__init__(state_key=ord('k'))
+        super(Attack, self).__init__(state_key=ord('k'))
 
     def dir(self, direction, coordinates, cur_block, player):
         if self.dir_dict[direction]:
@@ -165,7 +165,7 @@ class Wait(PlayerAction):
        (probably should only enable for debug)"""
 
     def __init__(self):
-        super(type(self), self).__init__()
+        super(Wait, self).__init__()
         self.wait = False
         self.wait_fast = False
 

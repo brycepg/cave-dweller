@@ -25,6 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# pylint: skip-file
 import sys
 import os
 import ctypes

@@ -53,7 +53,7 @@ extension-pkg-whitelist=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=W0141, C0103, star-args, superfluous-parens, redefined-builtin, redefined-outer-name, locally-disabled, 
+disable=too-few-public-methods, W0141, C0103, star-args, superfluous-parens, redefined-builtin, redefined-outer-name, locally-disabled,
     # Use this for splatting coords a lot
     #star-args,
     # Print statement for parens due to python3 requirement
@@ -62,7 +62,8 @@ disable=W0141, C0103, star-args, superfluous-parens, redefined-builtin, redefine
     #redefined-builtin,
     #redefined-outer-name,
     # warning message for disabling pylint in comments - wtf
-    #locally-disabled, 
+    #locally-disabled,
+    # too-few-public-methods - Absolutely retarted. It's ok to uses classes as plain old data
 
 [REPORTS]
 

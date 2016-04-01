@@ -11,9 +11,10 @@ ground_fg = colors.gray
 wall_bg = colors.gray
 wall_fg = colors.white
 
-# pylint: disable=dangerous-default-value
+# pylint: disable=dangerous-default-value, bad-continuation, bad-whitespace, line-too-long
 # This pylint thinks color reference is 'dangerous' because it is an object.
 # It is not
+# continuation - used to align names with defaults
 Tile = namedtuple('Tile',
     ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes', 'name']
 )
@@ -41,9 +42,9 @@ class Tiles(object):
 
     wall = Tile(ord('x'), is_obstacle=True, fg=wall_fg, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
 
-    build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
-    build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
-    build3 = Tile(char=178, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.wall],   'dig': [Id.build2]})
+    build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True, diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
+    build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True, diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
+    build3 = Tile(char=178, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True, diggable=True, attributes={'build': [Id.wall],   'dig': [Id.build2]})
 
     dig1 = Tile(char=178, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': [Id.dig2], 'build': [Id.wall]})
     dig2 = Tile(char=177, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': [Id.dig3], 'build': [Id.dig1]})

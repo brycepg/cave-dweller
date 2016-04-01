@@ -8,6 +8,7 @@ before_install:
 install:
     - make build
     - pip install -r requirements/travis-requirements.txt
+    - pip install pylint
     - pip install coveralls
 
 script:

@@ -217,7 +217,7 @@ class World(object):
             block = self.get(*loc)
             block.draw_block()
         if init_draw:
-            world.draw() # Get rid of artifacts from determining hidden map
+            self.draw() # Get rid of artifacts from determining hidden map
 
     def get_block(self, abs_x, abs_y):
         """Get block at the absolute coordinate"""

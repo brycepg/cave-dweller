@@ -58,7 +58,7 @@ def run(args, game):
     # Get save information / Generate initial objects
 
     # Draw first frame before player moves
-    world.draw()
+    world.draw(init_draw=True)
 
     # Messages for out of game menu
     return_message = {}
@@ -75,8 +75,6 @@ def run(args, game):
 
     skipped_loads = 0
     skipped_culls = 0
-
-    debug_info = None
 
     key = libtcod.Key()
     libmouse = libtcod.Mouse()
@@ -137,7 +135,7 @@ def run(args, game):
             spent_time = (time.time() - Game.loop_start) * .1 + spent_time * .9
             cave_debug.debug_print(fps_base=fps_base, world=world, game=game, player=player, spent_time=spent_time)
         mouse.conditional_print()
-        game.blit_consoles(status_bar, debug_info)
+        game.blit_consoles(status_bar)
         console_flush()
         if player.moved or Game.redraw_consoles:
             libtcod.console_set_dirty(Game.game_width, 0, (Game.screen_width - Game.game_width), Game.screen_height)
@@ -155,7 +153,6 @@ def run(args, game):
             #print("char {}".format((chr(key.c))))
             #print("vk {}".format(key.vk))
             if Game.debug:
-                debug_info = cave_debug.debug_menu(key, debug_info, world)
                 if key.pressed and key.lctrl and key.c == ord('f'):
                     if Game.action_interval:
                         Game.action_interval = 0

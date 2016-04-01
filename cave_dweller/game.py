@@ -114,9 +114,9 @@ class Game(object):
                              0, 0, 0, ffade, bfade)
         if status_bar:
             status_bar.draw()
-        if not debug_info and Game.sidebar_enabled:
-            console_blit(Game.sidebar_con, 0, 0, 0, 0,
-                                 0, Game.game_width, 0, ffade, bfade)
+        #if not debug_info and Game.sidebar_enabled:
+        #    console_blit(Game.sidebar_con, 0, 0, 0, 0,
+        #                         0, Game.game_width, 0, ffade, bfade)
         console_blit(Game.debug_con, 0, 0, 0, 0,
                              0, 0, 0, ffade, transparent_fade)
         console_blit(Game.mouse_con, 0, 0, 0, 0,
