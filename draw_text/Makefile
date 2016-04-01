@@ -14,5 +14,10 @@ standalone: main.c a.out
 
 all: draw_text.so standalone lib
 
+draw_text.so: _PHONY
+
 clean:
 	rm -f *.pyc
+	rm -f *.so
+
+_PHONY:
