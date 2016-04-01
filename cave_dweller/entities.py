@@ -329,6 +329,8 @@ class Direction(enum.Enum):
         current location
         """
         # XXX might want to put this somewhere else...?
+        # pylint: disable=bad-option-value, unsubscriptable-object
+        # Enum does some magic here to hash static data members
         return cls.dir_lookup.value[direction.value]
 
 class Purpose(enum.Enum):
