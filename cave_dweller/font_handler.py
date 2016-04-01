@@ -1,3 +1,4 @@
+"""Handles initialization of libtcod tile font, and the multiple sizes that a font can be"""
 import os
 
 from . import libtcodpy as libtcod
@@ -10,6 +11,10 @@ from .util import game_path
 resolution = libtcod.sys_get_current_resolution()
 
 class FontHandler(object):
+    """
+    Handles determining best font size for screen, setting current font, loading font
+    via libtcod
+    """
 
     def __init__(self, font_index=None):
         self.font_sizes = [16, 12, 10]
@@ -44,6 +49,10 @@ class FontHandler(object):
         return font_index
 
     def decrease_font(self):
+        """
+        Decrease font size to the next available font.
+        Stateful. does not return anything.
+        """
         change_sucessful = None
         if self.font_size_index < len(self.font_sizes) - 1:
             self.font_size_index += 1
@@ -53,6 +62,10 @@ class FontHandler(object):
         return change_sucessful
 
     def increase_font(self):
+        """
+        Increase font size to the next size available font.
+        Stateful. Does not return anything.
+        """
         change_sucessful = None
         if self.font_size_index > 0:
             self.font_size_index -= 1

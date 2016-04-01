@@ -92,9 +92,11 @@ class PlayerMoveAction(PlayerAction):
                 return
 
     def dir(self, direction, coordinates, cur_block, player):
+        """Pass"""
         pass
 
 class Build(PlayerMoveAction):
+    """Build action"""
     def __init__(self):
         super(Build, self).__init__(state_key=ord('b'))
 
@@ -110,6 +112,7 @@ class Build(PlayerMoveAction):
         return cur_block
 
 class Dig(PlayerMoveAction):
+    """Dig action"""
     def __init__(self):
         super(Dig, self).__init__(state_key=ord('d'))
 
