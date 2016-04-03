@@ -108,13 +108,6 @@ class World(object):
         except GetOutOfLoop:
             log.debug("serialization timeout")
 
-    def current_block_init(self):
-        """Load current block for start of game"""
-        # Load current block first
-        if not (Game.idx_cur, Game.idy_cur) in self.blocks:
-            self.blocks[(Game.idx_cur, Game.idy_cur)] = self.load_block(Game.idx_cur, Game.idy_cur)
-
-
     def load_surrounding_blocks(self, idx_cur, idy_cur,
                                 loaded_block_radius=Game.loaded_block_radius,
                                 ignore_time=True):
@@ -225,11 +218,3 @@ class World(object):
         idy = abs_y // Game.map_size
         block = self.blocks[(idx, idy)]
         return block
-
-    def save_memory_blocks(self):
-        logging.info("Saving blocks.. bye bye")
-        for block in self.blocks.values():
-            self.a_serializer.save_block(block)
-
-        for block in self.inactive_blocks.values():
-            self.a_serializer.save_block(block)

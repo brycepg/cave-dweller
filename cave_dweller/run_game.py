@@ -35,28 +35,30 @@ def run(args, game):
     # Setup variables used in player/world
     Game.record_loop_time()
 
-    # Try to load save if available
+    # Initialize database connection
     a_serializer = Serializer(args.selected_path)
-    settings_obj = a_serializer.load_settings()
+    # Load from save
     if a_serializer.has_settings():
+        a_serializer.load_settings()
         world = a_serializer.init_world()
-        world.current_block_init()
         player = a_serializer.init_player(world)
+    # New game
     else:
         # First time start
         world = World(a_serializer, seed_str=args.seed, block_seed=args.block_seed)
         start_block = world.get(Game.idx_cur, Game.idy_cur)
         player = start_block.set_entity(Player, Game.map_size//2, Game.map_size//2)
         start_block.reposition_entity(player, avoid_hidden=True)
-        player.update_view_location()
         # Process to initalize object behavior
         # object process only works once per turn to stop multiple actions
         #world.process()
         # Remove cascade of loaded blocks due to
         # object generation moving over borders
         world.cull_old_blocks(force_cull=True)
+        a_serializer.save_game(world, player)
     # Get save information / Generate initial objects
 
+    player.update_view_location()
     # Draw first frame before player moves
     world.draw(init_draw=True)
 
@@ -171,6 +173,7 @@ def run(args, game):
 
     if return_message['save']:
         a_serializer.save_game(world, player)
+        a_serializer.close_connection()
     elif return_message['dead']:
         a_serializer.delete_save()
         # Reset movement keys -- bad idea to use static list
