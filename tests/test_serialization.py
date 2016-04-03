@@ -42,12 +42,13 @@ class TestSerialization(unittest.TestCase):
         self.assertFalse(s.has_settings())
         s.save_game(w, p)
         self.assertTrue(s.has_settings())
+        s.close_connection()
         del w
         del b
         del p
         del s
         s = serializer.Serializer(basedir=basedir, folder=folder)
-        settings_obj = s.load_settings()
+        s.load_settings()
         w = s.init_world()
         self.assertEqual(turn, w.turn)
         p = s.init_player(w)
