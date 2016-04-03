@@ -20,6 +20,7 @@ clean:
 	rm -fr *.pyo *.pyc __pycache__ cave_dweller/*.pyc dist build *.svg
 	$(noisemake) clean
 	$(drawmake) clean
+	rm *.svg
 
 _PHONY:
 
@@ -46,3 +47,6 @@ coverage_travis: _PHONY
 
 lint:
 	pylint cave_dweller --ignore=libtcodpy.py
+
+histogram: _PHONY
+	$(UNITTEST) --benchmark-histogram tests $(ARGS)
