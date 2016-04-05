@@ -24,7 +24,6 @@ class StatusBar(object):
         self.ordered_status['debug'] = []
 
         self.inspect = None
-        self.is_mode_set = False
 
     def get_txt(self, player, world):
         """Generate status bar text for game"""
@@ -90,7 +89,6 @@ class StatusBar(object):
                     self.ordered_status['mode'] = []
                     self.ordered_status['mode'].append(' ')
                     self.ordered_status['mode'].append(mode)
-                    self.is_mode_set = True
                     #log.info("set %s",mode)
                 if not key.pressed:
                     if len(self.ordered_status['mode']) > 1:

@@ -33,7 +33,6 @@ class Menu(object):
             save_paths = []
             for save in saves[:]:
                 save_path = os.path.join(game_path('data'), save)
-                settings_path = os.path.join(save_path, 'settings')
                 if os.path.exists(save_path):
                     save_paths.append(save_path)
             mtimes = [os.path.getmtime(save) for save in save_paths]
