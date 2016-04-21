@@ -17,3 +17,4 @@ data/
 htmlcov
 *.lprof
 cave_dweller/*.so
+cave_dweller/*.c
