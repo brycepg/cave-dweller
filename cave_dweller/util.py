@@ -8,6 +8,7 @@ def get_neighbors(x, y):
 
 def within_bounds(x, y, map_size=96):
     """Check whether local coordinates are inside its local block bounds"""
+    # Not very much due to overhead of function call
     return (0 <= x < map_size and 0 <= y < map_size)
 
 def game_path(rel_path):

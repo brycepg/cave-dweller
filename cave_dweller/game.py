@@ -60,9 +60,6 @@ class Game(object):
     move_per_sec = 3/4 * default_action_interval
     action_interval = default_action_interval
 
-    # Drawable window
-    win = None
-
     # Center coordinates of drawable area
     view_x = 0
     view_y = 0

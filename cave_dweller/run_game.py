@@ -107,8 +107,6 @@ def run(args, game):
             libtcod.console_clear(0)
             player.update_view_location()
             world.draw()
-            t = time.time()
-            tt = True
             Game.redraw_consoles = False
             if Game.sidebar_enabled:
                 Game.redraw_sidebar = True
@@ -145,7 +143,6 @@ def run(args, game):
         fps_base = (time.time() - Game.loop_start) * .1 + fps_base * .9
         console_clear(Game.debug_con)
         # ----- keyboard input -----
-        status_bar.is_mode_set = False
         while True:
             sys_check_for_event(c_int(libtcod.EVENT_ANY), byref(key), byref(mouse.mouse))
             status_bar.get_input(key, mouse)
