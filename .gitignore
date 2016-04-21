@@ -16,3 +16,4 @@ data/
 .eggs
 htmlcov
 *.lprof
+cave_dweller/*.so
