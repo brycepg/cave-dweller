@@ -51,17 +51,18 @@ You need to install
 * python development headers(python-devel or python-dev)
 * sdl1.2
 * sdl_ttf
+* scons
 
 On ubuntu this is
 
-    sudo apt-get install gcc python python-devel sdl1.2debian libsdl-ttf2.0-dev
+    sudo apt-get install gcc python python-devel sdl1.2debian libsdl-ttf2.0-dev scons
 
 Windows and linux dlls/SOs for libtcod are included
 
 After all the dependencies are installed, run
 
     pip install -r requirements/requirements.txt
-    make build
+    scons .
 
 In the root directory
 
