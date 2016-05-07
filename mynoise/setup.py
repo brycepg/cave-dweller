@@ -1,4 +1,6 @@
+#!/usr/bin/env python2
 import sys
+import os
 try:
     from setuptools import setup, Extension
 except ImportError:
@@ -10,6 +12,8 @@ else:
     # XXX insert win32 flag to unroll loops here
     compile_args = ['-std=c99']
 
+script_dir = os.path.dirname(__file__)
+os.chdir(script_dir)
 setup(
     name='mynoise',
     version='1.2.2',
@@ -57,10 +61,10 @@ See CHANGES.txt for more details
     package_dir={'mynoise': ''},
     packages=['mynoise'],
     ext_modules=[
-        Extension('mynoise._simplex', ['_simplex.c'], 
+        Extension('mynoise._simplex', [os.path.join("", '_simplex.c')], 
             extra_compile_args=compile_args,
         ),
-        Extension('mynoise._perlin', ['_perlin.c'],
+        Extension('mynoise._perlin', [os.path.join("", '_perlin.c')],
             extra_compile_args=compile_args,
         )
     ],

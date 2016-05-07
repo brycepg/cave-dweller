@@ -5,8 +5,9 @@ before_install:
     - sudo apt-get -qq update
     - sudo apt-get install sdl1.2debian -y
     - sudo apt-get install libsdl-ttf2.0-dev -y
+    - sudo apt-get install scons
 install:
-    - make build
+    - scons .
     - pip install -r requirements/travis-requirements.txt
     - pip install pylint
     - pip install coveralls
