@@ -19,3 +19,5 @@ htmlcov
 cave_dweller/*.so
 cave_dweller/*.c
 .sconsign.dblite
+*.o
+*.s
