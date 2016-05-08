@@ -1,0 +1,2 @@
+all:
+	g++ -O2 -std=c++14 simplex.c gen_map.cpp benchmark.cpp -lm -lbenchmark -lpthread
