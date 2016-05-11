@@ -86,6 +86,7 @@ namespace trng {
     TRNG_CUDA_ENABLE
     explicit uniform_int_dist(const param_type &p) : p(p) {
     }
+    uniform_int_dist() {};
     // reset internal state
     TRNG_CUDA_ENABLE
     void reset() { }
