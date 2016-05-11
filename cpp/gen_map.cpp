@@ -3,6 +3,9 @@
 #include "simplex.h"
 #include "stdlib.h"
 
+#include <trng/uniform_int_dist.hpp>
+#include <trng/mt19937.hpp>
+
 constexpr int OCTAVES = 8;
 constexpr int PERSISTENCE = 0.5f;
 constexpr int LUNCARITY = 2.0f;
@@ -11,7 +14,8 @@ const float scaling_factor=0.0078125;
 int* gen_map(float seed, int idx, int idy, int map_size=96) {
     // Negative seeds wrap-around
     const int array_size = map_size*map_size;
-    srand((unsigned int)seed);
+    trng::mt19937 mt((unsigned long)seed);
+    static trng::uniform_int_dist U(0,3);
     int idx_abs_base = idx * map_size;
     int idy_abs_base = idy * map_size;
     int *map = new int[array_size];
@@ -21,7 +25,7 @@ int* gen_map(float seed, int idx, int idy, int map_size=96) {
                 (idy_abs_base+(i/map_size)) * scaling_factor,
                 seed, OCTAVES, PERSISTENCE, LUNCARITY);
         if(-.2 < val && val < 0) {
-            map[i] = (rand() / (RAND_MAX / 3 + 1));
+            map[i] = U(mt);
         } else {
             map[i] = 255;
         }
@@ -32,7 +36,8 @@ int* gen_map(float seed, int idx, int idy, int map_size=96) {
 int* gen_map2(float seed, int idx, int idy, int map_size=96) {
     // Negative seeds wrap-around
     const int array_size = map_size*map_size;
-    srand((unsigned int)seed);
+    trng::mt19937 mt((unsigned long)seed);
+    static trng::uniform_int_dist U(0,3);
     int idx_abs_base = idx * map_size;
     int idy_abs_base = idy * map_size;
     int *map = new int[array_size];
@@ -47,7 +52,7 @@ int* gen_map2(float seed, int idx, int idy, int map_size=96) {
                 (idy_abs_base+(y_coord)) * scaling_factor,
                 seed, OCTAVES, PERSISTENCE, LUNCARITY);
         if(-.2 < val && val < 0) {
-            map[i] = (rand() / (RAND_MAX / 3 + 1));
+            map[i] = U(mt);
         } else {
             map[i] = 255;
         }
@@ -57,7 +62,8 @@ int* gen_map2(float seed, int idx, int idy, int map_size=96) {
 }
 int** gen_map3(float seed, int idx, int idy, int map_size=96) {
     // Negative seeds wrap-around
-    srand((unsigned int)seed);
+    trng::mt19937 mt((unsigned long)seed);
+    static trng::uniform_int_dist U(0,3);
     int idx_abs_base = idx * map_size;
     int idy_abs_base = idy * map_size;
     int **map = new int*[map_size];
@@ -69,7 +75,7 @@ int** gen_map3(float seed, int idx, int idy, int map_size=96) {
                     (idy_abs_base+(row)) * scaling_factor,
                     seed, OCTAVES, PERSISTENCE, LUNCARITY);
             if(-.2 < val && val < 0) {
-                map[row][col] = (rand() / (RAND_MAX / 3 + 1));
+                map[row][col] = U(mt);
             } else {
                 map[row][col] = 255;
             }

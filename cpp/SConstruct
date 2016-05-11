@@ -2,7 +2,6 @@ vars=Variables()
 vars.AddVariables(BoolVariable("debug", "debug symbols?", 0))
 env = Environment(variables=vars)
 env.Append(CPPFLAGS='-std=c++14 ')
-import pdb; pdb.set_trace()
 if env['debug']:
     env.Append(CCFLAGS = '-g')
 else:
@@ -10,9 +9,10 @@ else:
 
 
 common_src = ['simplex.cpp', "gen_map.cpp"]
+libs = ['trng4']
 if 'benchmark' in COMMAND_LINE_TARGETS:
-    env.Program("benchmark", common_src + ["benchmark.cpp"], LIBS=["benchmark", "pthread"])
+    env.Program("benchmark", common_src + ["benchmark.cpp"], LIBS=libs+["benchmark", "pthread"])
 elif 'benchmark2' in COMMAND_LINE_TARGETS:
-    env.Program("benchmark", common_src + ["benchmark2.cpp"], LIBS="pthread", CPPPATH="include")
+    env.Program("benchmark", common_src + ["benchmark2.cpp"], LIBS=libs+["pthread"], CPPPATH="include")
 else:
-    env.Program("out", common_src + ["main.cpp"])
+    env.Program("out", common_src + ["main.cpp"], LIBS=libs)
