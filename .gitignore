@@ -21,3 +21,6 @@ cave_dweller/*.c
 .sconsign.dblite
 *.o
 *.s
+*.lo
+*.in
+*.in~
