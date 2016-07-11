@@ -38,6 +38,7 @@ def game_path(rel_path):
     return final_path
 
 dll_path = game_path('dlls')
+os.environ['PATH'] = os.pathsep.join([dll_path, os.environ['PATH']])
 
 if not hasattr(ctypes, "c_bool"):   # for Python < 2.6
     c_bool = c_uint8
@@ -63,10 +64,10 @@ elif sys.platform.find('haiku') != -1:
     HAIKU = True
 else:
     try:
-        _lib = ctypes.cdll[os.path.join(dll_path, 'libtcod-mingw.dll')]
+        _lib = ctypes.cdll['libtcod-mingw.dll']
         MINGW=True
     except WindowsError:
-        _lib = ctypes.cdll[os.path.join(dll_path, 'libtcod-VS.dll')]
+        _lib = ctypes.cdll['libtcod-VS.dll']
         MSVC=True
     # On Windows, ctypes doesn't work well with function returning structs,
     # so we have to user the _wrapper functions instead
