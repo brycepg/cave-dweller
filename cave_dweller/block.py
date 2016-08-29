@@ -10,8 +10,8 @@ put_char_ex = _lib.TCOD_console_put_char_ex
 from . import entities
 from . import hidden_map_handler
 from . import gen_map
-from .gen_map import gen_map as generate_map
-from .gen_map import generate_obstacle_map
+generate_map = gen_map.gen_map
+generate_obstacle_map = gen_map.generate_obstacle_map
 from .game import Game
 from .tiles import Tiles
 from .util import get_neighbors
@@ -30,6 +30,8 @@ class Block(object):
         self.world = world
         self.idx = idx
         self.idy = idy
+
+        # Eventually to be used for 'updating' blocks
         self.load_turn = load_turn
         self.save_turn = None
 
@@ -98,6 +100,7 @@ class Block(object):
 
     def generate_entities(self):
         """Generate object from generation table"""
+        random.seed(self.block_seed)
         for monster, spawn_chance, amt in entities.generation_table:
             for _ in range(amt):
                 if random.randint(0, 100) < spawn_chance:

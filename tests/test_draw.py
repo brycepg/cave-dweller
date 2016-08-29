@@ -25,7 +25,7 @@ from cave_dweller import tiles
 
 from .mocks import SerializerMock, StatusBarMock
 cur_dir = os.path.dirname(__file__)
-SCREENSHOT_TEST_PATH = os.path.join(cur_dir, "screenshot3.bmp")
+SCREENSHOT_TEST_PATH = os.path.join(cur_dir, "screenshot5.bmp")
 
 def img_rms_diff(img1, img2):
     h1 = img1.histogram()

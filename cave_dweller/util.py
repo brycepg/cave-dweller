@@ -2,6 +2,8 @@
 import os
 import collections
 
+from . import libtcodpy as libtcod
+
 def get_neighbors(x, y):
     """Get taxicab neighbors(4-way) from coordinates"""
     return [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
@@ -36,3 +38,8 @@ def count_entities(blk):
         a dict indexed by the class itself giving the number of that class
     """
     return collections.Counter([type(entity) for entity in blk.entity_list])
+
+def screenshot(outfile):
+    # Keep forgetting name
+    # For testing purposes
+    libtcod.sys_save_screenshot(outfile)
