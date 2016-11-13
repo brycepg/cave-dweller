@@ -25,6 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# pylint: skip-file
 import sys
 import os
 import ctypes
@@ -37,6 +38,7 @@ def game_path(rel_path):
     return final_path
 
 dll_path = game_path('dlls')
+os.environ['PATH'] = os.pathsep.join([dll_path, os.environ['PATH']])
 
 if not hasattr(ctypes, "c_bool"):   # for Python < 2.6
     c_bool = c_uint8
@@ -62,10 +64,10 @@ elif sys.platform.find('haiku') != -1:
     HAIKU = True
 else:
     try:
-        _lib = ctypes.cdll[os.path.join(dll_path, './libtcod-mingw.dll')]
+        _lib = ctypes.cdll['libtcod-mingw.dll']
         MINGW=True
     except WindowsError:
-        _lib = ctypes.cdll['./libtcod-VS.dll']
+        _lib = ctypes.cdll['libtcod-VS.dll']
         MSVC=True
     # On Windows, ctypes doesn't work well with function returning structs,
     # so we have to user the _wrapper functions instead
@@ -403,7 +405,7 @@ class Key(Structure):
               ('shift', c_bool),
               ]
 
-class ConsoleBuffer:
+class ConsoleBuffer(object):
     # simple console that allows direct (fast) access to cells. simplifies
     # use of the "fill" functions.
     def __init__(self, width, height, back_r=0, back_g=0, back_b=0, fore_r=0, fore_g=0, fore_b=0, char=' '):
@@ -425,7 +427,7 @@ class ConsoleBuffer:
         self.fore_g = [fore_g] * n
         self.fore_b = [fore_b] * n
         self.char = [ord(char)] * n
-    
+
     def copy(self):
         # returns a copy of this ConsoleBuffer.
         other = ConsoleBuffer(0, 0)
@@ -439,7 +441,7 @@ class ConsoleBuffer:
         other.fore_b = list(self.fore_b)
         other.char = list(self.char)
         return other
-    
+
     def set_fore(self, x, y, r, g, b, char):
         # set the character and foreground color of one cell.
         i = self.width * y + x
@@ -447,14 +449,14 @@ class ConsoleBuffer:
         self.fore_g[i] = g
         self.fore_b[i] = b
         self.char[i] = ord(char)
-    
+
     def set_back(self, x, y, r, g, b):
         # set the background color of one cell.
         i = self.width * y + x
         self.back_r[i] = r
         self.back_g[i] = g
         self.back_b[i] = b
-    
+
     def set(self, x, y, back_r, back_g, back_b, fore_r, fore_g, fore_b, char):
         # set the background color, foreground color and character of one cell.
         i = self.width * y + x
@@ -465,7 +467,7 @@ class ConsoleBuffer:
         self.fore_g[i] = fore_g
         self.fore_b[i] = fore_b
         self.char[i] = ord(char)
-    
+
     def blit(self, dest, fill_fore=True, fill_back=True):
         # use libtcod's "fill" functions to write the buffer to a console.
         if (console_get_width(dest) != self.width or
@@ -803,6 +805,10 @@ def console_set_char(con, x, y, c):
 def console_set_background_flag(con, flag):
     _lib.TCOD_console_set_background_flag(con, c_int(flag))
 
+def console_set_dirty(x, y, w, h):
+    _lib.TCOD_console_set_dirty(x, y, w, h)
+
+
 def console_get_background_flag(con):
     return _lib.TCOD_console_get_background_flag(con)
 
@@ -975,7 +981,7 @@ def console_fill_char(con,arr) :
         carr = struct.pack('%di' % len(arr), *arr)
 
     _lib.TCOD_console_fill_char(con, carr)
-        
+
 def console_load_asc(con, filename) :
     _lib.TCOD_console_load_asc(con,filename)
 def console_save_asc(con, filename) :
@@ -1600,7 +1606,7 @@ def path_size(p):
     return _lib.TCOD_path_size(p[0])
 
 def path_reverse(p):
-    _lib.TCOD_path_reverse(p[0])  
+    _lib.TCOD_path_reverse(p[0])
 
 def path_get(p, idx):
     x = c_int()

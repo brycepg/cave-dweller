@@ -1,0 +1,45 @@
+Timer unit: 1e-06 s
+
+Total time: 2.49667 s
+File: cave_dweller/hidden_map_handler.py
+Function: flood_find_unhidden at line 205
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   205                                           @profile
+   206                                           def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size):
+   207                                               """Try to find unhidden non-adjacent hidden tiles surrounding location"""
+   208                                               # SUB function
+   209        46        15943    346.6      0.6      log.info("flood_find_unhidden called")
+   210        46          172      3.7      0.0      to_search = deque()
+   211        46          229      5.0      0.0      found_list = set([(x, y)])
+   212        46          115      2.5      0.0      searched_list = set((x, y))
+   213                                           
+   214        46          118      2.6      0.0      neighbors = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
+   215    103418        55807      0.5      2.2      while True:
+   216    517009       291607      0.6     11.7          for neighbor in neighbors:
+   217                                                       # Do not search previously searched tiles
+   218    413637       561116      1.4     22.5              if neighbor in searched_list or neighbor in to_search:
+   219     94600        44920      0.5      1.8                  continue
+   220                                           
+   221                                                       # Exit condition --- ground open tile
+   222    117062       432039      3.7     17.3              if (not calling_block.get_tile(*neighbor).adjacent_hidden
+   223    105541       327439      3.1     13.1                      and not calling_block.get_hidden(*neighbor)):
+   224    105541       123380      1.2      4.9                  if max(abs(neighbor[0] - x), abs(neighbor[1] - y)) > timeout_radius:
+   225        46          315      6.8      0.0                      raise HitSearchLimit(searched_list)
+   226    105495        79486      0.8      3.2                  found_list.add(neighbor)
+   227    105495        65318      0.6      2.6                  to_search.append(neighbor)
+   228                                                       else:
+   229     11521         9045      0.8      0.4                  searched_list.add(neighbor)
+   230                                           
+   231                                                   # Use list like queue to to bfs search
+   232    103372        50572      0.5      2.0          try:
+   233    103372        60485      0.6      2.4              search_coord = to_search.popleft()
+   234    103372        68359      0.7      2.7              neighbors = [(search_coord[0]+1, search_coord[1]  ),
+   235    103372        64549      0.6      2.6                           (search_coord[0],   search_coord[1]-1),
+   236    103372        65887      0.6      2.6                           (search_coord[0]-1, search_coord[1]  ),
+   237    103372       107276      1.0      4.3                           (search_coord[0],   search_coord[1]+1)]
+   238    103372        72492      0.7      2.9              searched_list.add(search_coord)
+   239                                                   except IndexError:
+   240                                                       return found_list
+

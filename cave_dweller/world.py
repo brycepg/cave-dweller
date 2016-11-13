@@ -1,49 +1,55 @@
-"""Container for World class"""
+"""BlockManager / Container for World class"""
 import random
 import logging
 
-import libtcodpy as libtcod
-
-from tiles import Tiles
-from tiles import Id
-from block import Block
-from game import Game
-import gen_map
+from .tiles import Tiles
+from .tiles import Id
+from .block import Block
+from .game import Game
 
 log = logging.getLogger(__name__)
+
+from . import gen_map
 
 class GetOutOfLoop(Exception):
     """Exception used to break out of multiple for-loops"""
     pass
 
 class World(object):
-    """Holds all blocks. Updates and draws world"""
+    """
+    Block manager.
+    Holds all blocks. Updates and draws world
+    """
     def __init__(self, a_serializer, seed_str=None, block_seed=None):
         """TODO, make seed separate from timestamp"""
-        self.seed_str, self.seed_int = self.generate_seeds(seed_str, block_seed)
+        self.seed_str, self.seed_float = self.generate_seeds(seed_str, block_seed)
         #self.block_generator = gen_map.BlockGenerator(self.perlin_seed)
         log.info("Seed string: %s", self.seed_str)
-        log.info("Block seed: %d", self.seed_int)
+        log.info("Block seed: %d", self.seed_float)
         self.a_serializer = a_serializer
         self.blocks = {}
         self.inactive_blocks = {}
         self.turn = 0
 
-    def generate_seeds(self, seed_str=None, seed_int=None):
+    def __getitem__(self, key):
+        return self.blocks[(key)]
+
+    def generate_seeds(self, seed_str=None, seed_float=None):
         """Hash seed str to generate seed int for noise function
-        
+
         If neither provided, use random int
 
         If seed int is provided from command-line, use that(no seed str)
         """
-        if seed_str is None and seed_int is None:
+        if seed_str is None and seed_float is None:
             # snoise starts acting weird at at higher values...
-            seed_int = random.randrange(-65536, 65536)
-        elif seed_str is not None and seed_int is None:
-            seed_int = gen_map.string_seed(seed_str)
-        elif seed_int is not None:
-            seed_int = seed_int
-        return seed_str, seed_int
+            seed_float = random.randrange(-65536, 65536)
+        elif seed_str is not None and seed_float is None:
+            seed_float = gen_map.string_seed(seed_str)
+        elif seed_float is not None:
+            seed_float = seed_float
+        random.seed(float(seed_float))
+        return seed_str, float(seed_float)
 
     def inspect(self, abs_x, abs_y):
         """Inspect tile for a description of current tiles/entity"""
@@ -68,7 +74,7 @@ class World(object):
             return tile.name
         else:
             return None
-    
+
     def cull_old_blocks(self, force_cull=False):
         """Serialize blocks that are outside of loaded radius,
            and have been alive for more than some number of turns
@@ -102,17 +108,10 @@ class World(object):
         except GetOutOfLoop:
             log.debug("serialization timeout")
 
-    def current_block_init(self):
-        """Load current block for start of game"""
-        # Load current block first
-        if not (Game.idx_cur, Game.idy_cur) in self.blocks:
-            self.blocks[(Game.idx_cur, Game.idy_cur)] = self.load_block(Game.idx_cur, Game.idy_cur)
-
-
     def load_surrounding_blocks(self, idx_cur, idy_cur,
                                 loaded_block_radius=Game.loaded_block_radius,
                                 ignore_time=True):
-        """Loads blocks around the point (idx_cur, idy_cur) 
+        """Loads blocks around the point (idx_cur, idy_cur)
         in a square grid whose width/height
         is specified by loaded_block_radius
 
@@ -157,7 +156,7 @@ class World(object):
             # Generate block
             block = Block(idx, idy, self, load_turn=self.turn)
 
-        # Side-effect to promote ease of use and to 
+        # Side-effect to promote ease of use and to
         #   stop bugs from duplicate blocks
         self.blocks[(idx, idy)] = block
 
@@ -191,8 +190,9 @@ class World(object):
 
         # A little hack to randomize digging tile
         Tiles.dig3.attributes['next'] = random.choice(Id.any_ground)
+        self.turn += 1
 
-    def draw(self):
+    def draw(self, init_draw=False):
         """Call viewable block's draw function"""
         # Draw at max 4 blocks
         # (Assumption that the viewing size is smaller than the map_size
@@ -209,6 +209,8 @@ class World(object):
             #log.info("Draw %dx%d", block.idx, block.idy)
             block = self.get(*loc)
             block.draw_block()
+        if init_draw:
+            self.draw() # Get rid of artifacts from determining hidden map
 
     def get_block(self, abs_x, abs_y):
         """Get block at the absolute coordinate"""
@@ -216,18 +218,3 @@ class World(object):
         idy = abs_y // Game.map_size
         block = self.blocks[(idx, idy)]
         return block
-
-    def save_memory_blocks(self):
-        logging.info("Saving blocks.. bye bye")
-        for block in self.blocks.values():
-            self.a_serializer.save_block(block)
-
-        for block in self.inactive_blocks.values():
-            self.a_serializer.save_block(block)
-
-def get_id_from_abs(abs_x, abs_y):
-    """Get idx/idy from abs coord"""
-    idx = abs_x // Game.map_size
-    idy = abs_y // Game.map_size
-    return idx, idy
-

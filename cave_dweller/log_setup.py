@@ -1,7 +1,8 @@
+"""Setup python logger"""
 import logging
 import sys
 
-from util import game_path
+from .util import game_path
 
 def setup_logger(verbose=False):
     """Setup logging -

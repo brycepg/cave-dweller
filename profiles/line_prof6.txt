@@ -1,0 +1,48 @@
+Timer unit: 1e-06 s
+
+Total time: 0.717557 s
+File: cave_dweller/gen_map.py
+Function: generate_block at line 16
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    16                                           @profile
+    17                                           def generate_block(seed, idx=0, idy=0, map_size=Game.map_size, octaves=8,
+    18                                                   # Function definition optimization arguments
+    19                                                   rnd_seed=random.seed, range_size=range(Game.map_size), base=[None], any_ground=Id.any_ground, gnd_len=len(Id.any_ground), choose=random.choice, wall=Id.wall, snoise2=snoise2, int=int, random_float=random.random):
+    20                                               """Block generation algorithm using simplex noise
+    21                                           
+    22                                               arguments
+    23                                                   seed
+    24                                                       Seed the block by using an offset factor
+    25                                           
+    26                                                   idx, idy
+    27                                                       blocks unique id. contiguous. idy positive is down
+    28                                           
+    29                                                   map_size
+    30                                                       size of block.
+    31                                           
+    32                                                   octaves
+    33                                                       Number of simplex function passes for factal brownian motion.
+    34                                           
+    35                                               returns
+    36                                                   A 2d list of ints corresponsing to tile ID's. Column-major.
+    37                                               """
+    38                                               # Seed random with block seed for consistent results
+    39        15          341     22.7      0.0      rnd_seed(seed)
+    40      1455         2234      1.5      0.3      block = [base * map_size for _ in range_size]
+    41      1455          815      0.6      0.1      for x in range_size:
+    42    139680        77629      0.6     10.8          for y in range_size:
+    43                                                       # Divide by scaling factor
+    44                                                       # For some reason using tiling makes it look better?
+    45                                                       # Making the seed a float changes behavior?
+    46    138240       393607      2.8     54.9              val = snoise2((idx * map_size + x) / 128., (idy * map_size + y) / 128., octaves, base=seed, repeatx=65536, repeaty=65536)
+    47                                                       # Can be tweaked for more / less floor/ground
+    48    138240       123173      0.9     17.2              if -.2 < val < 0:
+    49                                                           # Floor tiles
+    50     48201        53700      1.1      7.5                  block[x][y] = any_ground[int(random_float() * gnd_len)]
+    51                                                       else:
+    52                                                           # Wall tile
+    53     90039        66052      0.7      9.2                  block[x][y] = wall
+    54        15            6      0.4      0.0      return block
+

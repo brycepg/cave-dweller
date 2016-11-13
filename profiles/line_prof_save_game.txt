@@ -1,0 +1,14 @@
+Timer unit: 1e-06 s
+
+Total time: 2.35311 s
+File: cave_dweller/serializer.py
+Function: save_game at line 165
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   165                                               @profile
+   166                                               def save_game(self, world, player):
+   167         1       147623 147623.0      6.3          self.save_settings(player, world)
+   168         1      2205193 2205193.0     93.7          world.save_memory_blocks()
+   169         1          293    293.0      0.0          logging.debug("saving seed {} at world turn {}".format(world.seed_float, world.turn))
+

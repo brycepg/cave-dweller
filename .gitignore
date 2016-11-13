@@ -1,5 +1,4 @@
 __pycache__/
-setup.py
 *.pyc
 *.pyo
 .ipynb_*
@@ -9,3 +8,19 @@ dist
 gamelog.txt
 data/
 .idea
+.ropeproject/
+.benchmarks/
+.cache/
+*.out
+.coverage
+.eggs
+htmlcov
+*.lprof
+cave_dweller/*.so
+cave_dweller/*.c
+.sconsign.dblite
+*.o
+*.s
+*.lo
+*.in
+*.in~

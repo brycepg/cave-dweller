@@ -5,8 +5,8 @@ get/set functions are still in block
 import logging
 from collections import deque
 
-from game import Game
-from util import get_neighbors
+from .game import Game
+from .util import get_neighbors
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +15,10 @@ class HitSearchLimit(Exception):
     Exception for flood fill to throw out a tuple of already searched locations for
     The next flood search
     """
+    # pylint: disable=super-init-not-called
+    # It is called right here. Thanks pylint
     def __init__(self, searched_locations):
+        super(HitSearchLimit, self).__init__("Hit Search Limit for finding hidden area")
         self.searched_locations = searched_locations
 
 def generate_map(map_size):
@@ -24,7 +27,10 @@ def generate_map(map_size):
     return [[None for _ in range(map_size)] for _ in range(map_size)]
 
 def init_hidden(calling_block, x, y, cur_tile):
-    """For drawing. Just determines if the local tile needs to be hidden if it's adjacent to all adjacent hidden blocks"""
+    """
+    For drawing. Just determines if the local tile needs to be
+    hidden if it's adjacent to all adjacent hidden blocks
+    """
     # Get tiles adjacent to current tile and get their adjacent hiddent status
     neighbor_coords = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
     neighbor_tiles = [calling_block.get_tile(*coord) for coord in  neighbor_coords]
@@ -48,7 +54,7 @@ def update_hidden(calling_block, x, y, iteration=3):
     """
     # Get correct block if outside map bounds
     if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
-        blk = calling_block 
+        blk = calling_block
     else:
         # Outside map bounds - get new block
         idx_mod = x // Game.map_size
@@ -84,8 +90,8 @@ def update_hidden(calling_block, x, y, iteration=3):
             update_hidden(blk, *neighbor_coord, iteration=iteration)
 
 
-def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game.map_size):
-    """ Detects hidden are or the destruction of a hidden area due to change of 
+def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game.map_size//2):
+    """ Detects hidden are or the destruction of a hidden area due to change of
     tile state from calling_block at x, y
 
     If the cur_adj_hidden at x,y changed is False, then check for destruction
@@ -101,6 +107,8 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
     if 0 <= x < Game.map_size and 0 <= y < Game.map_size:
         blk = calling_block
     else:
+        # pylint: disable=duplicate-code
+        # performance constrains disallow me from putting this in a function.
         idx_mod = x // Game.map_size
         idy_mod = y // Game.map_size
         x = x % Game.map_size
@@ -111,14 +119,14 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
     if cur_adj_hidden:
         #log.info("Looking for revealed hidden area")
         # Potentially create hidden tiles
-        neighbor_coords = get_neighbors(x,y)
+        neighbor_coords = get_neighbors(x, y)
         valid_coords = []
         for coord in neighbor_coords:
             tile_obj = blk.get_tile(*coord)
             if not tile_obj.adjacent_hidden and not blk.get_hidden(*coord):
                 valid_coords.append(coord)
-        if len(valid_coords) > 3:
-            valid_coords = []
+        #if len(valid_coords) > 3:
+        #    valid_coords = []
 
         searched_locations = []
         for coord in valid_coords:
@@ -137,10 +145,10 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
             except HitSearchLimit as e:
                 searched_locations += e.searched_locations
 
-        update_hidden(blk, x,y)
+        update_hidden(blk, x, y)
     else:
         # Unmasking hidden tiles
-        neighbor_coords = get_neighbors(x,y)
+        neighbor_coords = get_neighbors(x, y)
         valid_coords = []
         for coord in neighbor_coords:
             tile_obj = blk.get_tile(*coord)
@@ -148,8 +156,8 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
                 valid_coords.append(coord)
 
         # No need to update a tile placed in an open area
-        if len(valid_coords) > 3:
-            valid_coords = []
+        #if len(valid_coords) > 3:
+        #    valid_coords = []
         searched_locations = []
         for coord in valid_coords:
             # Don't search overlapping regions
@@ -164,7 +172,7 @@ def update_hidden_flood(calling_block, x, y, cur_adj_hidden, timeout_radius=Game
                     update_hidden(blk, *loc, iteration=1)
             except HitSearchLimit as e:
                 searched_locations += e.searched_locations
-        update_hidden(blk, x,y)
+        update_hidden(blk, x, y)
 
 def flood_find_hidden(calling_block, x, y, ign_x, ign_y, timeout_radius=Game.map_size):
     """Try to find hidden adjacent hidden tiles surrounding location"""
@@ -194,6 +202,7 @@ def flood_find_hidden(calling_block, x, y, ign_x, ign_y, timeout_radius=Game.map
         # Use list like queue to to bfs search
         try:
             search_coord = to_search.popleft()
+            # pylint: disable=bad-whitespace
             neighbors = [(search_coord[0]+1, search_coord[1]  ),
                          (search_coord[0],   search_coord[1]-1),
                          (search_coord[0]-1, search_coord[1]  ),
@@ -202,7 +211,11 @@ def flood_find_hidden(calling_block, x, y, ign_x, ign_y, timeout_radius=Game.map
         except IndexError:
             return found_list
 
-def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size):
+# pylint: disable=too-many-arguments
+def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size,
+                        # Optimizations
+                        max=max, abs=abs, set=set, deque=deque,
+                        IndexError=IndexError, HitSearchLimit=HitSearchLimit):
     """Try to find unhidden non-adjacent hidden tiles surrounding location"""
     # SUB function
     log.info("flood_find_unhidden called")
@@ -216,7 +229,6 @@ def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size):
             # Do not search previously searched tiles
             if neighbor in searched_list or neighbor in to_search:
                 continue
-
             # Exit condition --- ground open tile
             if (not calling_block.get_tile(*neighbor).adjacent_hidden
                     and not calling_block.get_hidden(*neighbor)):
@@ -230,6 +242,7 @@ def flood_find_unhidden(calling_block, x, y, timeout_radius=Game.map_size):
         # Use list like queue to to bfs search
         try:
             search_coord = to_search.popleft()
+            # pylint: disable=bad-whitespace
             neighbors = [(search_coord[0]+1, search_coord[1]  ),
                          (search_coord[0],   search_coord[1]-1),
                          (search_coord[0]-1, search_coord[1]  ),

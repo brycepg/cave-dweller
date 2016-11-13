@@ -1,14 +1,15 @@
+"""Startup game menu"""
 import logging
 import time
 import os
 import operator
 import shutil
 
-import libtcodpy as libtcod
-import tiles
+from . import libtcodpy as libtcod
+from . import tiles
 
-from game import Game
-from util import game_path
+from .game import Game
+from .util import game_path
 
 class Menu(object):
     """Menus for death and intro
@@ -32,13 +33,8 @@ class Menu(object):
             save_paths = []
             for save in saves[:]:
                 save_path = os.path.join(game_path('data'), save)
-                settings_path = os.path.join(save_path, 'settings')
-                if os.path.exists(settings_path):
-                    save_paths.append(settings_path)
-                else:
-                    logging.error("settings doesn't exist for %s... removing", settings_path)
-                    shutil.rmtree(save_path)
-                    saves.remove(save)
+                if os.path.exists(save_path):
+                    save_paths.append(save_path)
             mtimes = [os.path.getmtime(save) for save in save_paths]
             my_sort = list(zip(saves, mtimes))
             my_sort.sort(key=operator.itemgetter(1), reverse=True)

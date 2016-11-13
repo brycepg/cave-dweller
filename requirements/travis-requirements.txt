@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest
+Pillow
+coverage
+pytest-benchmark

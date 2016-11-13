@@ -3,10 +3,13 @@
 import random
 import time
 import logging
-import colors
+import collections
+import enum
 
-from game import Game
-import actions
+from .game import Game
+from . import actions
+from . import util
+from . import colors
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +20,10 @@ class Entity(object):
     def __init__(self, x=None, y=None, char=None):
         self.x = x
         self.y = y
-        self.char = char
+        if type(char) == str or type(char) == bytes:
+            self.char = ord(char)
+        else:
+            self.char = char
         self.is_dead = False
         self.is_obstacle = True
         self.edible = False
@@ -34,32 +40,26 @@ class Entity(object):
         self.last_move_turn = None
         self.death_count = 0
         self.food = 1000
+        self.cur_block = None
 
+    def __eq__(self, entity):
+        return (isinstance(entity, type(self)) and
+                util.equal_dicts(self.__dict__, entity.__dict__, ['cur_block']))
 
+    DECOMPOSE_TIME = 1000
     def decompose(self, cur_block):
         """After death(called in world) if a body isn't consumed
            An entity will decompose and
            be replaced with fungus after a set time"""
         self.death_count += 1
-        if self.death_count > 1000:
+        if self.death_count >= Entity.DECOMPOSE_TIME:
             # Spawn decomposer in place of body
-            cur_block.entities[self.x][self.y].remove(self)
+            cur_block.remove_entity(self, self.x, self.y)
             cur_block.set_entity(Fungus, self.x, self.y)
 
     def process(self, cur_block):
         """Configuration that changes object state"""
         raise NotImplementedError
-
-    def out_of_bounds(self):
-        """Check if object is out of bounds of local
-        block-coordinate system"""
-        if (self.x < 0 or
-                self.x >= Game.map_size or
-                self.y < 0 or
-                self.y >= Game.map_size):
-            return True
-        else:
-            return False
 
     def move(self, coordinates, cur_block):
         """Move entity if location doesn't have an obstacle tile/entity"""
@@ -171,7 +171,7 @@ class Mole(Entity):
 
 class Fungus(Entity):
     """Spreads from decomposed bodies and is impossible to move across"""
-    def __init__(self, x, y, growth=0):
+    def __init__(self, x, y):
         SPONGE_BLOCK = 176
         super(Fungus, self).__init__(x, y, SPONGE_BLOCK)
         self.fg = colors.purple
@@ -192,10 +192,8 @@ class Fungus(Entity):
 class Player(Entity):
     """Player-object
        Acts as an object but also manages the viewable center"""
-    def __init__(self):
-        super(Player, self).__init__(Game.map_size//2,
-                                     Game.map_size//2,
-                                     '@')
+    def __init__(self, x, y):
+        super(Player, self).__init__(x, y, '@')
         self.fg = colors.lightest_gray
         self.bg = None
 
@@ -214,7 +212,8 @@ class Player(Entity):
         self.register_actions()
 
 
-    def register_actions(self):
+    @staticmethod
+    def register_actions():
         """Register action subclasses into internal list"""
         actions.PlayerAction.register(actions.Build)
         actions.PlayerAction.register(actions.Dig)
@@ -224,7 +223,8 @@ class Player(Entity):
         # Register wait after move to allow movement while in fast mode
         actions.PlayerAction.register(actions.Wait)
 
-    def process_input(self, key):
+    @staticmethod
+    def process_input(key):
         """ Process event keys -- set state of player
         If key held down -- keep movement going
         If key released -- stop movement
@@ -232,7 +232,7 @@ class Player(Entity):
         for action in actions.PlayerAction.current_actions:
             action.get_input(key)
 
-    def move(self, world):
+    def player_move(self, world):
         """Run player actions if within ime interval"""
         block = world.get_block(Game.view_x + Game.game_width//2, Game.view_y + Game.game_height//2)
         self.moved = False
@@ -252,10 +252,11 @@ class Player(Entity):
         self.last_action_time = time.time()
 
     def process(self, cur_block):
-        self.update_view_location(cur_block)
+        return
 
-    def update_view_location(self, cur_block):
+    def update_view_location(self):
         """NOTE: modifies view of game """
+        cur_block = self.cur_block
         Game.view_x = int(self.x + Game.map_size * cur_block.idx - Game.game_width//2)
         Game.view_y = int(self.y + Game.map_size * cur_block.idy - Game.game_height//2)
         Game.update_view()
@@ -264,7 +265,7 @@ class CaveGrass(Entity):
     """Non-movement entity. Generates cluster of grass initially"""
     def __init__(self, x, y, growth_count=0, cur_block=None):
         UP_ARROW_CHAR = 24
-        super(type(self), self).__init__(x, y, UP_ARROW_CHAR)
+        super(CaveGrass, self).__init__(x, y, UP_ARROW_CHAR)
         self.is_obstacle = False
         self.fg = colors.white
         self.init_check = False
@@ -294,17 +295,75 @@ class CaveGrass(Entity):
                 new_loc = [coordinates[0] + self.x, coordinates[1] + self.y]
                 tile = cur_block.get_tile(*new_loc)
                 if not tile.is_obstacle and not cur_block.get_entity(*new_loc):
-                    cur_block.set_entity(type(self), *new_loc, kw_dict={'growth_count':self.growth_count, 'cur_block': cur_block})
+                    cur_block.set_entity(type(self),
+                                         *new_loc,
+                                         kw_dict={'growth_count': self.growth_count,
+                                                  'cur_block'   : cur_block})
                     break
             else:
                 pass
                 #print("End of line")
 
+class Direction(enum.Enum):
+    """
+    Specify directionality in the coordinate system using up/down/left/right
+    Direction.dir_lookup.value[Direction.up.value] is a lookup table for 'up'
+    coordinate.
+    """
 
+    up = 0
+    down = 1
+    left = 2
+    right = 3
 
-class Empty(Entity):
+    dir_lookup = {}
+    dir_lookup[up] = (0, -1)
+    dir_lookup[down] = (0, 1)
+    dir_lookup[left] = (-1, 0)
+    dir_lookup[right] = (1, 0)
+
+    @classmethod
+    def get_adjustment(cls, direction):
+        """
+        Lookup direction enum value and return coordinate pair for modifying
+        current location
+        """
+        # XXX might want to put this somewhere else...?
+        # pylint: disable=bad-option-value, unsubscriptable-object
+        # Enum does some magic here to hash static data members
+        return cls.dir_lookup.value[direction.value]
+
+class Purpose(enum.Enum):
+    """Enum for direction purpose when queueing actions"""
+    move = 0
+    kill = 1
+
+class Dummy(Entity):
+    """Dummy entity to queue up movement actions"""
+    def __init__(self, *args):
+        super(Dummy, self).__init__(*args, char='D')
+        self.queue = collections.deque()
+
     def process(self, cur_block):
-        pass
+        try:
+            purpose, direction = self.queue.popleft()
+        except IndexError:
+            return
+        new_loc = [pos + adjustment for pos, adjustment in zip((self.x, self.y), Direction.get_adjustment(direction))]
+        if purpose == Purpose.kill:
+            adj_entity = cur_block.get_entity(*new_loc)
+            adj_entity.kill()
+        elif purpose == Purpose.move:
+            # No obstacle checking
+            if not cur_block.is_obstacle(*new_loc):
+                cur_block.move_entity(self, *new_loc)
+
+    def queue_move(self, direction):
+        """Queue direction enum value for dummy movement"""
+        self.queue.append((Purpose.move, direction))
+    def queue_kill(self, direction):
+        """Queue direction with kill command for dummy"""
+        self.queue.append((Purpose.kill, direction))
 
 # Quick monster generation. Used in block
 # Class | chance of generation for each entity | max number of entitites

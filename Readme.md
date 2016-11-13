@@ -1,4 +1,18 @@
-This is a Procedural Simulation Rougelike I'm currently working on.
+This is a Procedural Generated Rougelike I'm currently working on.
+
+# Gameplay
+
+#### Digging(and viewable/hidden areas)
+
+![Hidden Areas](media/hidden-areas.gif)
+
+#### Fungus Growth in Fast Mode
+
+![Fungus Growth](media/fungus-growth.gif)
+
+#### An "Overworld"
+
+!["Overworld"](media/4096.png)
 
 # Current Features
 
@@ -20,38 +34,42 @@ This is a Procedural Simulation Rougelike I'm currently working on.
 Inspect with mouse  
 4-way movement with arrow keys  
 
-# Install
+# Download
 
-To run the game, you'll need to install:
+... I have yet to do this. 
+If anyone is interested feel free to bug me 
+The current state of this game is very toy-like though. 
 
+# Compilation
+[![Build Status](https://travis-ci.org/brycepg/cave-dweller.svg?branch=master)](https://travis-ci.org/brycepg/cave-dweller)
+[![Coverage Status](https://coveralls.io/repos/github/brycepg/cave-dweller/badge.svg?branch=master)](https://coveralls.io/github/brycepg/cave-dweller?branch=master)
+
+You need to install 
+
+* gcc
 * python 2.7
-* noise (python package for simplex noise)
-* SDL 1.2 for libtcod on linux?
+* python development headers(python-devel or python-dev)
+* sdl1.2
+* sdl_ttf
+* scons
 
-Windows and linux dll/so s are included
+On ubuntu this is
 
-After python 2.7 is installed, install noise via pip
+    sudo apt-get install gcc python python-devel sdl1.2debian libsdl-ttf2.0-dev scons
 
-    pip install noise
+Windows and linux dlls/SOs for libtcod are included
 
-At some point i'll do releases with pyinstaller
+After all the dependencies are installed, run
+
+    pip install -r requirements/requirements.txt
+    scons .
+
+In the root directory
+
+This should build all the shared objects that the game depends on(draw_text, mynoise)
 
 # To Run
 
 from the root directory run
 
     ./cave-dweller.py
-
-# Gameplay
-
-#### Digging(and viewable/hidden areas)
-
-![Hidden Areas](media/hidden-areas.gif)
-
-#### Fungus Growth in Fast Mode
-
-![Fungus Growth](media/fungus-growth.gif)
-
-#### An "Overworld"
-
-!["Overworld"](media/4096.png)

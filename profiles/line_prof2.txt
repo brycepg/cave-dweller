@@ -1,0 +1,123 @@
+Timer unit: 1e-06 s
+
+Total time: 0.334197 s
+File: cave_dweller/block.py
+Function: process at line 325
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   325                                               @profile
+   326                                               def process(self):
+   327                                                   """Do block calculations. Manage block objects update"""
+   328       950          994      1.0      0.3          turn = self.world.turn
+   329                                           
+   330                                                   #log.info("Process block %dx%d", self.idx, self.idy)
+   331     17216        11322      0.7      3.4          for a_entity in list(self.entity_list):
+   332     16266        10220      0.6      3.1              if a_entity.last_move_turn >= turn:
+   333        10            3      0.3      0.0                  continue
+   334     16256         7768      0.5      2.3              a_entity.last_move_turn = turn
+   335     16256         7981      0.5      2.4              if not a_entity.is_dead:
+   336     16238       295870     18.2     88.5                  a_entity.process(self)
+   337                                                       else:
+   338        18           39      2.2      0.0                  a_entity.decompose(self)
+
+Total time: 8.96141 s
+File: cave_dweller/block.py
+Function: draw_block at line 340
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   340                                               @profile
+   341                                               def draw_block(self):
+   342                                                   """ Draw block terrain.
+   343                                                   Call assumption: The block needs to be in the drawable area
+   344                                                   """
+   345       204          297      1.5      0.0          map_size = Game.map_size
+   346                                           
+   347       204          312      1.5      0.0          block_abs_x_min = map_size * self.idx
+   348       204          236      1.2      0.0          block_abs_y_min = map_size * self.idy
+   349                                           
+   350       204          280      1.4      0.0          block_abs_x_max = map_size * (self.idx+1) - 1
+   351       204          259      1.3      0.0          block_abs_y_max = map_size * (self.idy+1) - 1
+   352                                           
+   353       204          529      2.6      0.0          draw_x_min_abs = max(block_abs_x_min, Game.min_x)
+   354       204          296      1.5      0.0          draw_y_min_abs = max(block_abs_y_min, Game.min_y)
+   355       204          387      1.9      0.0          draw_x_max_abs = min(block_abs_x_max, Game.max_x)
+   356       204          265      1.3      0.0          draw_y_max_abs = min(block_abs_y_max, Game.max_y)
+   357                                           
+   358       204          252      1.2      0.0          loc_x_min = draw_x_min_abs % map_size
+   359       204          214      1.0      0.0          loc_y_min = draw_y_min_abs % map_size
+   360                                           
+   361       204          224      1.1      0.0          loc_x_max = draw_x_max_abs % map_size
+   362       204          211      1.0      0.0          loc_y_max = draw_y_max_abs % map_size
+   363                                           
+   364       204          231      1.1      0.0          idx = self.idx
+   365       204          244      1.2      0.0          idy = self.idy
+   366                                           
+   367       204          272      1.3      0.0          view_x = Game.view_x
+   368       204          239      1.2      0.0          view_y = Game.view_y
+   369       204          215      1.1      0.0          game_con = Game.game_con
+   370                                           
+   371                                                   #get_tile = self.get_tile
+   372       204          221      1.1      0.0          tile_lookup = Tiles.tile_lookup
+   373       204          239      1.2      0.0          tiles = self.tiles
+   374       204          206      1.0      0.0          entities = self.entities
+   375       204          329      1.6      0.0          init_hidden = hidden_map_handler.init_hidden
+   376                                           
+   377       204          717      3.5      0.0          y_range = range(loc_y_min, loc_y_max+1)
+   378       204          278      1.4      0.0          hidden_map = self.hidden_map
+   379                                           
+   380                                                   #update_hidden_flood = hidden_map_handler.update_hidden_flood
+   381                                                   # Figure out start, end location of tiles which need to be drawn
+   382                                                   # for this block
+   383                                                   # +1 makes bound inclusive
+   384                                           
+   385     10098        10517      1.0      0.1          for x_row in xrange(loc_x_min, loc_x_max+1):
+   386      9894        10794      1.1      0.1              abs_x = map_size * idx + x_row
+   387      9894         9904      1.0      0.1              x_loc = abs_x - view_x
+   388      9894        11038      1.1      0.1              x_tiles = tiles[x_row]
+   389      9894        10300      1.0      0.1              hidden_slice = hidden_map[x_row]
+   390      9894        10961      1.1      0.1              entity_slice = entities[x_row]
+   391    514488       538935      1.0      6.0              for y_column in y_range:
+   392    504594       561272      1.1      6.3                  abs_y = map_size * idy + y_column
+   393    504594       554164      1.1      6.2                  cur_tile = tile_lookup[x_tiles[y_column]]
+   394                                           
+   395    504594       622132      1.2      6.9                  draw_char = cur_tile.char
+   396    504594       583946      1.2      6.5                  bg = cur_tile.bg
+   397    504594       562849      1.1      6.3                  fg = cur_tile.fg
+   398                                                           # TODO move in block gen
+   399                                                           # Update hidden map on the fly
+   400    504594       533495      1.1      6.0                  if hidden_slice[y_column] is None:
+   401                                                               #if not self.get_tile(x_row, y_column).adjacent_hidden:
+   402                                                               #    update_hidden_flood(self, x_row, y_column, cur_adj_hidden=True, timeout_radius=10)
+   403                                                               #else:
+   404      5335        63928     12.0      0.7                      init_hidden(self, x_row, y_column, cur_tile)
+   405                                           
+   406                                                           #if cur_tile.attributes:
+   407                                                           #    chars = cur_tile.attributes.get('alternative_characters')
+   408                                                           #    if chars:
+   409                                                           #        char_choice = 2
+   410                                                           #        if char_choice != len(chars):
+   411                                                           #            draw_char = chars[char_choice]
+   412                                                           #        else:
+   413                                                           #            draw_char = cur_tile.char
+   414                                           
+   415                                                           # Draw top entity
+   416    504594       519804      1.0      5.8                  entity_cell = entity_slice[y_column]
+   417    504594       508919      1.0      5.7                  if entity_cell:
+   418       493          637      1.3      0.0                      obj = entity_cell[-1]
+   419       493          732      1.5      0.0                      draw_char = obj.char
+   420       493          715      1.5      0.0                      if obj.fg:
+   421       493          505      1.0      0.0                          fg = obj.fg
+   422       493          626      1.3      0.0                      if obj.bg:
+   423                                                                   bg = obj.bg
+   424                                           
+   425    504594       513970      1.0      5.7                  if hidden_slice[y_column]:
+   426    393891       392427      1.0      4.4                      draw_char = 32
+   427    393891       405516      1.0      4.5                      bg = wall_bg
+   428                                           
+   429    504594       503197      1.0      5.6                  put_char_ex(game_con,
+   430    504594       491596      1.0      5.5                          x_loc,
+   431    504594       502432      1.0      5.6                          abs_y - view_y,
+   432    504594      1029151      2.0     11.5                          draw_char, fg, bg)
+

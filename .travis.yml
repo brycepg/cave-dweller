@@ -1,0 +1,26 @@
+language: python
+python:
+    - "2.7"
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install sdl1.2debian -y
+    - sudo apt-get install libsdl-ttf2.0-dev -y
+    - sudo apt-get install scons
+install:
+    - scons .
+    - pip install -r requirements/travis-requirements.txt
+    - pip install pylint
+    - pip install coveralls
+
+script:
+     make coverage_travis
+
+after_success:
+     coveralls
+
+notifications:
+    email:
+        reipients:
+            - azrathud@gmail.com
+        on_success: change
+        on_failure: always

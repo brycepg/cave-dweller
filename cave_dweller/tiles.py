@@ -1,8 +1,9 @@
 """Collection of nametuples defining attributes for game tiles, and ids which
 reference those attributes in a lookup table
 """
-import colors
 from collections import namedtuple
+
+from . import colors
 
 ground_bg = colors.darkest_gray
 ground_fg = colors.gray
@@ -10,7 +11,11 @@ ground_fg = colors.gray
 wall_bg = colors.gray
 wall_fg = colors.white
 
-Tile = namedtuple('Tile', 
+# pylint: disable=dangerous-default-value, bad-continuation, bad-whitespace, line-too-long
+# This pylint thinks color reference is 'dangerous' because it is an object.
+# It is not
+# continuation - used to align names with defaults
+Tile = namedtuple('Tile',
     ['char', 'is_obstacle', 'fg', 'bg', 'adjacent_hidden', 'diggable', 'buildable', 'attributes', 'name']
 )
 Tile.__new__.__defaults__ = \
@@ -26,20 +31,20 @@ class Id(object):
 
     any_ground = [ground, ground2, ground3]
 
-class Tiles:
+class Tiles(object):
     """Defines all the tiles."""
     #TODO: offload to configuration files
 
     # Permutation of characters
-    ground  = Tile('-', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
-    ground2 = Tile('.', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
-    ground3 = Tile('`', is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground  = Tile(ord('-'), is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground2 = Tile(ord('.'), is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
+    ground3 = Tile(ord('`'), is_obstacle=False, fg=ground_fg, bg=ground_bg, buildable=True, attributes={'build': [Id.build1]}, name="Ground")
 
-    wall = Tile('x', is_obstacle=True, fg=wall_fg, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
+    wall = Tile(ord('x'), is_obstacle=True, fg=wall_fg, bg=wall_bg, adjacent_hidden=True, diggable=True, attributes={'dig': [Id.dig1]}, name="Limestone")
 
-    build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
-    build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
-    build3 = Tile(char=178, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True,  diggable=True, attributes={'build': [Id.wall],   'dig': [Id.build2]})
+    build1 = Tile(char=176, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True, diggable=True, attributes={'build': [Id.build2], 'dig': Id.any_ground})
+    build2 = Tile(char=177, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True, diggable=True, attributes={'build': [Id.build3], 'dig': [Id.build1]})
+    build3 = Tile(char=178, is_obstacle=False, fg=wall_bg, bg=ground_bg, buildable=True, diggable=True, attributes={'build': [Id.wall],   'dig': [Id.build2]})
 
     dig1 = Tile(char=178, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': [Id.dig2], 'build': [Id.wall]})
     dig2 = Tile(char=177, is_obstacle=True, fg=wall_bg, bg=ground_bg, adjacent_hidden=True, buildable=True, diggable=True, attributes={'dig': [Id.dig3], 'build': [Id.dig1]})

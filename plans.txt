@@ -1,4 +1,7 @@
 -- Todo --
+|Unittest everything
+|Use sqlite3 for serialization instead of shelve
+|Queue/Event system for all entity actions
 |Use mouse for movement
 |mouse actions
 |Add system for mutli-turn movements(Like diagnal movement)
