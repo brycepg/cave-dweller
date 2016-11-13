@@ -1,16 +1,16 @@
 """Container for World class"""
-import time
 import random
 import logging
+
+import libtcodpy as libtcod
 
 from tiles import Tiles
 from tiles import Id
 from block import Block
 from game import Game
+import gen_map
 
 log = logging.getLogger(__name__)
-
-import gen_map
 
 class GetOutOfLoop(Exception):
     """Exception used to break out of multiple for-loops"""

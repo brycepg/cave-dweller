@@ -1,0 +1,6 @@
+| Generate fov map for the current viewable area using libtcod
+| Generate path from map
+| get map coordinates
+| convert coordinates into local coordinates using min_x min_y as ancorpoint
+| move character along path
+
